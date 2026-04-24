@@ -595,7 +595,7 @@ stack.push([nr,nc]);
 });
 }
 
-if (group.length >= 3) {
+if (group.length >= 4) {
 group.forEach(([gr,gc]) => matched.add(`${gr},${gc}`));
 }
 }
@@ -713,7 +713,7 @@ stack.push([nr,nc]);
 }
 
 /* 1個だけなら消せない */
-if (targets.length < 2) {
+if (targets.length < 4) {
 processing = false;
 return;
 }
