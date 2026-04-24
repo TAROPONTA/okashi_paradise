@@ -676,62 +676,7 @@ await sleep(330);
 await processMatches(chain + 1);
 }
 
-async function onCellClick(e) {
-if (!gameRunning || processing) return;
-
-processing = true;
-playClickSound();
-
-const r = +e.currentTarget.dataset.r;
-const c = +e.currentTarget.dataset.c;
-
-const type = grid[r][c];
-const targets = [];
-const visited = Array.from({length: ROWS}, () => Array(COLS).fill(false));
-const stack = [[r,c]];
-visited[r][c] = true;
-
-while (stack.length) {
-const [cr, cc] = stack.pop();
-targets.push([cr,cc]);
-
-[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc]) => {
-const nr = cr + dr;
-const nc = cc + dc;
-
-if (
-nr >= 0 && nr < ROWS &&
-nc >= 0 && nc < COLS &&
-!visited[nr][nc] &&
-grid[nr][nc] === type
-) {
-visited[nr][nc] = true;
-stack.push([nr,nc]);
-}
-});
-}
-
-if (targets.length < 2) {
-processing = false;
-return;
-}
-
 targets.forEach(([tr,tc]) => {
-grid[tr][tc] = -1;
-});
-
-renderGrid();
-await sleep(150);
-
-const dropping = applyGravity();
-renderGrid(dropping);
-
-await sleep(300);
-
-await processMatches(0);
-
-processing = false;
-}
 
 function updateTimerUI() {
 const pct = (timeLeft / maxTime) * 100;
