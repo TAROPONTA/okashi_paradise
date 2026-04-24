@@ -564,28 +564,43 @@ g.appendChild(div);
 
 function findMatches() {
 const matched = new Set();
-// 横
+const visited = Array.from({length: ROWS}, () => Array(COLS).fill(false));
+
 for (let r = 0; r < ROWS; r++) {
-let run = 1;
-for (let c = 1; c <= COLS; c++) {
-if (c < COLS && grid[r][c] === grid[r][c-1] && grid[r][c] !== -1) { run++; }
-else {
-if (run >= MATCH_COUNT) for (let k = c-run; k < c; k++) matched.add(`${r},${k}`);
-run = 1;
-}
-}
-}
-// 縦
 for (let c = 0; c < COLS; c++) {
-let run = 1;
-for (let r = 1; r <= ROWS; r++) {
-if (r < ROWS && grid[r][c] === grid[r-1][c] && grid[r][c] !== -1) { run++; }
-else {
-if (run >= MATCH_COUNT) for (let k = r-run; k < r; k++) matched.add(`${k},${c}`);
-run = 1;
+if (visited[r][c] || grid[r][c] === -1) continue;
+
+const type = grid[r][c];
+const group = [];
+const stack = [[r,c]];
+visited[r][c] = true;
+
+while (stack.length) {
+const [cr, cc] = stack.pop();
+group.push([cr,cc]);
+
+[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc]) => {
+const nr = cr + dr;
+const nc = cc + dc;
+
+if (
+nr >= 0 && nr < ROWS &&
+nc >= 0 && nc < COLS &&
+!visited[nr][nc] &&
+grid[nr][nc] === type
+) {
+visited[nr][nc] = true;
+stack.push([nr,nc]);
+}
+});
+}
+
+if (group.length >= 3) {
+group.forEach(([gr,gc]) => matched.add(`${gr},${gc}`));
 }
 }
 }
+
 return matched;
 }
 
@@ -663,21 +678,58 @@ await processMatches(chain + 1);
 
 async function onCellClick(e) {
 if (!gameRunning || processing) return;
+
 processing = true;
 playClickSound();
 
 const r = +e.currentTarget.dataset.r;
 const c = +e.currentTarget.dataset.c;
 
-grid[r][c] = randomType();
-timeLeft = Math.max(0, timeLeft - 1.5);
-updateTimerUI();
+const type = grid[r][c];
+const targets = [];
+const visited = Array.from({length: ROWS}, () => Array(COLS).fill(false));
+const stack = [[r,c]];
+visited[r][c] = true;
 
-renderGrid(new Set([`${r},${c}`]));
+while (stack.length) {
+const [cr, cc] = stack.pop();
+targets.push([cr,cc]);
+
+[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc]) => {
+const nr = cr + dr;
+const nc = cc + dc;
+
+if (
+nr >= 0 && nr < ROWS &&
+nc >= 0 && nc < COLS &&
+!visited[nr][nc] &&
+grid[nr][nc] === type
+) {
+visited[nr][nc] = true;
+stack.push([nr,nc]);
+}
+});
+}
+
+if (targets.length < 2) {
+processing = false;
+return;
+}
+
+targets.forEach(([tr,tc]) => {
+grid[tr][tc] = -1;
+});
+
+renderGrid();
 await sleep(150);
 
+const dropping = applyGravity();
+renderGrid(dropping);
+
+await sleep(300);
+
 await processMatches(0);
-renderGrid(null);
+
 processing = false;
 }
 
