@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍪 クッキーパズル</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg: #fdf4e7;
+--accent: #f4845f;
+--accent2: #6ec6a0;
+--text: #3d2b1f;
+--shadow: rgba(180,120,60,0.12);
+--muted: #c4956a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+background: var(--bg);
+font-family: 'Nunito', sans-serif;
+color: var(--text);
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+}
+
+body::before {
+content: '';
+position: fixed; inset: 0;
+background:
+radial-gradient(circle at 15% 20%, #fde8d8 0%, transparent 45%),
+radial-gradient(circle at 85% 75%, #dff5ea 0%, transparent 45%),
+radial-gradient(circle at 50% 50%, #fff8ee 0%, transparent 70%);
+z-index: 0;
+}
+
+.container {
+position: relative; z-index: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 14px;
+padding: 20px;
+}
+
+h1 {
+font-family: 'Fredoka One', cursive;
+font-size: 2.4rem;
+color: var(--accent);
+letter-spacing: 2px;
+text-shadow: 3px 3px 0 #fde0d0;
+}
+
+.game-wrapper {
+display: flex;
+gap: 28px;
+align-items: flex-start;
+}
+
+/* ── GRID ── */
+#grid {
+display: grid;
+grid-template-columns: repeat(7, 62px);
+grid-template-rows: repeat(9, 62px);
+gap: 6px;
+}
+
+.cell {
+width: 62px; height: 62px;
+border-radius: 16px;
+display: flex; align-items: center; justify-content: center;
+font-size: 2.1rem;
+cursor: pointer;
+user-select: none;
+position: relative;
+/* 背景なし・枠なし → 影だけで浮かせる */
+background: transparent;
+transition: transform 0.12s, filter 0.12s;
+filter: drop-shadow(0 4px 6px rgba(120,60,0,0.18));
+}
+
+.cell:hover {
+transform: scale(1.18) rotate(-3deg);
+filter: drop-shadow(0 6px 10px rgba(120,60,0,0.28));
+z-index: 2;
+}
+
+.cell:active { transform: scale(0.92); }
+
+.cell.matched {
+animation: matchBurst 0.38s ease forwards;
+}
+
+.cell.dropping {
+animation: dropIn 0.32s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+@keyframes matchBurst {
+0% { transform: scale(1); opacity: 1; filter: brightness(1); }
+35% { transform: scale(1.4); opacity: 1; filter: brightness(1.6); }
+100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes dropIn {
+from { transform: translateY(-70px) scale(0.7); opacity: 0; }
+to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* ── SIDE PANEL ── */
+.side-panel {
+display: flex;
+flex-direction: column;
+gap: 14px;
+width: 136px;
+padding-top: 4px;
+}
+
+.score-block {
+text-align: center;
+}
+
+.score-label {
+font-size: 0.72rem;
+font-weight: 800;
+color: var(--muted);
+text-transform: uppercase;
+letter-spacing: 1.5px;
+margin-bottom: 2px;
+}
+
+.score-value {
+font-family: 'Fredoka One', cursive;
+font-size: 2.6rem;
+color: var(--accent);
+line-height: 1;
+text-shadow: 2px 2px 0 #fde0d0;
+}
+
+/* Timer */
+.timer-block { text-align: center; }
+
+.timer-label {
+font-size: 0.72rem;
+font-weight: 800;
+color: var(--muted);
+text-transform: uppercase;
+letter-spacing: 1.5px;
+margin-bottom: 6px;
+}
+
+.timer-track {
+width: 100%;
+height: 16px;
+background: rgba(180,120,60,0.15);
+border-radius: 99px;
+overflow: hidden;
+margin-bottom: 6px;
+}
+
+#timer-fill {
+height: 100%;
+width: 100%;
+background: linear-gradient(90deg, #f4845f, #e8bc5a);
+border-radius: 99px;
+transition: width 0.18s linear, background 0.5s;
+}
+
+.timer-text {
+font-family: 'Fredoka One', cursive;
+font-size: 1.5rem;
+color: var(--accent);
+}
+
+/* Divider */
+.divider {
+width: 100%;
+height: 1px;
+background: linear-gradient(90deg, transparent, rgba(180,120,60,0.2), transparent);
+}
+
+/* Buttons */
+.btn {
+font-family: 'Fredoka One', cursive;
+font-size: 1.05rem;
+background: var(--accent);
+color: #fff;
+border: none;
+border-radius: 14px;
+padding: 11px 0;
+width: 100%;
+cursor: pointer;
+box-shadow: 0 4px 0 #c95c3a;
+transition: transform 0.1s, box-shadow 0.1s;
+letter-spacing: 0.5px;
+}
+
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #c95c3a; }
+.btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #c95c3a; }
+
+.btn.green {
+background: var(--accent2);
+box-shadow: 0 4px 0 #4a9f7a;
+}
+.btn.green:hover { box-shadow: 0 6px 0 #4a9f7a; }
+.btn.green:active { box-shadow: 0 2px 0 #4a9f7a; }
+
+/* Mute toggle */
+.mute-btn {
+background: none;
+border: none;
+cursor: pointer;
+font-size: 1.5rem;
+opacity: 0.7;
+transition: opacity 0.15s, transform 0.1s;
+align-self: center;
+}
+.mute-btn:hover { opacity: 1; transform: scale(1.15); }
+
+/* ── COMBO ── */
+#combo-display {
+position: fixed;
+top: 46%; left: 50%;
+transform: translate(-50%, -50%);
+font-family: 'Fredoka One', cursive;
+font-size: 3.8rem;
+color: var(--accent);
+text-shadow: 3px 3px 0 #fff, 6px 6px 0 #fde0d0;
+opacity: 0;
+pointer-events: none;
+z-index: 100;
+}
+
+/* ── PARTICLES ── */
+.particles {
+position: fixed; inset: 0;
+pointer-events: none; z-index: 50;
+overflow: hidden;
+}
+
+.particle {
+position: absolute;
+font-size: 1.6rem;
+animation: floatUp 0.9s ease-out forwards;
+pointer-events: none;
+}
+
+@keyframes floatUp {
+from { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+to { opacity: 0; transform: translateY(-90px) rotate(30deg) scale(0.4); }
+}
+
+/* ── GAME OVER ── */
+#gameover {
+display: none;
+position: fixed; inset: 0;
+background: rgba(253,244,231,0.93);
+z-index: 200;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 18px;
+backdrop-filter: blur(6px);
+}
+
+#gameover.show { display: flex; }
+
+#gameover h2 {
+font-family: 'Fredoka One', cursive;
+font-size: 3.5rem;
+color: var(--accent);
+text-shadow: 3px 3px 0 #fde0d0;
+}
+
+#gameover .go-label {
+font-size: 0.9rem; color: var(--muted);
+font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+}
+
+#gameover .final-score {
+font-family: 'Fredoka One', cursive;
+font-size: 5rem;
+color: var(--text);
+line-height: 1;
+}
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+<div id="combo-display"></div>
+
+<div class="container">
+<h1>🍪 クッキーパズル</h1>
+
+<div class="game-wrapper">
+
+<div id="grid"></div>
+
+<div class="side-panel">
+<div class="score-block">
+<div class="score-label">スコア</div>
+<div class="score-value" id="score">0</div>
+</div>
+
+<div class="divider"></div>
+
+<div class="timer-block">
+<div class="timer-label">⏱ タイム</div>
+<div class="timer-track">
+<div id="timer-fill"></div>
+</div>
+<div class="timer-text" id="timer-text">60</div>
+</div>
+
+<div class="divider"></div>
+
+<button class="btn" id="start-btn" onclick="startGame()">▶ スタート</button>
+<button class="btn green" onclick="resetGame()">↺ リセット</button>
+<button class="mute-btn" id="mute-btn" onclick="toggleMute()" title="ミュート">🔊</button>
+</div>
+
+</div>
+</div>
+
+<div id="gameover">
+<h2>🍪 ゲームオーバー</h2>
+<div class="go-label">最終スコア</div>
+<div class="final-score" id="final-score">0</div>
+<button class="btn" style="width:200px;" onclick="resetGame()">もう一度あそぶ</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+WEB AUDIO ENGINE
+═══════════════════════════════════════════ */
+let audioCtx = null;
+let muted = false;
+let bgmNodes = {}; // 再生中のBGMノード群
+
+function getCtx() {
+if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+return audioCtx;
+}
+
+// マスターボリューム
+function masterGain(ctx, vol = 0.22) {
+const g = ctx.createGain();
+g.gain.value = vol;
+g.connect(ctx.destination);
+return g;
+}
+
+// 基本のオシレーター音
+function playTone(freq, type, dur, vol, startTime, ctx, dest) {
+const osc = ctx.createOscillator();
+const gain = ctx.createGain();
+osc.type = type;
+osc.frequency.setValueAtTime(freq, startTime);
+gain.gain.setValueAtTime(vol, startTime);
+gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);
+osc.connect(gain);
+gain.connect(dest);
+osc.start(startTime);
+osc.stop(startTime + dur);
+}
+
+// 消去効果音: キラキラポップ
+function playClearSound(chain = 0) {
+if (muted) return;
+const ctx = getCtx();
+const out = masterGain(ctx, 0.3);
+const now = ctx.currentTime;
+// 上昇アルペジオ
+const base = 520 + chain * 80;
+const notes = [base, base * 1.26, base * 1.5, base * 2];
+notes.forEach((f, i) => {
+playTone(f, 'sine', 0.18, 0.5, now + i * 0.055, ctx, out);
+// shimmer (triangle)
+playTone(f * 2, 'triangle', 0.12, 0.18, now + i * 0.055 + 0.02, ctx, out);
+});
+// チャイム的な余韻
+playTone(base * 3, 'sine', 0.4, 0.2, now + 0.22, ctx, out);
+}
+
+// クリック音: ポップ
+function playClickSound() {
+if (muted) return;
+const ctx = getCtx();
+const out = masterGain(ctx, 0.25);
+const now = ctx.currentTime;
+playTone(440, 'sine', 0.06, 0.6, now, ctx, out);
+playTone(660, 'triangle', 0.05, 0.4, now+0.03, ctx, out);
+}
+
+// コンボ音: 高揚感
+function playComboSound(chain) {
+if (muted) return;
+const ctx = getCtx();
+const out = masterGain(ctx, 0.32);
+const now = ctx.currentTime;
+const scale = [523,659,784,1047,1319];
+const top = Math.min(chain + 2, scale.length - 1);
+for (let i = 0; i <= top; i++) {
+playTone(scale[i], 'sine', 0.22, 0.55, now + i*0.07, ctx, out);
+playTone(scale[i]*1.5, 'triangle', 0.12, 0.3, now + i*0.07+0.01, ctx, out);
+}
+}
+
+// ゲームオーバー音
+function playGameoverSound() {
+if (muted) return;
+const ctx = getCtx();
+const out = masterGain(ctx, 0.28);
+const now = ctx.currentTime;
+[440,392,349,294,261].forEach((f, i) => {
+playTone(f, 'sine', 0.25, 0.5, now + i * 0.12, ctx, out);
+});
+}
+
+/* ── BGM: かわいいポップなループ ── */
+function startBGM() {
+if (muted) return;
+stopBGM();
+const ctx = getCtx();
+// テンポ
+const bpm = 128;
+const beat = 60 / bpm;
+// メロディ音符 (音程, 長さ(拍))
+const melody = [
+[523,1],[659,1],[784,1],[880,0.5],[784,0.5],
+[659,1],[523,1],[392,2],
+[440,1],[523,1],[659,1],[784,0.5],[880,0.5],
+[784,1],[659,1],[523,2],
+[784,1],[880,1],[1047,1],[880,0.5],[784,0.5],
+[659,1],[523,1],[440,2],
+[523,1],[659,1],[784,1],[659,0.5],[523,0.5],
+[392,1],[440,1],[523,3],
+];
+// ベース音符
+const bass = [
+[131,2],[165,2],[196,2],[220,2],
+[131,2],[165,2],[196,2],[220,2],
+[175,2],[220,2],[261,2],[220,2],
+[131,2],[165,2],[196,4],
+];
+
+const melOut = masterGain(ctx, 0.13);
+const bassOut = masterGain(ctx, 0.09);
+const hihatOut = masterGain(ctx, 0.06);
+
+// ループ長計算
+const totalBeats = melody.reduce((s, n) => s + n[1], 0);
+const loopDur = totalBeats * beat;
+
+function scheduleMelody(startAt) {
+let t = startAt;
+melody.forEach(([freq, dur]) => {
+playTone(freq, 'sine', dur * beat * 0.85, 0.55, t, ctx, melOut);
+t += dur * beat;
+});
+}
+
+function scheduleBass(startAt) {
+let t = startAt;
+bass.forEach(([freq, dur]) => {
+playTone(freq, 'triangle', dur * beat * 0.7, 0.65, t, ctx, bassOut);
+t += dur * beat;
+});
+}
+
+function scheduleHihat(startAt) {
+// 16th note hihat
+const steps = totalBeats * 4;
+for (let i = 0; i < steps; i++) {
+const t = startAt + i * beat * 0.25;
+const vol = i % 2 === 0 ? 0.45 : 0.2;
+playTone(8000 + Math.random()*2000, 'sawtooth', 0.025, vol, t, ctx, hihatOut);
+}
+}
+
+let loopStart = ctx.currentTime + 0.05;
+
+function loop() {
+scheduleMelody(loopStart);
+scheduleBass(loopStart);
+scheduleHihat(loopStart);
+loopStart += loopDur;
+}
+
+loop();
+// 2ループ先取りスケジュール、以降インターバルで継続
+loop();
+bgmNodes.interval = setInterval(() => {
+if (!muted && bgmNodes.interval) loop();
+}, loopDur * 1000 - 200);
+}
+
+function stopBGM() {
+if (bgmNodes.interval) {
+clearInterval(bgmNodes.interval);
+bgmNodes.interval = null;
+}
+}
+
+function toggleMute() {
+muted = !muted;
+document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
+if (muted) {
+stopBGM();
+} else if (gameRunning) {
+startBGM();
+}
+}
+
+/* ═══════════════════════════════════════════
+GAME LOGIC
+═══════════════════════════════════════════ */
+const COLS = 7, ROWS = 9;
+const COOKIES = ['🍪','🧁','🍩','🍰','🍫','🍬'];
+const MATCH_COUNT = 4;
+
+let grid = [];
+let score = 0;
+let timeLeft = 60;
+let maxTime = 60;
+let timerInterval = null;
+let gameRunning = false;
+let processing = false;
+
+function el(id) { return document.getElementById(id); }
+
+function randomType() { return Math.floor(Math.random() * COOKIES.length); }
+
+function initGrid() {
+grid = [];
+for (let r = 0; r < ROWS; r++) {
+grid[r] = [];
+for (let c = 0; c < COLS; c++) grid[r][c] = randomType();
+}
+}
+
+function renderGrid(droppingSet) {
+const g = el('grid');
+g.innerHTML = '';
+for (let r = 0; r < ROWS; r++) {
+for (let c = 0; c < COLS; c++) {
+const t = grid[r][c];
+const div = document.createElement('div');
+div.className = 'cell';
+if (droppingSet && droppingSet.has(`${r},${c}`)) div.classList.add('dropping');
+div.textContent = COOKIES[t];
+div.dataset.r = r;
+div.dataset.c = c;
+div.addEventListener('click', onCellClick);
+g.appendChild(div);
+}
+}
+}
+
+function findMatches() {
+const matched = new Set();
+// 横
+for (let r = 0; r < ROWS; r++) {
+let run = 1;
+for (let c = 1; c <= COLS; c++) {
+if (c < COLS && grid[r][c] === grid[r][c-1] && grid[r][c] !== -1) { run++; }
+else {
+if (run >= MATCH_COUNT) for (let k = c-run; k < c; k++) matched.add(`${r},${k}`);
+run = 1;
+}
+}
+}
+// 縦
+for (let c = 0; c < COLS; c++) {
+let run = 1;
+for (let r = 1; r <= ROWS; r++) {
+if (r < ROWS && grid[r][c] === grid[r-1][c] && grid[r][c] !== -1) { run++; }
+else {
+if (run >= MATCH_COUNT) for (let k = r-run; k < r; k++) matched.add(`${k},${c}`);
+run = 1;
+}
+}
+}
+return matched;
+}
+
+function applyGravity() {
+const dropping = new Set();
+for (let c = 0; c < COLS; c++) {
+let write = ROWS - 1;
+for (let r = ROWS - 1; r >= 0; r--) {
+if (grid[r][c] !== -1) {
+if (write !== r) dropping.add(`${write},${c}`);
+grid[write][c] = grid[r][c];
+write--;
+}
+}
+for (let r = write; r >= 0; r--) {
+grid[r][c] = randomType();
+dropping.add(`${r},${c}`);
+}
+}
+return dropping;
+}
+
+async function processMatches(chain) {
+const matched = findMatches();
+if (matched.size === 0) { processing = false; return; }
+
+// 光らせる
+const cells = el('grid').querySelectorAll('.cell');
+matched.forEach(key => {
+const [r, c] = key.split(',').map(Number);
+cells[r * COLS + c]?.classList.add('matched');
+});
+
+// 音
+playClearSound(chain);
+await sleep(350);
+
+// 消去
+matched.forEach(key => {
+const [r, c] = key.split(',').map(Number);
+grid[r][c] = -1;
+});
+
+// スコア・タイム
+const gain = matched.size * 10 * (chain + 1);
+score += gain;
+el('score').textContent = score;
+timeLeft = Math.min(maxTime, timeLeft + Math.floor(matched.size * 0.8));
+updateTimerUI();
+
+// コンボ
+if (chain > 0) {
+showCombo(chain + 1);
+playComboSound(chain);
+}
+
+// パーティクル
+const gridEl = el('grid');
+const gridRect = gridEl.getBoundingClientRect();
+matched.forEach(key => {
+const [r, c] = key.split(',').map(Number);
+const x = gridRect.left + c * 68 + 31;
+const y = gridRect.top + r * 68 + 31;
+spawnParticle(x, y);
+});
+
+await sleep(100);
+
+const dropping = applyGravity();
+renderGrid(dropping);
+await sleep(330);
+
+await processMatches(chain + 1);
+}
+
+async function onCellClick(e) {
+if (!gameRunning || processing) return;
+processing = true;
+playClickSound();
+
+const r = +e.currentTarget.dataset.r;
+const c = +e.currentTarget.dataset.c;
+
+grid[r][c] = randomType();
+timeLeft = Math.max(0, timeLeft - 1.5);
+updateTimerUI();
+
+renderGrid(new Set([`${r},${c}`]));
+await sleep(150);
+
+await processMatches(0);
+renderGrid(null);
+processing = false;
+}
+
+function updateTimerUI() {
+const pct = (timeLeft / maxTime) * 100;
+el('timer-fill').style.width = pct + '%';
+el('timer-fill').style.background =
+pct > 40 ? 'linear-gradient(90deg,#f4845f,#e8bc5a)' :
+pct > 20 ? 'linear-gradient(90deg,#e87040,#e05a2a)' :
+'linear-gradient(90deg,#e02020,#e05a2a)';
+el('timer-text').textContent = Math.ceil(timeLeft);
+}
+
+function startTimer() {
+timerInterval = setInterval(() => {
+if (!gameRunning) return;
+timeLeft -= 0.1;
+if (timeLeft <= 0) { timeLeft = 0; updateTimerUI(); endGame(); }
+else updateTimerUI();
+}, 100);
+}
+
+function startGame() {
+// AudioContext はユーザー操作後でないと動かないのでここで初期化
+getCtx().resume();
+el('start-btn').disabled = true;
+el('start-btn').textContent = '⏳ プレイ中';
+gameRunning = true;
+startTimer();
+startBGM();
+}
+
+function endGame() {
+gameRunning = false;
+clearInterval(timerInterval);
+stopBGM();
+playGameoverSound();
+el('final-score').textContent = score;
+el('gameover').classList.add('show');
+}
+
+function resetGame() {
+clearInterval(timerInterval);
+stopBGM();
+gameRunning = false;
+processing = false;
+score = 0;
+timeLeft = 60;
+el('score').textContent = '0';
+el('gameover').classList.remove('show');
+el('start-btn').disabled = false;
+el('start-btn').textContent = '▶ スタート';
+initGrid();
+let tries = 0;
+while (findMatches().size > 0 && tries++ < 20) initGrid();
+renderGrid(null);
+updateTimerUI();
+}
+
+/* ── Combo display ── */
+function showCombo(n) {
+const d = el('combo-display');
+d.textContent = `${n} CHAIN! 🔥`;
+d.style.transition = 'none';
+d.style.opacity = '1';
+d.style.transform = 'translate(-50%,-50%) scale(1.1)';
+requestAnimationFrame(() => requestAnimationFrame(() => {
+d.style.transition = 'opacity 0.7s 0.35s, transform 0.7s 0.35s';
+d.style.opacity = '0';
+d.style.transform = 'translate(-50%,-60%) scale(0.9)';
+}));
+}
+
+/* ── Particles ── */
+function spawnParticle(x, y) {
+const icons = ['✨','⭐','💫','🌟','🎉','🍬'];
+const span = document.createElement('span');
+span.className = 'particle';
+span.textContent = icons[Math.floor(Math.random() * icons.length)];
+span.style.left = (x + (Math.random()-0.5)*50) + 'px';
+span.style.top = (y + (Math.random()-0.5)*20) + 'px';
+el('particles').appendChild(span);
+setTimeout(() => span.remove(), 950);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+resetGame();
+</script>
+</body>
+</html>
