@@ -685,7 +685,13 @@ playClickSound();
 const r = +e.currentTarget.dataset.r;
 const c = +e.currentTarget.dataset.c;
 
-/* 1個だけ食べる */
+/* クリックしたセルを先に演出で消す */
+const cell = e.currentTarget;
+cell.classList.add("matched");
+
+await sleep(250);
+
+/* 実データ削除（必ず1個消える） */
 grid[r][c] = -1;
 
 /* タイム消費 */
@@ -693,14 +699,16 @@ timeLeft = Math.max(0, timeLeft - 1.2);
 updateTimerUI();
 
 renderGrid();
-await sleep(150);
+
+await sleep(100);
 
 /* 落下 */
 const dropping = applyGravity();
 renderGrid(dropping);
-await sleep(250);
 
-/* 自動消去連鎖 */
+await sleep(300);
+
+/* 自動4個消し判定 */
 await processMatches(0);
 
 renderGrid();
