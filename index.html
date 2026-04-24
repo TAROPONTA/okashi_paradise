@@ -553,7 +553,7 @@ const t = grid[r][c];
 const div = document.createElement('div');
 div.className = 'cell';
 if (droppingSet && droppingSet.has(`${r},${c}`)) div.classList.add('dropping');
-div.textContent = COOKIES[t];
+div.textContent = t >= 0 ? COOKIES[t] : '';
 div.dataset.r = r;
 div.dataset.c = c;
 div.addEventListener('click', onCellClick);
@@ -675,8 +675,71 @@ await sleep(330);
 
 await processMatches(chain + 1);
 }
+  
+async function onCellClick(e) {
+if (!gameRunning || processing) return;
 
+processing = true;
+playClickSound();
+
+const r = +e.currentTarget.dataset.r;
+const c = +e.currentTarget.dataset.c;
+const type = grid[r][c];
+
+/* 同じ種類でつながっている塊を取得 */
+const visited = Array.from({length: ROWS}, () => Array(COLS).fill(false));
+const stack = [[r,c]];
+const targets = [];
+visited[r][c] = true;
+
+while (stack.length) {
+const [cr, cc] = stack.pop();
+targets.push([cr,cc]);
+
+[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc]) => {
+const nr = cr + dr;
+const nc = cc + dc;
+
+if (
+nr >= 0 && nr < ROWS &&
+nc >= 0 && nc < COLS &&
+!visited[nr][nc] &&
+grid[nr][nc] === type
+) {
+visited[nr][nc] = true;
+stack.push([nr,nc]);
+}
+});
+}
+
+/* 1個だけなら消せない */
+if (targets.length < 2) {
+processing = false;
+return;
+}
+
+/* 消去 */
 targets.forEach(([tr,tc]) => {
+grid[tr][tc] = -1;
+});
+
+score += targets.length * 12;
+el('score').textContent = score;
+
+renderGrid();
+await sleep(180);
+
+/* 落下 */
+const dropping = applyGravity();
+renderGrid(dropping);
+await sleep(320);
+
+/* 連鎖 */
+await processMatches(0);
+
+renderGrid();
+processing = false;
+}
 
 function updateTimerUI() {
 const pct = (timeLeft / maxTime) * 100;
