@@ -303,7 +303,7 @@ line-height: 1;
 
 <div class="side-panel">
 <div class="score-block">
-<div class="score-label">スコア</div>
+<div class="score-label">食べた数</div>
 <div class="score-value" id="score">0</div>
 </div>
 
@@ -331,7 +331,11 @@ line-height: 1;
 <h2>🍪 ゲームオーバー</h2>
 <div class="go-label">最終スコア</div>
 <div class="final-score" id="final-score">0</div>
-<button class="btn" style="width:200px;" onclick="resetGame()">もう一度あそぶ</button>
+<button class="btn" style="width:220px;" onclick="resetGame()">もう一度あそぶ</button>
+
+<button class="btn green" style="width:220px;" onclick="shareScore()">
+𝕏 スコアをシェア
+</button>
 </div>
 
 <script>
@@ -625,28 +629,35 @@ return dropping;
 
 async function processMatches(chain) {
 const matched = findMatches();
-if (matched.size === 0) { processing = false; return; }
+if (matched.size === 0) {
+processing = false;
+return;
+}
 
-// 光らせる
-const cells = el('grid').querySelectorAll('.cell');
+/* 全対象セルへ確実にエフェクト付与 */
 matched.forEach(key => {
-const [r, c] = key.split(',').map(Number);
-cells[r * COLS + c]?.classList.add('matched');
+const [r,c] = key.split(',').map(Number);
+const target = document.querySelector(
+`.cell[data-r="${r}"][data-c="${c}"]`
+);
+if (target) target.classList.add('matched');
 });
 
-// 音
+/* 効果音 */
 playClearSound(chain);
-await sleep(350);
+
+await sleep(380);
 
 // 消去
 matched.forEach(key => {
 const [r, c] = key.split(',').map(Number);
 grid[r][c] = -1;
+  score += 1;
+el('score').textContent = score;
 });
 
 // スコア・タイム
-const gain = matched.size * 10 * (chain + 1);
-score += gain;
+score += matched.size;
 el('score').textContent = score;
 timeLeft = Math.min(maxTime, timeLeft + Math.floor(matched.size * 0.8));
 updateTimerUI();
@@ -798,6 +809,19 @@ setTimeout(() => span.remove(), 950);
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* Xシェア機能 */
+function shareScore() {
+const text =
+#クッキーパズル で${score}個お菓子を食べたよ！
+あなたは何個いける？
+  
+const url =
+"https://twitter.com/intent/tweet?text=" +
+encodeURIComponent(text);
+
+window.open(url, "_blank");
+}
 
 resetGame();
 </script>
