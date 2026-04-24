@@ -684,57 +684,23 @@ playClickSound();
 
 const r = +e.currentTarget.dataset.r;
 const c = +e.currentTarget.dataset.c;
-const type = grid[r][c];
 
-/* 同じ種類でつながっている塊を取得 */
-const visited = Array.from({length: ROWS}, () => Array(COLS).fill(false));
-const stack = [[r,c]];
-const targets = [];
-visited[r][c] = true;
+/* 1個だけ食べる */
+grid[r][c] = -1;
 
-while (stack.length) {
-const [cr, cc] = stack.pop();
-targets.push([cr,cc]);
-
-[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc]) => {
-const nr = cr + dr;
-const nc = cc + dc;
-
-if (
-nr >= 0 && nr < ROWS &&
-nc >= 0 && nc < COLS &&
-!visited[nr][nc] &&
-grid[nr][nc] === type
-) {
-visited[nr][nc] = true;
-stack.push([nr,nc]);
-}
-});
-}
-
-/* 1個だけなら消せない */
-if (targets.length < 4) {
-processing = false;
-return;
-}
-
-/* 消去 */
-targets.forEach(([tr,tc]) => {
-grid[tr][tc] = -1;
-});
-
-score += targets.length * 12;
-el('score').textContent = score;
+/* タイム消費 */
+timeLeft = Math.max(0, timeLeft - 1.2);
+updateTimerUI();
 
 renderGrid();
-await sleep(180);
+await sleep(150);
 
 /* 落下 */
 const dropping = applyGravity();
 renderGrid(dropping);
-await sleep(320);
+await sleep(250);
 
-/* 連鎖 */
+/* 自動消去連鎖 */
 await processMatches(0);
 
 renderGrid();
