@@ -306,6 +306,12 @@ line-height: 1;
 <div class="score-label">食べた数</div>
 <div class="score-value" id="score">0</div>
 </div>
+<div class="divider"></div>
+
+<div class="score-block">
+<div class="score-label">ハイスコア</div>
+<div class="score-value" id="highscore">0</div>
+</div>
 
 <div class="divider"></div>
 
@@ -331,6 +337,8 @@ line-height: 1;
 <h2>🍪 ゲームオーバー</h2>
 <div class="go-label">最終スコア</div>
 <div class="final-score" id="final-score">0</div>
+<div class="go-label">TODAY RANKING</div>
+<div id="ranking-list"></div>
 <button class="btn" style="width:220px;" onclick="resetGame()">もう一度あそぶ</button>
 
 <button class="btn green" style="width:220px;" onclick="shareScore()">
@@ -427,12 +435,12 @@ playTone(f, 'sine', 0.25, 0.5, now + i * 0.12, ctx, out);
 }
 
 /* ── BGM: かわいいポップなループ ── */
-function startBGM() {
+function startBGM(speed = 1) {
 if (muted) return;
 stopBGM();
 const ctx = getCtx();
 // テンポ
-const bpm = 128;
+const bpm = 128 * speed;
 const beat = 60 / bpm;
 // メロディ音符 (音程, 長さ(拍))
 const melody = [
@@ -532,6 +540,7 @@ let grid = [];
 let score = 0;
 let timeLeft = 60;
 let maxTime = 60;
+let bgmSpeedUp = false;
 let timerInterval = null;
 let gameRunning = false;
 let processing = false;
@@ -652,13 +661,12 @@ await sleep(380);
 matched.forEach(key => {
 const [r, c] = key.split(',').map(Number);
 grid[r][c] = -1;
-  score += 1;
-el('score').textContent = score;
 });
 
 // スコア・タイム
 score += matched.size;
 el('score').textContent = score;
+
 timeLeft = Math.min(maxTime, timeLeft + Math.floor(matched.size * 0.8));
 updateTimerUI();
 
@@ -740,6 +748,11 @@ function startTimer() {
 timerInterval = setInterval(() => {
 if (!gameRunning) return;
 timeLeft -= 0.1;
+if (timeLeft <= 10 && !bgmSpeedUp) {
+bgmSpeedUp = true;
+stopBGM();
+startBGM(1.35);
+}
 if (timeLeft <= 0) { timeLeft = 0; updateTimerUI(); endGame(); }
 else updateTimerUI();
 }, 100);
@@ -760,10 +773,45 @@ gameRunning = false;
 clearInterval(timerInterval);
 stopBGM();
 playGameoverSound();
+
+saveHighScore();
+saveRanking();
+
 el('final-score').textContent = score;
 el('gameover').classList.add('show');
 }
 
+function loadHighScore() {
+const hs = localStorage.getItem("cookieHighScore") || 0;
+el("highscore").textContent = hs;
+}
+
+function saveHighScore() {
+const hs = Number(localStorage.getItem("cookieHighScore") || 0);
+
+if (score > hs) {
+localStorage.setItem("cookieHighScore", score);
+el("highscore").textContent = score;
+}
+}
+function saveRanking() {
+let list = JSON.parse(localStorage.getItem("cookieRanking") || "[]");
+
+list.push(score);
+list.sort((a,b)=>b-a);
+list = list.slice(0,5);
+
+localStorage.setItem("cookieRanking", JSON.stringify(list));
+
+renderRanking(list);
+}
+
+function renderRanking(list) {
+el("ranking-list").innerHTML =
+list.map((s,i)=>
+`${i+1}位　${s}個`
+).join("<br>");
+}
 function resetGame() {
 clearInterval(timerInterval);
 stopBGM();
@@ -780,6 +828,13 @@ let tries = 0;
 while (findMatches().size > 0 && tries++ < 20) initGrid();
 renderGrid(null);
 updateTimerUI();
+
+loadHighScore();
+renderRanking(
+JSON.parse(localStorage.getItem("cookieRanking") || "[]")
+);
+
+bgmSpeedUp = false;
 }
 
 /* ── Combo display ── */
@@ -813,8 +868,15 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 /* Xシェア機能 */
 function shareScore() {
 const text =
-#クッキーパズル で${score}個お菓子を食べたよ！
-あなたは何個いける？
+`#クッキーパズル で${score}個お菓子を食べたよ！
+あなたは何個いける？`;
+
+const url =
+"https://twitter.com/intent/tweet?text=" +
+encodeURIComponent(text);
+
+window.open(url, "_blank");
+}
   
 const url =
 "https://twitter.com/intent/tweet?text=" +
