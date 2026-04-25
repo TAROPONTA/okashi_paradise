@@ -3,569 +3,632 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🍪 クッキーパズル FINAL</title>
-
+<title>🍪 クッキーパズル</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
-
 <style>
 :root{
---bg:#fdf4e7;
---accent:#f4845f;
---accent2:#6ec6a0;
---text:#3d2b1f;
---muted:#c4956a;
+  --bg:#fdf4e7;
+  --accent:#f4845f;
+  --accent2:#6ec6a0;
+  --text:#3d2b1f;
+  --muted:#c4956a;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-font-family:'Nunito',sans-serif;
-background:var(--bg);
-color:var(--text);
-min-height:100vh;
-overflow:auto;
-padding:20px;
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow:auto;
+  padding:20px;
+}
+
+/* ── 背景グラデーション ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(circle at 12% 18%,#fde8d8 0%,transparent 42%),
+    radial-gradient(circle at 88% 78%,#dff5ea 0%,transparent 42%);
+  z-index:0;pointer-events:none;
 }
 
 .container{
-width:max-content;
-margin:0 auto;
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:18px;
+  position:relative;z-index:1;
+  width:max-content;
+  margin:0 auto;
+  display:flex;flex-direction:column;
+  align-items:center;gap:18px;
 }
 
 h1{
-font-family:'Fredoka One',cursive;
-font-size:2.4rem;
-color:var(--accent);
+  font-family:'Fredoka One',cursive;
+  font-size:2.4rem;color:var(--accent);
+  text-shadow:3px 3px 0 #fde0d0;
 }
 
 .wrap{
-display:flex;
-gap:24px;
-align-items:flex-start;
-flex-wrap:wrap;
-justify-content:center;
+  display:flex;gap:24px;
+  align-items:flex-start;
+  flex-wrap:wrap;justify-content:center;
 }
 
+/* ── グリッド: 枠なし・影のみ ── */
 #grid{
-display:grid;
-grid-template-columns:repeat(7,62px);
-grid-template-rows:repeat(9,62px);
-gap:6px;
+  display:grid;
+  grid-template-columns:repeat(7,62px);
+  grid-template-rows:repeat(9,62px);
+  gap:6px;
 }
 
 .cell{
-width:62px;height:62px;
-border-radius:16px;
-background:#fff8f2;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:2rem;
-cursor:pointer;
-user-select:none;
-box-shadow:0 4px 8px rgba(0,0,0,.08);
-transition:.12s;
+  width:62px;height:62px;
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.1rem;
+  cursor:pointer;user-select:none;
+  background:transparent;
+  filter:drop-shadow(0 3px 5px rgba(120,60,0,.2));
+  transition:transform .12s,filter .12s;
 }
-.cell:hover{transform:scale(1.08)}
-.cell.pop{animation:pop .35s forwards}
-.cell.drop{animation:drop .25s}
+.cell:hover{
+  transform:scale(1.14) rotate(-4deg);
+  filter:drop-shadow(0 6px 10px rgba(120,60,0,.3));
+}
+.cell:active{transform:scale(.92)}
 
-@keyframes pop{
-0%{transform:scale(1);opacity:1}
-100%{transform:scale(0);opacity:0}
-}
-@keyframes drop{
-0%{transform:translateY(-35px)}
-100%{transform:translateY(0)}
+/* 消える時のアニメ */
+.cell.pop{animation:burst .38s forwards}
+@keyframes burst{
+  0%  {transform:scale(1);   opacity:1;filter:brightness(1)}
+  40% {transform:scale(1.45);opacity:1;filter:brightness(1.8)}
+  100%{transform:scale(0);   opacity:0}
 }
 
+/* 落下アニメ */
+.cell.drop{animation:dropIn .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes dropIn{
+  from{transform:translateY(-60px) scale(.7);opacity:0}
+  to  {transform:translateY(0)     scale(1); opacity:1}
+}
+
+/* ── サイドパネル ── */
 .panel{
-width:160px;
-display:flex;
-flex-direction:column;
-gap:14px;
+  width:160px;
+  display:flex;flex-direction:column;gap:12px;
 }
+.label{font-size:.78rem;color:var(--muted);font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.value{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-shadow:2px 2px 0 #fde0d0}
 
-.block{text-align:center}
-.label{font-size:.8rem;color:var(--muted);font-weight:800}
-.value{
-font-family:'Fredoka One',cursive;
-font-size:2.4rem;
-color:var(--accent);
-}
+.timerbar{height:16px;border-radius:999px;background:rgba(180,120,60,.15);overflow:hidden}
+#fill{height:100%;width:100%;background:linear-gradient(90deg,#f4845f,#e8bc5a);transition:.15s linear}
 
-.timerbar{
-height:16px;
-border-radius:999px;
-background:#eadbca;
-overflow:hidden;
-}
-#fill{
-height:100%;
-width:100%;
-background:linear-gradient(90deg,#f4845f,#e8bc5a);
-transition:width .1s linear;
-}
+.sep{height:1px;background:linear-gradient(90deg,transparent,rgba(180,120,60,.2),transparent)}
 
+/* ── ボタン ── */
 .btn{
-border:none;
-border-radius:14px;
-padding:12px;
-cursor:pointer;
-font-family:'Fredoka One',cursive;
-color:#fff;
-background:var(--accent);
+  border:none;border-radius:14px;padding:12px;
+  cursor:pointer;
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  color:#fff;background:var(--accent);
+  box-shadow:0 4px 0 #c95c3a;
+  transition:transform .1s,box-shadow .1s;
 }
-.btn.green{background:var(--accent2)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #c95c3a}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #c95c3a}
+.btn.green{background:var(--accent2);box-shadow:0 4px 0 #4a9f7a}
+.btn.green:hover{box-shadow:0 6px 0 #4a9f7a}
+.btn.green:active{box-shadow:0 2px 0 #4a9f7a}
+.btn.x-btn{background:#000;box-shadow:0 4px 0 #333}
+.btn.x-btn:hover{box-shadow:0 6px 0 #333}
+.btn.x-btn:active{box-shadow:0 2px 0 #333}
 
+/* ── コンボ表示 ── */
 #combo{
-position:fixed;
-left:50%;
-top:45%;
-transform:translate(-50%,-50%);
-font-family:'Fredoka One',cursive;
-font-size:3rem;
-color:var(--accent);
-opacity:0;
-pointer-events:none;
-z-index:50;
+  position:fixed;left:50%;top:44%;
+  transform:translate(-50%,-50%);
+  font-family:'Fredoka One',cursive;font-size:3.2rem;
+  color:var(--accent);
+  text-shadow:3px 3px 0 #fff,5px 5px 0 #fde0d0;
+  opacity:0;pointer-events:none;z-index:50;
+  transition:none;
 }
 
-#particles{
-position:fixed;
-inset:0;
-pointer-events:none;
-z-index:40;
-}
-
+/* ── パーティクル ── */
+#particles{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .spark{
-position:absolute;
-font-size:1.5rem;
-animation:fly .8s forwards;
+  position:absolute;
+  font-size:1.6rem;
+  animation:fly .85s ease-out forwards;
+  pointer-events:none;
 }
-
 @keyframes fly{
-0%{opacity:1;transform:translateY(0) scale(1)}
-100%{opacity:0;transform:translateY(-80px) rotate(25deg) scale(.4)}
+  0%  {opacity:1;transform:translateY(0)    rotate(0deg)  scale(1)}
+  100%{opacity:0;transform:translateY(-90px) rotate(30deg) scale(.3)}
 }
 
+/* ── ゲームオーバー画面 ── */
 #gameover{
-position:fixed;
-inset:0;
-display:none;
-background:rgba(255,248,240,.94);
-z-index:60;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-gap:16px;
+  position:fixed;inset:0;
+  display:none;
+  background:rgba(255,248,240,.95);
+  backdrop-filter:blur(6px);
+  z-index:60;
+  justify-content:center;align-items:center;flex-direction:column;gap:14px;
 }
-
 #gameover.show{display:flex}
-
-#gameover h2{
-font-family:'Fredoka One',cursive;
-font-size:3rem;
-color:var(--accent);
+#gameover h2{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--accent);text-shadow:3px 3px 0 #fde0d0}
+#final{font-family:'Fredoka One',cursive;font-size:4.2rem;color:var(--text)}
+.go-label{font-size:.8rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
+#ranking{
+  text-align:center;line-height:2;
+  font-family:'Fredoka One',cursive;
+  font-size:1.1rem;color:var(--muted);
 }
-
-#final{
-font-family:'Fredoka One',cursive;
-font-size:4rem;
-}
-
-#ranking{text-align:center;line-height:1.8}
-
-@media(max-width:800px){
-.wrap{flex-direction:column;align-items:center}
-}
+.go-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 </style>
 </head>
-
 <body>
 
 <div id="combo"></div>
 <div id="particles"></div>
 
 <div class="container">
+  <h1>🍪 クッキーパズル</h1>
 
-<h1>🍪 クッキーパズル FINAL</h1>
+  <div class="wrap">
+    <div id="grid"></div>
 
-<div class="wrap">
+    <div class="panel">
+      <div class="label">食べた数</div>
+      <div class="value" id="score">0</div>
 
-<div id="grid"></div>
+      <div class="label">ハイスコア</div>
+      <div class="value" id="high">0</div>
 
-<div class="panel">
+      <div class="sep"></div>
 
-<div class="block">
-<div class="label">食べた数</div>
-<div class="value" id="score">0</div>
+      <div class="label">⏱ タイム</div>
+      <div class="timerbar"><div id="fill"></div></div>
+      <div class="value" id="time" style="font-size:2rem">60</div>
+
+      <div class="sep"></div>
+
+      <button class="btn"       onclick="startGame()" id="startBtn">▶ スタート</button>
+      <button class="btn green" onclick="resetGame()">↺ リセット</button>
+      <button class="btn"       onclick="toggleMute()" id="muteBtn" style="font-size:1.3rem;padding:8px">🔊</button>
+    </div>
+  </div>
 </div>
 
-<div class="block">
-<div class="label">ハイスコア</div>
-<div class="value" id="high">0</div>
-</div>
-
-<div class="block">
-<div class="label">タイム</div>
-<div class="timerbar"><div id="fill"></div></div>
-<div class="value" id="time" style="font-size:2rem">60</div>
-</div>
-
-<button class="btn" onclick="startGame()" id="startBtn">▶ スタート</button>
-<button class="btn green" onclick="resetGame()">↺ リセット</button>
-<button class="btn" onclick="toggleMute()" id="muteBtn">🔊</button>
-
-</div>
-</div>
-</div>
-
+<!-- ゲームオーバー -->
 <div id="gameover">
-<h2>🍪 ゲームオーバー</h2>
-<div id="final">0</div>
-<div id="ranking"></div>
-<button class="btn" onclick="resetGame()">もう一度あそぶ</button>
-<button class="btn green" onclick="shareScore()">𝕏 シェア</button>
+  <h2>🍪 ゲームオーバー！</h2>
+  <div class="go-label">今回のスコア</div>
+  <div id="final">0</div>
+  <div id="ranking"></div>
+  <div class="go-btns">
+    <button class="btn"   onclick="resetGame()">もう一度 🍪</button>
+    <button class="btn x-btn" onclick="shareX()" id="shareBtn">𝕏 シェア</button>
+  </div>
 </div>
 
 <script>
-const ROWS=9,COLS=7,NEED=4;
+/* ══════════════════════════════════════
+   定数 / 状態
+══════════════════════════════════════ */
+const ROWS=9, COLS=7, NEED=4;
 const ITEMS=['🍪','🧁','🍩','🍰','🍫','🍬'];
 
-let grid=[],score=0,timeLeft=60;
-let running=false,busy=false,timer=null;
-let audioCtx=null,muted=false,bgm=null;
+let grid=[], score=0, timeLeft=60;
+let running=false, busy=false, timer=null;
+let audioCtx=null, muted=false, bgmHandle=null;
 
-/* util */
-function el(id){return document.getElementById(id)}
-function rand(){return Math.floor(Math.random()*ITEMS.length)}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+const el = id => document.getElementById(id);
+const rand = () => Math.floor(Math.random()*ITEMS.length);
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
-/* audio */
-function ctx(){
-if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-return audioCtx;
+/* ══════════════════════════════════════
+   Web Audio
+══════════════════════════════════════ */
+function getCtx(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
 }
 
-function tone(freq,dur=.15,vol=.04,type="sine",delay=0){
-if(muted)return;
-const c=ctx();
-const now=c.currentTime+delay;
-const o=c.createOscillator();
-const g=c.createGain();
-o.type=type;
-o.frequency.value=freq;
-g.gain.setValueAtTime(vol,now);
-g.gain.exponentialRampToValueAtTime(.0001,now+dur);
-o.connect(g);g.connect(c.destination);
-o.start(now);o.stop(now+dur);
+/* 基本音生成 */
+function tone(freq, dur=0.12, vol=0.06, type='sine', delay=0, dest=null){
+  if(muted) return;
+  const c = getCtx();
+  if(!dest) dest = c.destination;
+  const o = c.createOscillator();
+  const g = c.createGain();
+  const t = c.currentTime + delay;
+  o.type = type;
+  o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g); g.connect(dest);
+  o.start(t); o.stop(t+dur);
 }
 
-function clearSound(){
-tone(620,.08,.05);
-tone(880,.1,.04,"triangle",.05);
+/* ── 消去サウンド: キラキラポップ上昇 ── */
+function playClear(chain=0){
+  if(muted) return;
+  const c = getCtx();
+  const master = c.createGain();
+  master.gain.value = 0.4;
+  master.connect(c.destination);
+  const base = 520 + chain*100;
+  const scale = [1, 1.25, 1.5, 2];
+  scale.forEach((r,i)=>{
+    tone(base*r,   0.16, 0.55, 'sine',     i*0.06, master);
+    tone(base*r*2, 0.10, 0.20, 'triangle', i*0.06+0.02, master);
+  });
+  tone(base*3, 0.38, 0.22, 'sine', 0.25, master);
 }
 
-function comboSound(){
-tone(880,.08,.05);
-tone(1170,.12,.04,"triangle",.05);
+/* ── コンボサウンド: 高揚するファンファーレ ── */
+function playCombo(chain){
+  if(muted) return;
+  const c = getCtx();
+  const master = c.createGain();
+  master.gain.value = 0.38;
+  master.connect(c.destination);
+  const fanfare = [523,659,784,1047,1319];
+  const top = Math.min(chain+1, fanfare.length-1);
+  for(let i=0;i<=top;i++){
+    tone(fanfare[i],       0.2,  0.55, 'sine',     i*0.08, master);
+    tone(fanfare[i]*1.5,   0.12, 0.25, 'triangle', i*0.08+0.01, master);
+  }
 }
 
-function overSound(){
-tone(420,.2,.05);
-tone(260,.35,.04,"triangle",.2);
+/* ── ゲームオーバーサウンド ── */
+function playOver(){
+  if(muted) return;
+  [440,392,349,294,261].forEach((f,i)=>tone(f,0.3,0.06,'sine',i*0.13));
 }
 
-function startBGM(speed=1){
-stopBGM();
-const notes=[523,659,784,880,784,659,523,392,440,523,659,784,880,784,659,523];
-let i=0;
-bgm=setInterval(()=>{
-tone(notes[i],.22,.02);
-tone(notes[i]/2,.18,.012,"triangle");
-i++;if(i>=notes.length)i=0;
-},240/speed);
+/* ══════════════════════════════════════
+   BGM: かわいいポップループ
+   ── 3声(メロディ・ハーモニー・ベース) ──
+══════════════════════════════════════ */
+function startBGM(){
+  stopBGM();
+  if(muted) return;
+  const c = getCtx();
+  const BPM = 132;
+  const beat = 60/BPM;
+
+  /* メロディ: ド・ミ・ソ・ラ系の明るいフレーズ(音程, 拍数) */
+  const mel = [
+    [523,1],[659,1],[784,1],[880,.5],[784,.5],
+    [659,1],[523,1],[392,2],
+    [440,1],[523,1],[659,1],[784,.5],[880,.5],
+    [784,1],[659,1],[523,2],
+    [784,1],[880,1],[1047,1],[880,.5],[784,.5],
+    [659,1],[784,1],[880,2],
+    [1047,1],[880,1],[784,1],[659,.5],[523,.5],
+    [440,1],[523,1],[659,3],
+  ];
+  /* ハーモニー(3度下) */
+  const har = mel.map(([f,d])=>[f*0.794,d]);
+  /* ベース */
+  const bass = [
+    [131,2],[165,2],[196,2],[165,2],
+    [131,2],[165,2],[175,2],[196,2],
+    [175,2],[220,2],[261,2],[220,2],
+    [131,2],[165,2],[196,4],
+  ];
+
+  const totalBeats = mel.reduce((s,[,d])=>s+d, 0);
+  const loopSec = totalBeats * beat;
+
+  /* マスターゲイン */
+  const mMel  = c.createGain(); mMel.gain.value  = 0.11; mMel.connect(c.destination);
+  const mHar  = c.createGain(); mHar.gain.value  = 0.07; mHar.connect(c.destination);
+  const mBass = c.createGain(); mBass.gain.value = 0.10; mBass.connect(c.destination);
+  const mHat  = c.createGain(); mHat.gain.value  = 0.04; mHat.connect(c.destination);
+
+  function scheduleMelody(start, notes, dest){
+    let t = start;
+    notes.forEach(([f,d])=>{
+      tone(f, d*beat*0.82, 0.55, 'sine', t - c.currentTime, dest);
+      t += d*beat;
+    });
+  }
+
+  function scheduleHihat(start){
+    const steps = totalBeats * 4;
+    for(let i=0;i<steps;i++){
+      const t = start + i*beat*0.25;
+      const v = i%2===0 ? 0.5 : 0.22;
+      tone(9000+Math.random()*3000, 0.022, v, 'sawtooth', t - c.currentTime, mHat);
+    }
+  }
+
+  let nextStart = c.currentTime + 0.05;
+
+  function loop(){
+    scheduleMelody(nextStart, mel,  mMel);
+    scheduleMelody(nextStart, har,  mHar);
+    scheduleMelody(nextStart, bass, mBass);
+    scheduleHihat(nextStart);
+    nextStart += loopSec;
+  }
+
+  /* 2ループ先読みして、以降はループ毎に追加 */
+  loop(); loop();
+  bgmHandle = setInterval(()=>{
+    if(!muted && bgmHandle) loop();
+  }, (loopSec-0.25)*1000);
 }
 
 function stopBGM(){
-if(bgm){clearInterval(bgm);bgm=null;}
+  if(bgmHandle){ clearInterval(bgmHandle); bgmHandle=null; }
 }
 
 function toggleMute(){
-muted=!muted;
-el("muteBtn").textContent=muted?"🔇":"🔊";
-if(muted)stopBGM();
-else if(running)startBGM(timeLeft<=10?1.4:1);
+  muted = !muted;
+  el('muteBtn').textContent = muted ? '🔇' : '🔊';
+  if(muted) stopBGM();
+  else if(running) startBGM();
 }
 
-/* game */
+/* ══════════════════════════════════════
+   グリッド
+══════════════════════════════════════ */
 function createGrid(){
-grid=[];
-for(let r=0;r<ROWS;r++){
-grid[r]=[];
-for(let c=0;c<COLS;c++)grid[r][c]=rand();
-}
-}
-
-function render(drop=null){
-const g=el("grid");
-g.innerHTML="";
-for(let r=0;r<ROWS;r++){
-for(let c=0;c<COLS;c++){
-const d=document.createElement("div");
-d.className="cell";
-if(drop&&drop.has(r+","+c))d.classList.add("drop");
-d.dataset.r=r;
-d.dataset.c=c;
-d.textContent=ITEMS[grid[r][c]];
-d.onclick=clickCell;
-g.appendChild(d);
-}
-}
+  grid=[];
+  for(let r=0;r<ROWS;r++){
+    grid[r]=[];
+    for(let c=0;c<COLS;c++) grid[r][c]=rand();
+  }
 }
 
-async function clickCell(e){
-if(!running||busy)return;
-busy=true;
-
-const cell=e.currentTarget;
-const r=+cell.dataset.r,c=+cell.dataset.c;
-
-cell.classList.add("pop");
-clearSound();
-spark(cell);
-
-await sleep(180);
-
-grid[r][c]=-1;
-timeLeft=Math.max(0,timeLeft-1);
-gravity();
-render();
-
-await sleep(220);
-
-await chain(0);
-
-busy=false;
+function render(dropSet=null){
+  const g=el('grid');
+  g.innerHTML='';
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const d=document.createElement('div');
+      d.className='cell';
+      if(dropSet?.has(r+','+c)) d.classList.add('drop');
+      d.textContent=ITEMS[grid[r][c]];
+      d.onclick=clickCell;
+      d.dataset.r=r; d.dataset.c=c;
+      g.appendChild(d);
+    }
+  }
 }
 
+/* ── マッチ判定: 連結グループ4個以上 ── */
 function findMatch(){
-const set=new Set();
-const seen=[...Array(ROWS)].map(()=>Array(COLS).fill(false));
-
-for(let r=0;r<ROWS;r++){
-for(let c=0;c<COLS;c++){
-if(grid[r][c]===-1||seen[r][c])continue;
-
-const type=grid[r][c];
-const stack=[[r,c]];
-const group=[];
-seen[r][c]=true;
-
-while(stack.length){
-const [y,x]=stack.pop();
-group.push([y,x]);
-
-[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dy,dx])=>{
-const ny=y+dy,nx=x+dx;
-if(ny>=0&&ny<ROWS&&nx>=0&&nx<COLS&&!seen[ny][nx]&&grid[ny][nx]===type){
-seen[ny][nx]=true;
-stack.push([ny,nx]);
-}
-});
-}
-
-if(group.length>=NEED){
-group.forEach(v=>set.add(v[0]+","+v[1]));
-}
-}
-}
-return set;
+  const seen=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  const set=new Set();
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      if(grid[r][c]===-1||seen[r][c]) continue;
+      const type=grid[r][c];
+      const stack=[[r,c]], group=[];
+      seen[r][c]=true;
+      while(stack.length){
+        const[y,x]=stack.pop();
+        group.push([y,x]);
+        [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dy,dx])=>{
+          const ny=y+dy,nx=x+dx;
+          if(ny>=0&&nx>=0&&ny<ROWS&&nx<COLS&&!seen[ny][nx]&&grid[ny][nx]===type){
+            seen[ny][nx]=true; stack.push([ny,nx]);
+          }
+        });
+      }
+      if(group.length>=NEED) group.forEach(([y,x])=>set.add(y+','+x));
+    }
+  }
+  return set;
 }
 
 function gravity(){
-const drop=new Set();
-for(let c=0;c<COLS;c++){
-let w=ROWS-1;
-for(let r=ROWS-1;r>=0;r--){
-if(grid[r][c]!==-1){
-grid[w][c]=grid[r][c];
-if(w!==r)drop.add(w+","+c);
-w--;
-}
-}
-for(let r=w;r>=0;r--){
-grid[r][c]=rand();
-drop.add(r+","+c);
-}
-}
-return drop;
+  const drop=new Set();
+  for(let c=0;c<COLS;c++){
+    let w=ROWS-1;
+    for(let r=ROWS-1;r>=0;r--){
+      if(grid[r][c]!==-1){
+        grid[w][c]=grid[r][c];
+        if(w!==r) drop.add(w+','+c);
+        w--;
+      }
+    }
+    for(let r=w;r>=0;r--){ grid[r][c]=rand(); drop.add(r+','+c); }
+  }
+  return drop;
 }
 
+/* ── クリック処理 ── */
+async function clickCell(e){
+  if(!running||busy) return;
+  busy=true;
+
+  const r=+e.target.dataset.r;
+  const c=+e.target.dataset.c;
+
+  /* クリック時は静かに入れ替えのみ */
+  grid[r][c]=rand();
+  timeLeft=Math.max(0,timeLeft-1);
+
+  const dropSet=new Set([r+','+c]);
+  render(dropSet);
+  await sleep(180);
+
+  await chain(0);
+  busy=false;
+}
+
+/* ── 連鎖処理 ── */
 async function chain(n){
-const hit=findMatch();
-if(hit.size===0)return;
+  const hit=findMatch();
+  if(hit.size===0) return;
 
-hit.forEach(key=>{
-const [r,c]=key.split(",");
-grid[r][c]=-1;
-});
+  /* 消えるアニメ */
+  const cells=el('grid').querySelectorAll('.cell');
+  hit.forEach(k=>{
+    const[r,c]=k.split(',');
+    cells[+r*COLS + +c]?.classList.add('pop');
+  });
 
-score+=hit.size;
-timeLeft=Math.min(60,timeLeft+Math.floor(hit.size*.7));
-updateUI();
+  playClear(n);
+  await sleep(360);
 
-clearSound();
+  /* グリッド消去 */
+  hit.forEach(k=>{ const[r,c]=k.split(','); grid[r][c]=-1; });
 
-if(n>0){
-combo(n+1);
-comboSound();
+  /* スコア・タイム */
+  score+=hit.size;
+  timeLeft=Math.min(60, timeLeft+Math.floor(hit.size*0.7));
+  updateUI();
+
+  /* コンボ */
+  if(n>0){ showCombo(n+1); playCombo(n); }
+
+  /* ★消えた位置にパーティクル★ */
+  const gridEl=el('grid');
+  const gRect=gridEl.getBoundingClientRect();
+  hit.forEach(k=>{
+    const[r,c]=k.split(',').map(Number);
+    const x=gRect.left + c*68 + 31;
+    const y=gRect.top  + r*68 + 31;
+    spawnSparks(x,y,4);
+  });
+
+  await sleep(100);
+
+  const drop=gravity();
+  render(drop);
+  await sleep(260);
+  await chain(n+1);
 }
 
-await sleep(180);
-
-const d=gravity();
-render(d);
-
-await sleep(250);
-
-await chain(n+1);
+/* ── コンボ表示 ── */
+function showCombo(n){
+  const d=el('combo');
+  d.textContent=n+' CHAIN! 🔥';
+  d.style.transition='none';
+  d.style.opacity='1';
+  d.style.transform='translate(-50%,-50%) scale(1.1)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    d.style.transition='opacity .65s .3s, transform .65s .3s';
+    d.style.opacity='0';
+    d.style.transform='translate(-50%,-60%) scale(.9)';
+  }));
 }
 
-function combo(n){
-const d=el("combo");
-d.textContent=n+" CHAIN!";
-d.style.opacity="1";
-d.style.transform="translate(-50%,-50%) scale(1.2)";
-setTimeout(()=>{
-d.style.transition=".5s";
-d.style.opacity="0";
-d.style.transform="translate(-50%,-65%) scale(.8)";
-},50);
-setTimeout(()=>d.style.transition="none",600);
+/* ── パーティクル ── */
+function spawnSparks(x,y,num=5){
+  const icons=['✨','⭐','💫','🌟','🎉','🍬'];
+  const p=el('particles');
+  for(let i=0;i<num;i++){
+    const s=document.createElement('div');
+    s.className='spark';
+    s.textContent=icons[Math.floor(Math.random()*icons.length)];
+    s.style.left=(x+(Math.random()-.5)*60)+'px';
+    s.style.top =(y+(Math.random()-.5)*30)+'px';
+    p.appendChild(s);
+    setTimeout(()=>s.remove(),900);
+  }
 }
 
-function spark(cell){
-const rect=cell.getBoundingClientRect();
-for(let i=0;i<8;i++){
-const s=document.createElement("div");
-s.className="spark";
-s.textContent=["✨","⭐","💫","🌟"][Math.floor(Math.random()*4)];
-s.style.left=(rect.left+20+Math.random()*20)+"px";
-s.style.top=(rect.top+15+Math.random()*20)+"px";
-el("particles").appendChild(s);
-setTimeout(()=>s.remove(),800);
-}
+/* ══════════════════════════════════════
+   タイマー・UI
+══════════════════════════════════════ */
+function updateUI(){
+  el('score').textContent=score;
+  el('time').textContent=Math.ceil(timeLeft);
+  const pct=timeLeft/60*100;
+  el('fill').style.width=pct+'%';
+  el('fill').style.background=
+    pct>40 ? 'linear-gradient(90deg,#f4845f,#e8bc5a)' :
+    pct>20 ? 'linear-gradient(90deg,#e87040,#e05a2a)' :
+             'linear-gradient(90deg,#e02020,#c01010)';
 }
 
-/* timer */
 function startGame(){
-if(running)return;
-ctx().resume();
-
-running=true;
-el("startBtn").disabled=true;
-el("startBtn").textContent="⏳ プレイ中";
-
-startBGM();
-
-timer=setInterval(()=>{
-timeLeft-=0.1;
-
-if(timeLeft<=10&&timeLeft>9.8){
-startBGM(1.4);
-}
-
-if(timeLeft<=0){
-timeLeft=0;
-updateUI();
-endGame();
-return;
-}
-
-updateUI();
-},100);
+  if(running) return;
+  getCtx().resume();
+  running=true;
+  el('startBtn').disabled=true;
+  el('startBtn').textContent='⏳ プレイ中';
+  startBGM();
+  timer=setInterval(()=>{
+    timeLeft-=0.1;
+    if(timeLeft<=0){ timeLeft=0; updateUI(); endGame(); return; }
+    updateUI();
+  },100);
 }
 
 function endGame(){
-running=false;
-clearInterval(timer);
-stopBGM();
-overSound();
-
-saveScore();
-
-el("final").textContent=score;
-showRanking();
-el("gameover").classList.add("show");
+  running=false;
+  clearInterval(timer);
+  stopBGM();
+  playOver();
+  saveScore();
+  el('final').textContent=score;
+  showRanking();
+  el('gameover').classList.add('show');
 }
 
-function updateUI(){
-el("score").textContent=score;
-el("time").textContent=Math.ceil(timeLeft);
-el("fill").style.width=(timeLeft/60*100)+"%";
-}
-
+/* ══════════════════════════════════════
+   スコア保存 / ランキング
+══════════════════════════════════════ */
 function saveScore(){
-let hs=+localStorage.getItem("cookieHigh")||0;
-if(score>hs)localStorage.setItem("cookieHigh",score);
-
-let arr=JSON.parse(localStorage.getItem("cookieRank")||"[]");
-arr.push(score);
-arr.sort((a,b)=>b-a);
-arr=arr.slice(0,5);
-localStorage.setItem("cookieRank",JSON.stringify(arr));
+  let hs=+localStorage.getItem('cookieHigh')||0;
+  if(score>hs) localStorage.setItem('cookieHigh',score);
+  let arr=JSON.parse(localStorage.getItem('cookieRank')||'[]');
+  arr.push(score); arr.sort((a,b)=>b-a);
+  localStorage.setItem('cookieRank',JSON.stringify(arr.slice(0,5)));
 }
 
 function loadScore(){
-el("high").textContent=localStorage.getItem("cookieHigh")||0;
+  el('high').textContent=localStorage.getItem('cookieHigh')||0;
 }
 
 function showRanking(){
-const arr=JSON.parse(localStorage.getItem("cookieRank")||"[]");
-el("ranking").innerHTML=arr.map((v,i)=>`${i+1}位　${v}個`).join("<br>");
-loadScore();
+  const arr=JSON.parse(localStorage.getItem('cookieRank')||'[]');
+  const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+  el('ranking').innerHTML=arr.length
+    ? arr.map((v,i)=>`${medals[i]} ${v} 個`).join('<br>')
+    : '';
+  loadScore();
 }
 
-function shareScore(){
-window.open(
-"https://twitter.com/intent/tweet?text="+encodeURIComponent(`クッキーパズルで${score}個食べた！`),
-"_blank"
-);
+/* ══════════════════════════════════════
+   X (Twitter) シェア
+══════════════════════════════════════ */
+function shareX(){
+  const text=`#クッキーパズル\nお菓子を${score}個食べたよ！🍪\nあなたは何個食べられるかな？`;
+  const url='https://twitter.com/intent/tweet?text='+encodeURIComponent(text);
+  window.open(url,'_blank','noopener');
 }
 
+/* ══════════════════════════════════════
+   リセット
+══════════════════════════════════════ */
 function resetGame(){
-clearInterval(timer);
-stopBGM();
-running=false;
-busy=false;
-score=0;
-timeLeft=60;
-
-el("gameover").classList.remove("show");
-el("startBtn").disabled=false;
-el("startBtn").textContent="▶ スタート";
-
-createGrid();
-
-let n=0;
-while(findMatch().size>0&&n<20){
-createGrid();
-n++;
-}
-
-render();
-updateUI();
-loadScore();
-showRanking();
+  clearInterval(timer);
+  stopBGM();
+  running=false; busy=false; score=0; timeLeft=60;
+  el('gameover').classList.remove('show');
+  el('startBtn').disabled=false;
+  el('startBtn').textContent='▶ スタート';
+  createGrid();
+  let n=0;
+  while(findMatch().size>0&&n++<20) createGrid();
+  render();
+  updateUI();
+  loadScore();
 }
 
 resetGame();
 </script>
-
 </body>
 </html>
