@@ -470,15 +470,19 @@ async function chain(n){
   const hit=findMatch();
   if(hit.size===0) return;
 
-  /* 消えるアニメ */
+  /* popアニメ開始と同時にパーティクルを各セルの位置から発生 */
   const cells=el('grid').querySelectorAll('.cell');
   hit.forEach(k=>{
-    const[r,c]=k.split(',');
-    cells[+r*COLS + +c]?.classList.add('pop');
+    const[r,c]=k.split(',').map(Number);
+    const cellEl=cells[r*COLS + c];
+    if(!cellEl) return;
+    const rect=cellEl.getBoundingClientRect();
+    spawnSparks(rect.left+rect.width/2, rect.top+rect.height/2, 5);
+    cellEl.classList.add('pop');
   });
 
   playClear(n);
-  await sleep(360);
+  await sleep(380);
 
   /* グリッド消去 */
   hit.forEach(k=>{ const[r,c]=k.split(','); grid[r][c]=-1; });
@@ -491,17 +495,7 @@ async function chain(n){
   /* コンボ */
   if(n>0){ showCombo(n+1); playCombo(n); }
 
-  /* ★消えた位置にパーティクル★ */
-  const gridEl=el('grid');
-  const gRect=gridEl.getBoundingClientRect();
-  hit.forEach(k=>{
-    const[r,c]=k.split(',').map(Number);
-    const x=gRect.left + c*68 + 31;
-    const y=gRect.top  + r*68 + 31;
-    spawnSparks(x,y,4);
-  });
-
-  await sleep(100);
+  await sleep(80);
 
   const drop=gravity();
   render(drop);
@@ -605,7 +599,7 @@ function showRanking(){
    X (Twitter) シェア
 ══════════════════════════════════════ */
 function shareX(){
-  const text=`#クッキーパズル\nお菓子を${score}個食べたよ！🍪\nあなたは何個食べられるかな？`;
+  const text=`#クッキーパズル \nでお菓子を${score}個食べたよ！🍪\nあなたは何個食べられるかな？`;
   const url='https://twitter.com/intent/tweet?text='+encodeURIComponent(text);
   window.open(url,'_blank','noopener');
 }
