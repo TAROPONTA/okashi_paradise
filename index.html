@@ -608,7 +608,7 @@ stack.push([nr,nc]);
 });
 }
 
-if (group.length >= 4) {
+if (group.length >= MATCH_COUNT)
 group.forEach(([gr,gc]) => matched.add(`${gr},${gc}`));
 }
 }
@@ -836,7 +836,6 @@ JSON.parse(localStorage.getItem("cookieRanking") || "[]")
 
 bgmSpeedUp = false;
 }
-
 /* ── Combo display ── */
 function showCombo(n) {
 const d = el('combo-display');
@@ -871,13 +870,6 @@ const text =
 `#クッキーパズル で${score}個お菓子を食べたよ！
 あなたは何個いける？`;
 
-const url =
-"https://twitter.com/intent/tweet?text=" +
-encodeURIComponent(text);
-
-window.open(url, "_blank");
-}
-  
 const url =
 "https://twitter.com/intent/tweet?text=" +
 encodeURIComponent(text);
