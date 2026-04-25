@@ -24,7 +24,6 @@ body{
   padding:20px;
 }
 
-/* ── 背景グラデーション ── */
 body::before{
   content:'';
   position:fixed;inset:0;
@@ -54,7 +53,6 @@ h1{
   flex-wrap:wrap;justify-content:center;
 }
 
-/* ── グリッド: 枠なし・影のみ ── */
 #grid{
   display:grid;
   grid-template-columns:repeat(7,62px);
@@ -62,6 +60,7 @@ h1{
   gap:6px;
 }
 
+/* 通常セル */
 .cell{
   width:62px;height:62px;
   border-radius:16px;
@@ -78,22 +77,31 @@ h1{
 }
 .cell:active{transform:scale(.92)}
 
-/* 消える時のアニメ */
-.cell.pop{animation:burst .38s forwards}
+/* 消えた場所: 完全に非表示・クリック不可 */
+.cell-empty{
+  width:62px;height:62px;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+/* 消えるアニメ */
+.cell.pop{
+  animation:burst .4s forwards;
+  pointer-events:none;
+}
 @keyframes burst{
   0%  {transform:scale(1);   opacity:1;filter:brightness(1)}
-  40% {transform:scale(1.45);opacity:1;filter:brightness(1.8)}
+  40% {transform:scale(1.5); opacity:1;filter:brightness(2)}
   100%{transform:scale(0);   opacity:0}
 }
 
 /* 落下アニメ */
-.cell.drop{animation:dropIn .28s cubic-bezier(.34,1.56,.64,1)}
+.cell.drop{animation:dropIn .3s cubic-bezier(.34,1.56,.64,1)}
 @keyframes dropIn{
   from{transform:translateY(-60px) scale(.7);opacity:0}
   to  {transform:translateY(0)     scale(1); opacity:1}
 }
 
-/* ── サイドパネル ── */
 .panel{
   width:160px;
   display:flex;flex-direction:column;gap:12px;
@@ -106,7 +114,6 @@ h1{
 
 .sep{height:1px;background:linear-gradient(90deg,transparent,rgba(180,120,60,.2),transparent)}
 
-/* ── ボタン ── */
 .btn{
   border:none;border-radius:14px;padding:12px;
   cursor:pointer;
@@ -124,7 +131,6 @@ h1{
 .btn.x-btn:hover{box-shadow:0 6px 0 #333}
 .btn.x-btn:active{box-shadow:0 2px 0 #333}
 
-/* ── コンボ表示 ── */
 #combo{
   position:fixed;left:50%;top:44%;
   transform:translate(-50%,-50%);
@@ -132,10 +138,8 @@ h1{
   color:var(--accent);
   text-shadow:3px 3px 0 #fff,5px 5px 0 #fde0d0;
   opacity:0;pointer-events:none;z-index:50;
-  transition:none;
 }
 
-/* ── パーティクル ── */
 #particles{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .spark{
   position:absolute;
@@ -148,7 +152,6 @@ h1{
   100%{opacity:0;transform:translateY(-90px) rotate(30deg) scale(.3)}
 }
 
-/* ── ゲームオーバー画面 ── */
 #gameover{
   position:fixed;inset:0;
   display:none;
@@ -161,11 +164,7 @@ h1{
 #gameover h2{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--accent);text-shadow:3px 3px 0 #fde0d0}
 #final{font-family:'Fredoka One',cursive;font-size:4.2rem;color:var(--text)}
 .go-label{font-size:.8rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
-#ranking{
-  text-align:center;line-height:2;
-  font-family:'Fredoka One',cursive;
-  font-size:1.1rem;color:var(--muted);
-}
+#ranking{text-align:center;line-height:2;font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--muted);}
 .go-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 </style>
 </head>
@@ -176,48 +175,37 @@ h1{
 
 <div class="container">
   <h1>🍪 クッキーパズル</h1>
-
   <div class="wrap">
     <div id="grid"></div>
-
     <div class="panel">
       <div class="label">食べた数</div>
       <div class="value" id="score">0</div>
-
       <div class="label">ハイスコア</div>
       <div class="value" id="high">0</div>
-
       <div class="sep"></div>
-
-      <div class="label">⏱ タイム</div>
+      <div class="label">タイム</div>
       <div class="timerbar"><div id="fill"></div></div>
       <div class="value" id="time" style="font-size:2rem">60</div>
-
       <div class="sep"></div>
-
-      <button class="btn"       onclick="startGame()" id="startBtn">▶ スタート</button>
+      <button class="btn" onclick="startGame()" id="startBtn">▶ スタート</button>
       <button class="btn green" onclick="resetGame()">↺ リセット</button>
-      <button class="btn"       onclick="toggleMute()" id="muteBtn" style="font-size:1.3rem;padding:8px">🔊</button>
+      <button class="btn" onclick="toggleMute()" id="muteBtn" style="font-size:1.3rem;padding:8px">🔊</button>
     </div>
   </div>
 </div>
 
-<!-- ゲームオーバー -->
 <div id="gameover">
   <h2>🍪 ゲームオーバー！</h2>
   <div class="go-label">今回のスコア</div>
   <div id="final">0</div>
   <div id="ranking"></div>
   <div class="go-btns">
-    <button class="btn"   onclick="resetGame()">もう一度 🍪</button>
-    <button class="btn x-btn" onclick="shareX()" id="shareBtn">𝕏 シェア</button>
+    <button class="btn" onclick="resetGame()">もう一度 🍪</button>
+    <button class="btn x-btn" onclick="shareX()">𝕏 シェア</button>
   </div>
 </div>
 
 <script>
-/* ══════════════════════════════════════
-   定数 / 状態
-══════════════════════════════════════ */
 const ROWS=9, COLS=7, NEED=4;
 const ITEMS=['🍪','🧁','🍩','🍰','🍫','🍬'];
 
@@ -225,144 +213,141 @@ let grid=[], score=0, timeLeft=60;
 let running=false, busy=false, timer=null;
 let audioCtx=null, muted=false, bgmHandle=null;
 
-const el = id => document.getElementById(id);
+const el   = id => document.getElementById(id);
 const rand = () => Math.floor(Math.random()*ITEMS.length);
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
-/* ══════════════════════════════════════
+/* ════════════════════════════════
    Web Audio
-══════════════════════════════════════ */
+════════════════════════════════ */
 function getCtx(){
   if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
   return audioCtx;
 }
 
-/* 基本音生成 */
-function tone(freq, dur=0.12, vol=0.06, type='sine', delay=0, dest=null){
+function tone(freq,dur=0.12,vol=0.06,type='sine',delay=0,dest=null){
   if(muted) return;
-  const c = getCtx();
-  if(!dest) dest = c.destination;
-  const o = c.createOscillator();
-  const g = c.createGain();
-  const t = c.currentTime + delay;
-  o.type = type;
-  o.frequency.setValueAtTime(freq, t);
-  g.gain.setValueAtTime(vol, t);
-  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  const c=getCtx();
+  if(!dest) dest=c.destination;
+  const o=c.createOscillator(), g=c.createGain();
+  const t=c.currentTime+delay;
+  o.type=type; o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(vol,t);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
   o.connect(g); g.connect(dest);
   o.start(t); o.stop(t+dur);
 }
 
-/* ── 消去サウンド: キラキラポップ上昇 ── */
-function playClear(chain=0){
+function playClear(n=0){
   if(muted) return;
-  const c = getCtx();
-  const master = c.createGain();
-  master.gain.value = 0.4;
-  master.connect(c.destination);
-  const base = 520 + chain*100;
-  const scale = [1, 1.25, 1.5, 2];
-  scale.forEach((r,i)=>{
-    tone(base*r,   0.16, 0.55, 'sine',     i*0.06, master);
-    tone(base*r*2, 0.10, 0.20, 'triangle', i*0.06+0.02, master);
+  const c=getCtx();
+  const mg=c.createGain(); mg.gain.value=0.36; mg.connect(c.destination);
+  const base=560+n*80;
+  [1,1.26,1.5,2].forEach((r,i)=>{
+    tone(base*r,   0.14,0.5,'sine',     i*0.055,mg);
+    tone(base*r*2, 0.09,0.18,'triangle',i*0.055+0.02,mg);
   });
-  tone(base*3, 0.38, 0.22, 'sine', 0.25, master);
+  tone(base*2.5,0.3,0.2,'sine',0.23,mg);
 }
 
-/* ── コンボサウンド: 高揚するファンファーレ ── */
-function playCombo(chain){
+function playCombo(n){
   if(muted) return;
-  const c = getCtx();
-  const master = c.createGain();
-  master.gain.value = 0.38;
-  master.connect(c.destination);
-  const fanfare = [523,659,784,1047,1319];
-  const top = Math.min(chain+1, fanfare.length-1);
+  const c=getCtx();
+  const mg=c.createGain(); mg.gain.value=0.33; mg.connect(c.destination);
+  const sc=[523,659,784,1047,1319];
+  const top=Math.min(n,sc.length-1);
   for(let i=0;i<=top;i++){
-    tone(fanfare[i],       0.2,  0.55, 'sine',     i*0.08, master);
-    tone(fanfare[i]*1.5,   0.12, 0.25, 'triangle', i*0.08+0.01, master);
+    tone(sc[i],    0.18,0.5,'sine',     i*0.07,mg);
+    tone(sc[i]*1.5,0.1, 0.2,'triangle',i*0.07+0.01,mg);
   }
 }
 
-/* ── ゲームオーバーサウンド ── */
 function playOver(){
   if(muted) return;
-  [440,392,349,294,261].forEach((f,i)=>tone(f,0.3,0.06,'sine',i*0.13));
+  [440,392,349,294,261].forEach((f,i)=>tone(f,0.28,0.06,'sine',i*0.12));
 }
 
-/* ══════════════════════════════════════
-   BGM: かわいいポップループ
-   ── 3声(メロディ・ハーモニー・ベース) ──
-══════════════════════════════════════ */
+/* ════════════════════════════════
+   BGM: 明るくポップ & 弾むビート
+   メロディ + カウンター + ベース + ドラム
+════════════════════════════════ */
 function startBGM(){
   stopBGM();
   if(muted) return;
-  const c = getCtx();
-  const BPM = 132;
-  const beat = 60/BPM;
+  const c=getCtx();
+  const BPM=152, beat=60/BPM;
 
-  /* メロディ: ド・ミ・ソ・ラ系の明るいフレーズ(音程, 拍数) */
-  const mel = [
-    [523,1],[659,1],[784,1],[880,.5],[784,.5],
-    [659,1],[523,1],[392,2],
-    [440,1],[523,1],[659,1],[784,.5],[880,.5],
-    [784,1],[659,1],[523,2],
-    [784,1],[880,1],[1047,1],[880,.5],[784,.5],
-    [659,1],[784,1],[880,2],
-    [1047,1],[880,1],[784,1],[659,.5],[523,.5],
-    [440,1],[523,1],[659,3],
+  /* メロディ: 跳ねるポップなフレーズ */
+  const mel=[
+    [784,.5],[880,.5],[1047,1],[880,.5],[784,.5],
+    [659,1 ],[784,1 ],[659,.5],[523,.5],
+    [523,.5],[659,.5],[784,1 ],[880,.5],[1047,.5],
+    [880,1 ],[784,1 ],[659,2 ],
+    [880,.5],[1047,.5],[1175,1],[1047,.5],[880,.5],
+    [784,1 ],[880,1 ],[784,.5],[659,.5],
+    [659,.5],[784,.5],[880,1 ],[784,.5],[659,.5],
+    [523,1 ],[659,1 ],[784,2 ],
   ];
-  /* ハーモニー(3度下) */
-  const har = mel.map(([f,d])=>[f*0.794,d]);
+  /* カウンターメロディ */
+  const cnt=mel.map(([f,d])=>[f*1.498,d]);
   /* ベース */
-  const bass = [
-    [131,2],[165,2],[196,2],[165,2],
-    [131,2],[165,2],[175,2],[196,2],
-    [175,2],[220,2],[261,2],[220,2],
-    [131,2],[165,2],[196,4],
+  const bass=[
+    [196,.5],[196,.5],[196,1],[220,.5],[196,.5],
+    [165,1 ],[196,1 ],[165,.5],[131,.5],
+    [131,.5],[165,.5],[196,1],[220,.5],[261,.5],
+    [220,1 ],[196,1 ],[165,2],
+    [220,.5],[261,.5],[294,1],[261,.5],[220,.5],
+    [196,1 ],[220,1 ],[196,.5],[165,.5],
+    [165,.5],[196,.5],[220,1],[196,.5],[165,.5],
+    [131,1 ],[165,1 ],[196,2],
   ];
 
-  const totalBeats = mel.reduce((s,[,d])=>s+d, 0);
-  const loopSec = totalBeats * beat;
+  const totalBeats=mel.reduce((s,[,d])=>s+d,0);
+  const loopSec=totalBeats*beat;
 
-  /* マスターゲイン */
-  const mMel  = c.createGain(); mMel.gain.value  = 0.11; mMel.connect(c.destination);
-  const mHar  = c.createGain(); mHar.gain.value  = 0.07; mHar.connect(c.destination);
-  const mBass = c.createGain(); mBass.gain.value = 0.10; mBass.connect(c.destination);
-  const mHat  = c.createGain(); mHat.gain.value  = 0.04; mHat.connect(c.destination);
+  const gMel=c.createGain(); gMel.gain.value=0.10; gMel.connect(c.destination);
+  const gCnt=c.createGain(); gCnt.gain.value=0.05; gCnt.connect(c.destination);
+  const gBas=c.createGain(); gBas.gain.value=0.09; gBas.connect(c.destination);
+  const gHat=c.createGain(); gHat.gain.value=0.032;gHat.connect(c.destination);
+  const gKik=c.createGain(); gKik.gain.value=0.11; gKik.connect(c.destination);
 
-  function scheduleMelody(start, notes, dest){
-    let t = start;
+  function sched(start,notes,dest,type='sine'){
+    let t=start;
     notes.forEach(([f,d])=>{
-      tone(f, d*beat*0.82, 0.55, 'sine', t - c.currentTime, dest);
-      t += d*beat;
+      tone(f,d*beat*0.76,0.55,type,t-c.currentTime,dest);
+      t+=d*beat;
     });
   }
 
-  function scheduleHihat(start){
-    const steps = totalBeats * 4;
+  function schedDrum(start){
+    const steps=totalBeats*2;
     for(let i=0;i<steps;i++){
-      const t = start + i*beat*0.25;
-      const v = i%2===0 ? 0.5 : 0.22;
-      tone(9000+Math.random()*3000, 0.022, v, 'sawtooth', t - c.currentTime, mHat);
+      const t=start+i*beat*0.5;
+      /* 16分ハイハット */
+      tone(10000+Math.random()*4000,0.016,i%2===0?0.42:0.16,'sawtooth',t-c.currentTime,gHat);
+      /* キック: 1・3拍目 */
+      if(i%4===0){
+        tone(80, 0.16,0.85,'sine',t-c.currentTime,gKik);
+        tone(55, 0.20,0.55,'sine',t-c.currentTime+0.01,gKik);
+      }
+      /* スネア: 2・4拍目 */
+      if(i%4===2){
+        tone(220+Math.random()*80,0.08,0.3,'sawtooth',t-c.currentTime,gHat);
+        tone(180,0.10,0.22,'square',t-c.currentTime,gHat);
+      }
     }
   }
 
-  let nextStart = c.currentTime + 0.05;
-
+  let nextStart=c.currentTime+0.05;
   function loop(){
-    scheduleMelody(nextStart, mel,  mMel);
-    scheduleMelody(nextStart, har,  mHar);
-    scheduleMelody(nextStart, bass, mBass);
-    scheduleHihat(nextStart);
-    nextStart += loopSec;
+    sched(nextStart,mel, gMel,'sine');
+    sched(nextStart,cnt, gCnt,'triangle');
+    sched(nextStart,bass,gBas,'triangle');
+    schedDrum(nextStart);
+    nextStart+=loopSec;
   }
-
-  /* 2ループ先読みして、以降はループ毎に追加 */
   loop(); loop();
-  bgmHandle = setInterval(()=>{
-    if(!muted && bgmHandle) loop();
-  }, (loopSec-0.25)*1000);
+  bgmHandle=setInterval(()=>{ if(!muted&&bgmHandle) loop(); },(loopSec-0.3)*1000);
 }
 
 function stopBGM(){
@@ -370,15 +355,15 @@ function stopBGM(){
 }
 
 function toggleMute(){
-  muted = !muted;
-  el('muteBtn').textContent = muted ? '🔇' : '🔊';
+  muted=!muted;
+  el('muteBtn').textContent=muted?'🔇':'🔊';
   if(muted) stopBGM();
   else if(running) startBGM();
 }
 
-/* ══════════════════════════════════════
+/* ════════════════════════════════
    グリッド
-══════════════════════════════════════ */
+════════════════════════════════ */
 function createGrid(){
   grid=[];
   for(let r=0;r<ROWS;r++){
@@ -387,23 +372,30 @@ function createGrid(){
   }
 }
 
+/* grid[r][c] === -1 のセルは完全非表示の空枠 */
 function render(dropSet=null){
   const g=el('grid');
   g.innerHTML='';
   for(let r=0;r<ROWS;r++){
     for(let c=0;c<COLS;c++){
+      const val=grid[r][c];
       const d=document.createElement('div');
-      d.className='cell';
-      if(dropSet?.has(r+','+c)) d.classList.add('drop');
-      d.textContent=ITEMS[grid[r][c]];
-      d.onclick=clickCell;
-      d.dataset.r=r; d.dataset.c=c;
+      if(val===-1){
+        /* 消えたセル: 見えない・触れない */
+        d.className='cell-empty';
+      } else {
+        d.className='cell';
+        if(dropSet?.has(r+','+c)) d.classList.add('drop');
+        d.textContent=ITEMS[val];
+        d.onclick=clickCell;
+        d.dataset.r=r; d.dataset.c=c;
+      }
       g.appendChild(d);
     }
   }
 }
 
-/* ── マッチ判定: 連結グループ4個以上 ── */
+/* マッチ判定: 連結グループ4個以上 */
 function findMatch(){
   const seen=Array.from({length:ROWS},()=>Array(COLS).fill(false));
   const set=new Set();
@@ -445,79 +437,104 @@ function gravity(){
   return drop;
 }
 
-/* ── クリック処理 ── */
+/* 座標(r,c)からDOMセルを取得するヘルパー */
+function getCellEl(r,c){
+  return el('grid').querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+}
+
+/* ════════════════════════════════
+   クリック: 1個消去 → 落下 → 連鎖
+════════════════════════════════ */
 async function clickCell(e){
   if(!running||busy) return;
   busy=true;
 
-  const r=+e.target.dataset.r;
-  const c=+e.target.dataset.c;
+  const r=+e.currentTarget.dataset.r;
+  const c=+e.currentTarget.dataset.c;
 
-  /* クリック時は静かに入れ替えのみ */
-  grid[r][c]=rand();
+  /* ① パーティクル発火 → grid即消去 → render で絵文字を消す */
+  const cellEl=getCellEl(r,c);
+  if(cellEl){
+    const rect=cellEl.getBoundingClientRect();
+    spawnSparks(rect.left+rect.width/2, rect.top+rect.height/2, 4);
+  }
+  playClear(0);
+  grid[r][c]=-1;
   timeLeft=Math.max(0,timeLeft-1);
+  render(null);   /* ← ここで確実に空セルになる */
 
-  const dropSet=new Set([r+','+c]);
-  render(dropSet);
-  await sleep(180);
+  /* ② 落下 */
+  await sleep(160);
+  const drop=gravity();
+  render(drop);
 
-  await chain(0);
+  /* ③ 落下アニメ待ち → 連鎖チェック */
+  await sleep(300);
+  await chain(1);
   busy=false;
 }
 
-/* ── 連鎖処理 ── */
+/* ════════════════════════════════
+   連鎖処理
+════════════════════════════════ */
 async function chain(n){
   const hit=findMatch();
   if(hit.size===0) return;
 
-  /* popアニメ開始と同時にパーティクルを各セルの位置から発生 */
-  const cells=el('grid').querySelectorAll('.cell');
+  /* コンボ表示 */
+  showCombo(n);
+  if(n>1) playCombo(n);
+
+  /* ① パーティクル発火 → grid即消去 → render で絵文字を全部消す */
   hit.forEach(k=>{
     const[r,c]=k.split(',').map(Number);
-    const cellEl=cells[r*COLS + c];
+    const cellEl=getCellEl(r,c);
     if(!cellEl) return;
     const rect=cellEl.getBoundingClientRect();
     spawnSparks(rect.left+rect.width/2, rect.top+rect.height/2, 5);
-    cellEl.classList.add('pop');
+    grid[r][c]=-1;   /* ← renderより先にgridを-1に */
   });
 
-  playClear(n);
-  await sleep(380);
+  playClear(n-1);
+  render(null);     /* ← 全対象セルが空セルになって確実に消える */
 
-  /* グリッド消去 */
-  hit.forEach(k=>{ const[r,c]=k.split(','); grid[r][c]=-1; });
-
-  /* スコア・タイム */
+  /* スコア・タイム更新 */
   score+=hit.size;
-  timeLeft=Math.min(60, timeLeft+Math.floor(hit.size*0.7));
+  timeLeft=Math.min(60,timeLeft+Math.floor(hit.size*0.7));
   updateUI();
 
-  /* コンボ */
-  if(n>0){ showCombo(n+1); playCombo(n); }
-
-  await sleep(80);
-
+  /* ② キラキラを見せる間を置いて落下 */
+  await sleep(480);
   const drop=gravity();
   render(drop);
-  await sleep(260);
+
+  /* ③ 落下アニメ待ち → 次の連鎖 */
+  await sleep(300);
   await chain(n+1);
 }
 
-/* ── コンボ表示 ── */
+/* ════════════════════════════════
+   コンボ表示
+════════════════════════════════ */
 function showCombo(n){
   const d=el('combo');
-  d.textContent=n+' CHAIN! 🔥';
   d.style.transition='none';
-  d.style.opacity='1';
-  d.style.transform='translate(-50%,-50%) scale(1.1)';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    d.style.transition='opacity .65s .3s, transform .65s .3s';
-    d.style.opacity='0';
-    d.style.transform='translate(-50%,-60%) scale(.9)';
-  }));
+  d.style.opacity='0';
+  d.textContent=n+' CHAIN! 🔥';
+  requestAnimationFrame(()=>{
+    d.style.opacity='1';
+    d.style.transform='translate(-50%,-50%) scale(1.15)';
+    setTimeout(()=>{
+      d.style.transition='opacity .65s, transform .65s';
+      d.style.opacity='0';
+      d.style.transform='translate(-50%,-63%) scale(.87)';
+    }, 750);
+  });
 }
 
-/* ── パーティクル ── */
+/* ════════════════════════════════
+   パーティクル
+════════════════════════════════ */
 function spawnSparks(x,y,num=5){
   const icons=['✨','⭐','💫','🌟','🎉','🍬'];
   const p=el('particles');
@@ -532,18 +549,18 @@ function spawnSparks(x,y,num=5){
   }
 }
 
-/* ══════════════════════════════════════
-   タイマー・UI
-══════════════════════════════════════ */
+/* ════════════════════════════════
+   UI / タイマー
+════════════════════════════════ */
 function updateUI(){
   el('score').textContent=score;
   el('time').textContent=Math.ceil(timeLeft);
   const pct=timeLeft/60*100;
   el('fill').style.width=pct+'%';
   el('fill').style.background=
-    pct>40 ? 'linear-gradient(90deg,#f4845f,#e8bc5a)' :
-    pct>20 ? 'linear-gradient(90deg,#e87040,#e05a2a)' :
-             'linear-gradient(90deg,#e02020,#c01010)';
+    pct>40?'linear-gradient(90deg,#f4845f,#e8bc5a)':
+    pct>20?'linear-gradient(90deg,#e87040,#e05a2a)':
+           'linear-gradient(90deg,#e02020,#c01010)';
 }
 
 function startGame(){
@@ -571,9 +588,9 @@ function endGame(){
   el('gameover').classList.add('show');
 }
 
-/* ══════════════════════════════════════
+/* ════════════════════════════════
    スコア保存 / ランキング
-══════════════════════════════════════ */
+════════════════════════════════ */
 function saveScore(){
   let hs=+localStorage.getItem('cookieHigh')||0;
   if(score>hs) localStorage.setItem('cookieHigh',score);
@@ -595,18 +612,17 @@ function showRanking(){
   loadScore();
 }
 
-/* ══════════════════════════════════════
-   X (Twitter) シェア
-══════════════════════════════════════ */
+/* ════════════════════════════════
+   X シェア
+════════════════════════════════ */
 function shareX(){
-  const text=`#クッキーパズル \nでお菓子を${score}個食べたよ！🍪\nあなたは何個食べられるかな？`;
-  const url='https://twitter.com/intent/tweet?text='+encodeURIComponent(text);
-  window.open(url,'_blank','noopener');
+  const text=`#クッキーパズル\nお菓子を${score}個食べたよ！🍪\nあなたは何個食べられるかな？`;
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','noopener');
 }
 
-/* ══════════════════════════════════════
+/* ════════════════════════════════
    リセット
-══════════════════════════════════════ */
+════════════════════════════════ */
 function resetGame(){
   clearInterval(timer);
   stopBGM();
