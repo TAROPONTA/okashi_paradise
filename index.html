@@ -484,13 +484,24 @@ function playOver(){
    BGM: AudioContextをまるごと作り直す方式
    → stopBGM()でclose()すれば音が即座に止まる
 ════════════════════════════════ */
-function startBGM(){
+/* スコア段階に対応したBPM
+   0〜99: 152  100〜199: 180  200〜299: 208  300〜: 236
+*/
+function bgmBPM(){
+  if(score>=300) return 236;
+  if(score>=200) return 208;
+  if(score>=100) return 180;
+  return 152;
+}
+
+function startBGM(bpm){
   stopBGM();          /* 既存を必ず先に完全停止 */
   if(muted) return;
+  if(bpm===undefined) bpm=bgmBPM();
 
   bgmCtx=new(window.AudioContext||window.webkitAudioContext)();
   const c=bgmCtx;
-  const BPM=152, beat=60/BPM;
+  const BPM=bpm, beat=60/BPM;
 
   const mel=[
     [784,.5],[880,.5],[1047,1],[880,.5],[784,.5],
@@ -748,10 +759,13 @@ async function chain(n){
   playClear(n-1);
   render(null);
 
+  const prevBPM=bgmBPM();
   score+=hit.size;
   /* 連鎖数に応じてタイム回復量が増加 */
   timeLeft=Math.min(60, timeLeft+timeBonus(hit.size, n));
   updateUI();
+  /* スコアがBPM変化の閾値をまたいだらBGMを即切り替え */
+  if(running && !muted && bgmBPM()!==prevBPM) startBGM();
 
   await sleep(480);
   const drop=gravity();
