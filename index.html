@@ -3,604 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🍪 クッキーパズル DX</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
-
+<title>🍪 クッキーパズル DX+</title>
 <style>
-:root{
---bg:#fdf4e7;
---accent:#f4845f;
---accent2:#6ec6a0;
---text:#3d2b1f;
---muted:#c4956a;
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
-body{
-font-family:'Nunito',sans-serif;
-background:var(--bg);
-color:var(--text);
-min-height:100vh;
-overflow:auto;
-padding:20px;
-position:relative;
-}
-
-body::before{
-content:"";
-position:fixed;
-inset:0;
-z-index:0;
-background:
-radial-gradient(circle at 15% 20%, #fde8d8 0%, transparent 45%),
-radial-gradient(circle at 85% 75%, #dff5ea 0%, transparent 45%),
-radial-gradient(circle at 50% 50%, #fff8ee 0%, transparent 70%);
-}
-
-.container{
-position:relative;
-z-index:1;
-width:max-content;
-margin:0 auto;
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:18px;
-}
-
-h1{
-font-family:'Fredoka One',cursive;
-font-size:2.6rem;
-color:var(--accent);
-text-shadow:3px 3px 0 #fde0d0;
-}
-
-.game-wrap{
-display:flex;
-gap:28px;
-align-items:flex-start;
-justify-content:center;
-flex-wrap:nowrap;
-}
-
-#grid{
-display:grid;
-grid-template-columns:repeat(7,62px);
-grid-template-rows:repeat(9,62px);
-gap:6px;
-flex-shrink:0;
-}
-
+body{font-family:sans-serif;background:#fdf4e7;text-align:center;margin:0;padding:20px}
+#grid{display:grid;grid-template-columns:repeat(7,62px);gap:6px;justify-content:center;margin:20px auto}
 .cell{
-width:62px;
-height:62px;
-border-radius:16px;
-display:flex;
-justify-content:center;
-align-items:center;
-font-size:2rem;
-cursor:pointer;
-user-select:none;
-background:#fff8f2;
+width:62px;height:62px;border-radius:16px;background:#fff8f2;
+display:flex;align-items:center;justify-content:center;
+font-size:2rem;cursor:pointer;user-select:none;
 box-shadow:0 4px 8px rgba(0,0,0,.08);
 transition:.12s;
 }
-
-.cell:hover{
-transform:scale(1.1);
-}
-
-.cell.matched{
-animation:pop .35s forwards;
-}
-
-.cell.drop{
-animation:drop .25s;
-}
-
+.cell:hover{transform:scale(1.08)}
+.cell.pop{animation:pop .35s forwards}
 @keyframes pop{
-0%{transform:scale(1);opacity:1;}
-100%{transform:scale(0);opacity:0;}
+0%{transform:scale(1);opacity:1}
+100%{transform:scale(0);opacity:0}
 }
-
-@keyframes drop{
-0%{transform:translateY(-35px);}
-100%{transform:translateY(0);}
-}
-
-.panel{
-width:160px;
-display:flex;
-flex-direction:column;
-gap:14px;
-}
-
-.block{text-align:center;}
-
-.label{
-font-size:.8rem;
-font-weight:800;
-color:var(--muted);
-margin-bottom:4px;
-}
-
-.value{
-font-family:'Fredoka One',cursive;
-font-size:2.5rem;
-color:var(--accent);
-line-height:1;
-}
-
-.divider{
-height:1px;
-background:rgba(0,0,0,.08);
-}
-
-.timerbar{
-height:16px;
-border-radius:999px;
-background:#e8d9ca;
-overflow:hidden;
-margin-bottom:6px;
-}
-
-#fill{
-height:100%;
-width:100%;
-background:linear-gradient(90deg,#f4845f,#e8bc5a);
-transition:width .1s linear;
-}
-
-.btn{
-border:none;
-border-radius:14px;
-padding:12px;
-font-family:'Fredoka One',cursive;
-font-size:1rem;
-cursor:pointer;
-color:#fff;
-background:var(--accent);
-box-shadow:0 4px 0 #ca6140;
-}
-
-.btn:active{
-transform:translateY(2px);
-box-shadow:0 2px 0 #ca6140;
-}
-
-.btn.green{
-background:var(--accent2);
-box-shadow:0 4px 0 #4a9f7a;
-}
-
-#combo{
-position:fixed;
-left:50%;
-top:45%;
-transform:translate(-50%,-50%);
-font-family:'Fredoka One',cursive;
-font-size:3rem;
-color:var(--accent);
-opacity:0;
-pointer-events:none;
-z-index:50;
-}
-
 #particles{
-position:fixed;
-inset:0;
-pointer-events:none;
-z-index:40;
+position:fixed;inset:0;pointer-events:none;
 }
-
-.particle{
+.spark{
 position:absolute;
-font-size:1.5rem;
+font-size:1.4rem;
 animation:fly .8s forwards;
 }
-
 @keyframes fly{
-0%{opacity:1;transform:translateY(0) scale(1);}
-100%{opacity:0;transform:translateY(-80px) scale(.4) rotate(25deg);}
+0%{opacity:1;transform:translateY(0) scale(1)}
+100%{opacity:0;transform:translateY(-80px) rotate(25deg) scale(.4)}
 }
-
-#gameover{
-position:fixed;
-inset:0;
-display:none;
-background:rgba(255,248,240,.94);
-z-index:60;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-gap:16px;
-}
-
-#gameover.show{display:flex;}
-
-#gameover h2{
-font-family:'Fredoka One',cursive;
-font-size:3rem;
-color:var(--accent);
-}
-
-#final{
-font-family:'Fredoka One',cursive;
-font-size:4rem;
-}
-
-#ranking{
-line-height:1.8;
-text-align:center;
-}
+button{padding:10px 18px;border:none;border-radius:12px;cursor:pointer}
 </style>
 </head>
 <body>
 
-<div id="combo"></div>
-<div id="particles"></div>
-
-<div class="container">
-<h1>🍪 クッキーパズル DX</h1>
-
-<div class="game-wrap">
+<h1>🍪 クッキーパズル DX+</h1>
+<div>
+<button onclick="startGame()">▶ スタート</button>
+<button onclick="toggleMute()" id="mute">🔊</button>
+</div>
 
 <div id="grid"></div>
-
-<div class="panel">
-
-<div class="block">
-<div class="label">食べた数</div>
-<div class="value" id="score">0</div>
-</div>
-
-<div class="divider"></div>
-
-<div class="block">
-<div class="label">ハイスコア</div>
-<div class="value" id="high">0</div>
-</div>
-
-<div class="divider"></div>
-
-<div class="block">
-<div class="label">タイム</div>
-<div class="timerbar"><div id="fill"></div></div>
-<div class="value" id="time" style="font-size:2rem;">60</div>
-</div>
-
-<div class="divider"></div>
-
-<button class="btn" onclick="startGame()" id="startBtn">▶ スタート</button>
-<button class="btn green" onclick="resetGame()">↺ リセット</button>
-<button class="btn" onclick="toggleMute()" id="muteBtn">🔊</button>
-
-</div>
-</div>
-</div>
-
-<div id="gameover">
-<h2>🍪 ゲームオーバー</h2>
-<div id="final">0</div>
-<div id="ranking"></div>
-<button class="btn" onclick="resetGame()">もう一度あそぶ</button>
-<button class="btn green" onclick="shareScore()">𝕏 シェア</button>
-</div>
+<div id="particles"></div>
 
 <script>
-const ROWS=9,COLS=7,NEED=4;
+const ROWS=9,COLS=7;
 const ITEMS=['🍪','🧁','🍩','🍰','🍫','🍬'];
 
-let grid=[],score=0,timeLeft=60,timer=null,running=false,busy=false;
-let audio=null,muted=false;
+let grid=[];
+let audioCtx=null;
+let muted=false;
+let bgmTimer=null;
 
-/* audio */
+/* =======================
+AUDIO
+======================= */
 function ctx(){
-if(!audio) audio=new(window.AudioContext||window.webkitAudioContext)();
-return audio;
+if(!audioCtx){
+audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+}
+return audioCtx;
 }
 
-function tone(f,d=.12,v=.05){
-if(muted) return;
+function tone(freq,dur=.15,vol=.04,type="sine",delay=0){
+if(muted)return;
 const c=ctx();
+const now=c.currentTime+delay;
+
 const o=c.createOscillator();
 const g=c.createGain();
-o.frequency.value=f;
-o.type="sine";
-g.gain.value=v;
-o.connect(g); g.connect(c.destination);
-o.start();
-g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);
-o.stop(c.currentTime+d);
+
+o.type=type;
+o.frequency.value=freq;
+
+g.gain.setValueAtTime(vol,now);
+g.gain.exponentialRampToValueAtTime(.0001,now+dur);
+
+o.connect(g);
+g.connect(c.destination);
+
+o.start(now);
+o.stop(now+dur);
 }
 
-function clearSound(){tone(620,.08,.06);setTimeout(()=>tone(880,.12,.05),50);}
-function comboSound(){tone(880,.08,.06);setTimeout(()=>tone(1170,.12,.05),60);}
-function overSound(){tone(420,.2,.06);setTimeout(()=>tone(260,.35,.05),200);}
+/* キラキラ効果音 */
+function playClear(){
+tone(620,.08,.05,"sine");
+tone(880,.10,.04,"triangle",0.05);
+tone(1240,.12,.03,"triangle",0.09);
+}
+
+/* BGM（元版に近いポップ調） */
+function startBGM(){
+stopBGM();
+
+const notes=[
+523,659,784,880,784,659,523,392,
+440,523,659,784,880,784,659,523
+];
+
+let i=0;
+
+bgmTimer=setInterval(()=>{
+tone(notes[i],.22,.025,"sine");
+tone(notes[i]/2,.18,.015,"triangle");
+i++;
+if(i>=notes.length)i=0;
+},240);
+}
+
+function stopBGM(){
+if(bgmTimer){
+clearInterval(bgmTimer);
+bgmTimer=null;
+}
+}
+
 function toggleMute(){
 muted=!muted;
-el("muteBtn").textContent=muted?"🔇":"🔊";
+document.getElementById("mute").textContent=muted?"🔇":"🔊";
+if(muted) stopBGM();
+else startBGM();
 }
 
-/* util */
-function el(id){return document.getElementById(id);}
-function rand(){return Math.floor(Math.random()*ITEMS.length);}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+/* =======================
+GAME
+======================= */
+function rand(){
+return Math.floor(Math.random()*ITEMS.length);
+}
 
-/* init */
 function createGrid(){
 grid=[];
 for(let r=0;r<ROWS;r++){
 grid[r]=[];
-for(let c=0;c<COLS;c++) grid[r][c]=rand();
+for(let c=0;c<COLS;c++){
+grid[r][c]=rand();
+}
 }
 }
 
-function render(drop=null){
-const g=el("grid");
+function render(){
+const g=document.getElementById("grid");
 g.innerHTML="";
+
 for(let r=0;r<ROWS;r++){
 for(let c=0;c<COLS;c++){
 const d=document.createElement("div");
 d.className="cell";
-if(drop && drop.has(r+","+c)) d.classList.add("drop");
+d.textContent=ITEMS[grid[r][c]];
 d.dataset.r=r;
 d.dataset.c=c;
-if(grid[r][c]!==-1) d.textContent=ITEMS[grid[r][c]];
 d.onclick=clickCell;
 g.appendChild(d);
 }
 }
 }
 
-/* click */
-async function clickCell(e){
-if(!running||busy)return;
-busy=true;
+function clickCell(e){
+const cell=e.currentTarget;
+const r=+cell.dataset.r;
+const c=+cell.dataset.c;
 
-const r=+e.currentTarget.dataset.r;
-const c=+e.currentTarget.dataset.c;
+cell.classList.add("pop");
 
-e.currentTarget.classList.add("matched");
-clearSound();
+playClear();
+spawnSpark(cell);
 
-await sleep(180);
-
-grid[r][c]=-1;
-timeLeft=Math.max(0,timeLeft-1);
-updateUI();
-
-render();
-await sleep(100);
-
-let d=gravity();
-render(d);
-await sleep(220);
-
-await chain(0);
-
-busy=false;
-}
-
-/* match */
-function findMatch(){
-const set=new Set();
-const seen=[...Array(ROWS)].map(()=>Array(COLS).fill(false));
-
-for(let r=0;r<ROWS;r++){
-for(let c=0;c<COLS;c++){
-
-if(grid[r][c]===-1||seen[r][c]) continue;
-
-const type=grid[r][c];
-const stack=[[r,c]];
-const group=[];
-seen[r][c]=true;
-
-while(stack.length){
-const [y,x]=stack.pop();
-group.push([y,x]);
-
-[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dy,dx])=>{
-const ny=y+dy,nx=x+dx;
-if(ny>=0&&ny<ROWS&&nx>=0&&nx<COLS&&!seen[ny][nx]&&grid[ny][nx]===type){
-seen[ny][nx]=true;
-stack.push([ny,nx]);
-}
-});
-}
-
-if(group.length>=NEED){
-group.forEach(v=>set.add(v[0]+","+v[1]));
-}
-}
-}
-return set;
-}
-
-function gravity(){
-const drop=new Set();
-
-for(let c=0;c<COLS;c++){
-let w=ROWS-1;
-
-for(let r=ROWS-1;r>=0;r--){
-if(grid[r][c]!==-1){
-grid[w][c]=grid[r][c];
-if(w!==r) drop.add(w+","+c);
-w--;
-}
-}
-
-for(let r=w;r>=0;r--){
-grid[r][c]=rand();
-drop.add(r+","+c);
-}
-}
-return drop;
-}
-
-async function chain(n){
-const hit=findMatch();
-if(hit.size===0) return;
-
-clearSound();
-
-hit.forEach(key=>{
-const [r,c]=key.split(",");
-spawn(r,c);
-grid[r][c]=-1;
-});
-
-score+=hit.size;
-timeLeft=Math.min(60,timeLeft+Math.floor(hit.size*.7));
-updateUI();
-
-if(n>0){
-combo(n+1);
-comboSound();
-}
-
-render();
-await sleep(180);
-
-let d=gravity();
-render(d);
-
-await sleep(250);
-
-await chain(n+1);
-}
-
-/* particle */
-function spawn(r,c){
-const p=document.createElement("div");
-p.className="particle";
-p.textContent="✨";
-p.style.left=(window.innerWidth/2-220+c*68)+"px";
-p.style.top=(140+r*68)+"px";
-el("particles").appendChild(p);
-setTimeout(()=>p.remove(),800);
-}
-
-/* timer */
-function startGame(){
-if(running)return;
-ctx().resume();
-
-running=true;
-el("startBtn").disabled=true;
-el("startBtn").textContent="⏳ プレイ中";
-
-timer=setInterval(()=>{
-timeLeft-=0.1;
-if(timeLeft<=0){
-timeLeft=0;
-updateUI();
-endGame();
-return;
-}
-updateUI();
-},100);
-}
-
-function endGame(){
-running=false;
-clearInterval(timer);
-overSound();
-
-saveScore();
-
-el("final").textContent=score;
-showRanking();
-
-el("gameover").classList.add("show");
-}
-
-/* score */
-function saveScore(){
-let hs=+localStorage.getItem("cookieHigh")||0;
-if(score>hs) localStorage.setItem("cookieHigh",score);
-
-let arr=JSON.parse(localStorage.getItem("cookieRank")||"[]");
-arr.push(score);
-arr.sort((a,b)=>b-a);
-arr=arr.slice(0,5);
-localStorage.setItem("cookieRank",JSON.stringify(arr));
-}
-
-function loadScore(){
-el("high").textContent=localStorage.getItem("cookieHigh")||0;
-}
-
-function showRanking(){
-const arr=JSON.parse(localStorage.getItem("cookieRank")||"[]");
-el("ranking").innerHTML=arr.map((v,i)=>`${i+1}位　${v}個`).join("<br>");
-loadScore();
-}
-
-/* ui */
-function updateUI(){
-el("score").textContent=score;
-el("time").textContent=Math.ceil(timeLeft);
-el("fill").style.width=(timeLeft/60*100)+"%";
-}
-
-function combo(n){
-const d=el("combo");
-d.textContent=n+" CHAIN!";
-d.style.opacity="1";
-d.style.transform="translate(-50%,-50%) scale(1.2)";
 setTimeout(()=>{
-d.style.transition=".5s";
-d.style.opacity="0";
-d.style.transform="translate(-50%,-65%) scale(.8)";
-},50);
-setTimeout(()=>d.style.transition="none",600);
-}
-
-/* share */
-function shareScore(){
-const txt=`クッキーパズルDXで${score}個食べた！`;
-window.open(
-"https://twitter.com/intent/tweet?text="+encodeURIComponent(txt),
-"_blank"
-);
-}
-
-/* reset */
-function resetGame(){
-clearInterval(timer);
-running=false;
-busy=false;
-score=0;
-timeLeft=60;
-
-el("gameover").classList.remove("show");
-el("startBtn").disabled=false;
-el("startBtn").textContent="▶ スタート";
-
-createGrid();
-
-let n=0;
-while(findMatch().size>0 && n<20){
-createGrid();
-n++;
-}
-
+grid[r][c]=rand();
 render();
-updateUI();
-loadScore();
-showRanking();
+},260);
 }
 
-resetGame();
+/* =======================
+キラキラ演出
+======================= */
+function spawnSpark(cell){
+const rect=cell.getBoundingClientRect();
+
+for(let i=0;i<8;i++){
+const s=document.createElement("div");
+s.className="spark";
+s.textContent=["✨","⭐","💫","🌟"][Math.floor(Math.random()*4)];
+
+s.style.left=(rect.left+20+Math.random()*20)+"px";
+s.style.top=(rect.top+15+Math.random()*20)+"px";
+
+document.getElementById("particles").appendChild(s);
+
+setTimeout(()=>s.remove(),800);
+}
+}
+
+/* =======================
+START
+======================= */
+function startGame(){
+ctx().resume();
+createGrid();
+render();
+startBGM();
+}
+
+startGame();
 </script>
 </body>
 </html>
