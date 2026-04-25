@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🍪 クッキーパズル</title>
+<title>🍪 クッキーパズル DX</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 
@@ -25,12 +25,11 @@ box-sizing:border-box;
 body{
 font-family:'Nunito',sans-serif;
 background:var(--bg);
-min-height:100vh;
-display:block;
-overflow:auto;
 color:var(--text);
-position:relative;
+min-height:100vh;
+overflow:auto;
 padding:20px;
+position:relative;
 }
 
 body::before{
@@ -47,13 +46,12 @@ radial-gradient(circle at 50% 50%, #fff8ee 0%, transparent 70%);
 .container{
 position:relative;
 z-index:1;
-padding:20px;
+width:max-content;
+margin:0 auto;
 display:flex;
 flex-direction:column;
 align-items:center;
 gap:18px;
-width:max-content;
-margin:0 auto;
 }
 
 h1{
@@ -71,13 +69,12 @@ justify-content:center;
 flex-wrap:nowrap;
 }
 
-/* GRID */
 #grid{
 display:grid;
 grid-template-columns:repeat(7,62px);
 grid-template-rows:repeat(9,62px);
 gap:6px;
-min-width:max-content;
+flex-shrink:0;
 }
 
 .cell{
@@ -91,8 +88,8 @@ font-size:2rem;
 cursor:pointer;
 user-select:none;
 background:#fff8f2;
-box-shadow:0 4px 8px rgba(0,0,0,0.08);
-transition:transform .12s;
+box-shadow:0 4px 8px rgba(0,0,0,.08);
+transition:.12s;
 }
 
 .cell:hover{
@@ -113,21 +110,18 @@ animation:drop .25s;
 }
 
 @keyframes drop{
-0%{transform:translateY(-30px);}
+0%{transform:translateY(-35px);}
 100%{transform:translateY(0);}
 }
 
-/* PANEL */
 .panel{
-width:150px;
+width:160px;
 display:flex;
 flex-direction:column;
 gap:14px;
 }
 
-.block{
-text-align:center;
-}
+.block{text-align:center;}
 
 .label{
 font-size:.8rem;
@@ -151,7 +145,7 @@ background:rgba(0,0,0,.08);
 .timerbar{
 height:16px;
 border-radius:999px;
-background:#e7d9c9;
+background:#e8d9ca;
 overflow:hidden;
 margin-bottom:6px;
 }
@@ -195,24 +189,40 @@ font-size:3rem;
 color:var(--accent);
 opacity:0;
 pointer-events:none;
-z-index:30;
+z-index:50;
+}
+
+#particles{
+position:fixed;
+inset:0;
+pointer-events:none;
+z-index:40;
+}
+
+.particle{
+position:absolute;
+font-size:1.5rem;
+animation:fly .8s forwards;
+}
+
+@keyframes fly{
+0%{opacity:1;transform:translateY(0) scale(1);}
+100%{opacity:0;transform:translateY(-80px) scale(.4) rotate(25deg);}
 }
 
 #gameover{
 position:fixed;
 inset:0;
-background:rgba(255,248,240,.94);
 display:none;
-z-index:40;
+background:rgba(255,248,240,.94);
+z-index:60;
 justify-content:center;
 align-items:center;
 flex-direction:column;
 gap:16px;
 }
 
-#gameover.show{
-display:flex;
-}
+#gameover.show{display:flex;}
 
 #gameover h2{
 font-family:'Fredoka One',cursive;
@@ -231,13 +241,13 @@ text-align:center;
 }
 </style>
 </head>
-
 <body>
 
 <div id="combo"></div>
+<div id="particles"></div>
 
 <div class="container">
-<h1>🍪 クッキーパズル</h1>
+<h1>🍪 クッキーパズル DX</h1>
 
 <div class="game-wrap">
 
@@ -269,6 +279,7 @@ text-align:center;
 
 <button class="btn" onclick="startGame()" id="startBtn">▶ スタート</button>
 <button class="btn green" onclick="resetGame()">↺ リセット</button>
+<button class="btn" onclick="toggleMute()" id="muteBtn">🔊</button>
 
 </div>
 </div>
@@ -279,77 +290,97 @@ text-align:center;
 <div id="final">0</div>
 <div id="ranking"></div>
 <button class="btn" onclick="resetGame()">もう一度あそぶ</button>
+<button class="btn green" onclick="shareScore()">𝕏 シェア</button>
 </div>
 
 <script>
-const ROWS=9;
-const COLS=7;
-const NEED=4;
+const ROWS=9,COLS=7,NEED=4;
 const ITEMS=['🍪','🧁','🍩','🍰','🍫','🍬'];
 
-let grid=[];
-let score=0;
-let timeLeft=60;
-let timer=null;
-let running=false;
-let busy=false;
+let grid=[],score=0,timeLeft=60,timer=null,running=false,busy=false;
+let audio=null,muted=false;
 
-/* ---------- util ---------- */
+/* audio */
+function ctx(){
+if(!audio) audio=new(window.AudioContext||window.webkitAudioContext)();
+return audio;
+}
+
+function tone(f,d=.12,v=.05){
+if(muted) return;
+const c=ctx();
+const o=c.createOscillator();
+const g=c.createGain();
+o.frequency.value=f;
+o.type="sine";
+g.gain.value=v;
+o.connect(g); g.connect(c.destination);
+o.start();
+g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);
+o.stop(c.currentTime+d);
+}
+
+function clearSound(){tone(620,.08,.06);setTimeout(()=>tone(880,.12,.05),50);}
+function comboSound(){tone(880,.08,.06);setTimeout(()=>tone(1170,.12,.05),60);}
+function overSound(){tone(420,.2,.06);setTimeout(()=>tone(260,.35,.05),200);}
+function toggleMute(){
+muted=!muted;
+el("muteBtn").textContent=muted?"🔇":"🔊";
+}
+
+/* util */
 function el(id){return document.getElementById(id);}
 function rand(){return Math.floor(Math.random()*ITEMS.length);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
-/* ---------- init ---------- */
+/* init */
 function createGrid(){
 grid=[];
 for(let r=0;r<ROWS;r++){
 grid[r]=[];
-for(let c=0;c<COLS;c++){
-grid[r][c]=rand();
-}
+for(let c=0;c<COLS;c++) grid[r][c]=rand();
 }
 }
 
-function render(dropSet=null){
+function render(drop=null){
 const g=el("grid");
 g.innerHTML="";
-
 for(let r=0;r<ROWS;r++){
 for(let c=0;c<COLS;c++){
 const d=document.createElement("div");
 d.className="cell";
-if(dropSet && dropSet.has(r+","+c)) d.classList.add("drop");
-
+if(drop && drop.has(r+","+c)) d.classList.add("drop");
 d.dataset.r=r;
 d.dataset.c=c;
-
-if(grid[r][c]!==-1){
-d.textContent=ITEMS[grid[r][c]];
-}
-
+if(grid[r][c]!==-1) d.textContent=ITEMS[grid[r][c]];
 d.onclick=clickCell;
 g.appendChild(d);
 }
 }
 }
 
-/* ---------- click ---------- */
+/* click */
 async function clickCell(e){
-if(!running || busy) return;
+if(!running||busy)return;
 busy=true;
 
 const r=+e.currentTarget.dataset.r;
 const c=+e.currentTarget.dataset.c;
+
+e.currentTarget.classList.add("matched");
+clearSound();
+
+await sleep(180);
 
 grid[r][c]=-1;
 timeLeft=Math.max(0,timeLeft-1);
 updateUI();
 
 render();
-await sleep(120);
+await sleep(100);
 
-const drop=gravity();
-render(drop);
-
+let d=gravity();
+render(d);
 await sleep(220);
 
 await chain(0);
@@ -357,7 +388,7 @@ await chain(0);
 busy=false;
 }
 
-/* ---------- match ---------- */
+/* match */
 function findMatch(){
 const set=new Set();
 const seen=[...Array(ROWS)].map(()=>Array(COLS).fill(false));
@@ -365,7 +396,7 @@ const seen=[...Array(ROWS)].map(()=>Array(COLS).fill(false));
 for(let r=0;r<ROWS;r++){
 for(let c=0;c<COLS;c++){
 
-if(grid[r][c]===-1 || seen[r][c]) continue;
+if(grid[r][c]===-1||seen[r][c]) continue;
 
 const type=grid[r][c];
 const stack=[[r,c]];
@@ -378,12 +409,7 @@ group.push([y,x]);
 
 [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dy,dx])=>{
 const ny=y+dy,nx=x+dx;
-if(
-ny>=0&&ny<ROWS&&
-nx>=0&&nx<COLS&&
-!seen[ny][nx]&&
-grid[ny][nx]===type
-){
+if(ny>=0&&ny<ROWS&&nx>=0&&nx<COLS&&!seen[ny][nx]&&grid[ny][nx]===type){
 seen[ny][nx]=true;
 stack.push([ny,nx]);
 }
@@ -422,35 +448,51 @@ return drop;
 
 async function chain(n){
 const hit=findMatch();
-
 if(hit.size===0) return;
+
+clearSound();
 
 hit.forEach(key=>{
 const [r,c]=key.split(",");
+spawn(r,c);
 grid[r][c]=-1;
 });
 
 score+=hit.size;
-timeLeft=Math.min(60,timeLeft+Math.floor(hit.size*0.7));
-
+timeLeft=Math.min(60,timeLeft+Math.floor(hit.size*.7));
 updateUI();
 
-if(n>0) combo(n+1);
+if(n>0){
+combo(n+1);
+comboSound();
+}
 
 render();
-await sleep(200);
+await sleep(180);
 
-const drop=gravity();
-render(drop);
+let d=gravity();
+render(d);
 
 await sleep(250);
 
 await chain(n+1);
 }
 
-/* ---------- timer ---------- */
+/* particle */
+function spawn(r,c){
+const p=document.createElement("div");
+p.className="particle";
+p.textContent="✨";
+p.style.left=(window.innerWidth/2-220+c*68)+"px";
+p.style.top=(140+r*68)+"px";
+el("particles").appendChild(p);
+setTimeout(()=>p.remove(),800);
+}
+
+/* timer */
 function startGame(){
-if(running) return;
+if(running)return;
+ctx().resume();
 
 running=true;
 el("startBtn").disabled=true;
@@ -458,14 +500,12 @@ el("startBtn").textContent="⏳ プレイ中";
 
 timer=setInterval(()=>{
 timeLeft-=0.1;
-
 if(timeLeft<=0){
 timeLeft=0;
 updateUI();
 endGame();
 return;
 }
-
 updateUI();
 },100);
 }
@@ -473,6 +513,7 @@ updateUI();
 function endGame(){
 running=false;
 clearInterval(timer);
+overSound();
 
 saveScore();
 
@@ -482,12 +523,11 @@ showRanking();
 el("gameover").classList.add("show");
 }
 
-/* ---------- score ---------- */
+/* score */
 function saveScore(){
 let hs=+localStorage.getItem("cookieHigh")||0;
-if(score>hs){
-localStorage.setItem("cookieHigh",score);
-}
+if(score>hs) localStorage.setItem("cookieHigh",score);
+
 let arr=JSON.parse(localStorage.getItem("cookieRank")||"[]");
 arr.push(score);
 arr.sort((a,b)=>b-a);
@@ -505,13 +545,11 @@ el("ranking").innerHTML=arr.map((v,i)=>`${i+1}位　${v}個`).join("<br>");
 loadScore();
 }
 
-/* ---------- ui ---------- */
+/* ui */
 function updateUI(){
 el("score").textContent=score;
 el("time").textContent=Math.ceil(timeLeft);
-
-const p=(timeLeft/60)*100;
-el("fill").style.width=p+"%";
+el("fill").style.width=(timeLeft/60*100)+"%";
 }
 
 function combo(n){
@@ -519,19 +557,24 @@ const d=el("combo");
 d.textContent=n+" CHAIN!";
 d.style.opacity="1";
 d.style.transform="translate(-50%,-50%) scale(1.2)";
-
 setTimeout(()=>{
 d.style.transition=".5s";
 d.style.opacity="0";
 d.style.transform="translate(-50%,-65%) scale(.8)";
 },50);
-
-setTimeout(()=>{
-d.style.transition="none";
-},600);
+setTimeout(()=>d.style.transition="none",600);
 }
 
-/* ---------- reset ---------- */
+/* share */
+function shareScore(){
+const txt=`クッキーパズルDXで${score}個食べた！`;
+window.open(
+"https://twitter.com/intent/tweet?text="+encodeURIComponent(txt),
+"_blank"
+);
+}
+
+/* reset */
 function resetGame(){
 clearInterval(timer);
 running=false;
@@ -545,10 +588,10 @@ el("startBtn").textContent="▶ スタート";
 
 createGrid();
 
-let safe=0;
-while(findMatch().size>0 && safe<20){
+let n=0;
+while(findMatch().size>0 && n<20){
 createGrid();
-safe++;
+n++;
 }
 
 render();
@@ -557,12 +600,7 @@ loadScore();
 showRanking();
 }
 
-function sleep(ms){
-return new Promise(r=>setTimeout(r,ms));
-}
-
 resetGame();
 </script>
-
 </body>
 </html>
