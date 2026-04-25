@@ -56,12 +56,14 @@ body::before{
   color:#fff;
 }
 
+/* ════ PC レイアウト ════ */
 .container{
   position:relative;z-index:1;
   width:max-content;
   margin:0 auto;
   display:flex;flex-direction:column;
   align-items:center;gap:18px;
+  padding-bottom:24px;
 }
 
 h1{
@@ -70,29 +72,37 @@ h1{
   text-shadow:3px 3px 0 #fde0d0;
 }
 
+/* PC: グリッド＋パネル横並び */
 .wrap{
   display:flex;gap:24px;
   align-items:flex-start;
   flex-wrap:wrap;justify-content:center;
 }
 
-/* ── グリッド: アイコンを少し大きく ── */
+/* グリッドをwrapperで包んでscaleのズレを吸収 */
+#grid-wrapper{
+  display:flex;
+  align-items:flex-start;
+}
+
 #grid{
   display:grid;
   grid-template-columns:repeat(7,66px);
   grid-template-rows:repeat(9,66px);
   gap:6px;
+  transform-origin:top left;
 }
 
 .cell{
   width:66px;height:66px;
   border-radius:16px;
   display:flex;align-items:center;justify-content:center;
-  font-size:2.4rem;          /* 2.1rem → 2.4rem */
+  font-size:2.4rem;
   cursor:pointer;user-select:none;
   background:transparent;
   filter:drop-shadow(0 3px 5px rgba(120,60,0,.2));
   transition:transform .12s,filter .12s;
+  -webkit-tap-highlight-color:transparent;
 }
 .cell:hover{
   transform:scale(1.14) rotate(-4deg);
@@ -112,16 +122,19 @@ h1{
   to  {transform:translateY(0)     scale(1); opacity:1}
 }
 
-/* ── パネル ── */
+/* ── PC パネル（グリッド右側の縦並び） ── */
 .panel{
   width:164px;
   display:flex;flex-direction:column;gap:12px;
 }
+/* スマホ用パネルは初期非表示 */
+.panel-mobile{display:none}
+
 .label{font-size:.78rem;color:var(--muted);font-weight:800;letter-spacing:1px;text-transform:uppercase}
 .value{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-shadow:2px 2px 0 #fde0d0}
 
 .timerbar{height:16px;border-radius:999px;background:rgba(180,120,60,.15);overflow:hidden}
-#fill{height:100%;width:100%;background:linear-gradient(90deg,#f4845f,#e8bc5a);transition:.15s linear}
+#fill,#fill-m{height:100%;width:100%;background:linear-gradient(90deg,#f4845f,#e8bc5a);transition:.15s linear}
 
 .sep{height:1px;background:linear-gradient(90deg,transparent,rgba(180,120,60,.2),transparent)}
 
@@ -132,6 +145,7 @@ h1{
   color:#fff;background:var(--accent);
   box-shadow:0 4px 0 #c95c3a;
   transition:transform .1s,box-shadow .1s;
+  -webkit-tap-highlight-color:transparent;
 }
 .btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #c95c3a}
 .btn:active{transform:translateY(2px);box-shadow:0 2px 0 #c95c3a}
@@ -142,9 +156,8 @@ h1{
 .btn.x-btn:hover{box-shadow:0 6px 0 #333}
 .btn.x-btn:active{box-shadow:0 2px 0 #333}
 
-/* ミュートボタン: トグル中は半透明 */
-#muteBtn{font-size:1.3rem;padding:8px;opacity:1;transition:opacity .2s}
-#muteBtn.muted{opacity:.5}
+#muteBtn,#muteBtn-m{font-size:1.3rem;padding:8px;opacity:1;transition:opacity .2s}
+#muteBtn.muted,#muteBtn-m.muted{opacity:.5}
 
 /* ── コンボ ── */
 #combo{
@@ -179,6 +192,74 @@ h1{
 .go-label{font-size:.8rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
 #ranking{text-align:center;line-height:2;font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--muted);}
 .go-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* ════════════════════════════════
+   スマホレイアウト
+   グリッドをscaleで縮小し、パネルを下部横並びに切り替え
+════════════════════════════════ */
+@media(max-width:600px){
+  body{padding:8px 4px 120px;}
+
+  #lang-switch{top:8px;left:8px;}
+
+  h1{font-size:1.6rem;margin-top:32px;}
+
+  /* PC用パネルを非表示 */
+  .panel{display:none}
+  /* スマホ用パネルを表示 */
+  .panel-mobile{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    width:100%;
+    max-width:520px;
+    padding:0 4px;
+  }
+
+  /* スコア行: 食べた数・ハイスコア・タイム横並び */
+  .mob-stats{
+    display:flex;gap:8px;justify-content:space-between;align-items:flex-end;
+  }
+  .mob-stat{
+    flex:1;text-align:center;
+  }
+  .mob-stat .label{font-size:.65rem;}
+  .mob-stat .value{font-size:1.7rem;}
+
+  /* タイマーバー */
+  .mob-timer{width:100%;}
+
+  /* ボタン行 */
+  .mob-btns{
+    display:flex;gap:8px;
+  }
+  .mob-btns .btn{flex:1;padding:10px 4px;font-size:.9rem;}
+
+  /* グリッドをscaleで自動縮小
+     66px×7col + 6px×6gap = 498px が元サイズ
+     wrapperはscale後の実際の幅に縮む */
+  #grid-wrapper{
+    width:100%;
+    display:flex;
+    justify-content:center;
+  }
+  #grid{
+    transform-origin:top center;
+    /* JS側でscaleを動的にセット */
+  }
+
+  /* ドネートボタンをスマホでは小さく下部中央に */
+  #donateBtn{
+    right:auto!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+    bottom:10px!important;
+    font-size:.8rem!important;
+    padding:8px 14px!important;
+  }
+
+  #combo{font-size:2rem;}
+}
 </style>
 </head>
 <body>
@@ -195,7 +276,12 @@ h1{
 <div class="container">
   <h1 id="txt-title">🍪 クッキーパズル</h1>
   <div class="wrap">
-    <div id="grid"></div>
+    <!-- グリッド -->
+    <div id="grid-wrapper">
+      <div id="grid"></div>
+    </div>
+
+    <!-- PC用パネル（右側縦並び） -->
     <div class="panel">
       <div class="label" id="txt-score-label">食べた数</div>
       <div class="value" id="score">0</div>
@@ -209,6 +295,30 @@ h1{
       <button class="btn"       onclick="startGame()" id="startBtn">▶ スタート</button>
       <button class="btn green" onclick="resetGame()" id="resetBtn">↺ リセット</button>
       <button class="btn"       onclick="toggleMute()" id="muteBtn">🔊</button>
+    </div>
+  </div>
+
+  <!-- スマホ用パネル（グリッド下・横並び） -->
+  <div class="panel-mobile">
+    <div class="mob-stats">
+      <div class="mob-stat">
+        <div class="label" id="txt-score-label-m">食べた数</div>
+        <div class="value" id="score-m">0</div>
+      </div>
+      <div class="mob-stat">
+        <div class="label" id="txt-high-label-m">ハイスコア</div>
+        <div class="value" id="high-m">0</div>
+      </div>
+      <div class="mob-stat">
+        <div class="label" id="txt-time-label-m">タイム</div>
+        <div class="value" id="time-m" style="font-size:1.7rem">60</div>
+      </div>
+    </div>
+    <div class="mob-timer timerbar"><div id="fill-m"></div></div>
+    <div class="mob-btns">
+      <button class="btn"       onclick="startGame()" id="startBtn-m">▶ スタート</button>
+      <button class="btn green" onclick="resetGame()" id="resetBtn-m">↺ リセット</button>
+      <button class="btn"       onclick="toggleMute()" id="muteBtn-m">🔊</button>
     </div>
   </div>
 </div>
@@ -243,6 +353,7 @@ const LANGS={
     goShare:'𝕏 シェア',
     rankSuffix:' 個',
     shareText:(s)=>`#クッキーパズル\nお菓子を${s}個食べたよ！🍪\nあなたは何個食べられるかな？`,
+    donate:'☕ おやつ代をあげる',
   },
   en:{
     title:'🍪 Cookie Puzzle',
@@ -258,6 +369,7 @@ const LANGS={
     goShare:'𝕏 Share',
     rankSuffix:'',
     shareText:(s)=>`#CookiePuzzle\nI ate ${s} cookies! 🍪\nCan you beat my score?`,
+    donate:'☕ Buy me a snack',
   }
 };
 
@@ -282,6 +394,19 @@ function applyLang(){
   const sb=document.getElementById('startBtn');
   sb.textContent = running ? T.playing : T.start;
   document.getElementById('resetBtn').textContent = T.reset;
+  const db=document.getElementById('donateBtn');
+  if(db) db.textContent=T.donate;
+  /* スマホパネルのラベルも更新 */
+  const slm=document.getElementById('txt-score-label-m');
+  const hlm=document.getElementById('txt-high-label-m');
+  const tlm=document.getElementById('txt-time-label-m');
+  const sbm=document.getElementById('startBtn-m');
+  const rbm=document.getElementById('resetBtn-m');
+  if(slm) slm.textContent=T.scoreLabel;
+  if(hlm) hlm.textContent=T.highLabel;
+  if(tlm) tlm.textContent=T.timeLabel;
+  if(sbm) sbm.textContent=running?T.playing:T.start;
+  if(rbm) rbm.textContent=T.reset;
   /* ランキング再描画（言語更新のため） */
   showRanking();
 }
@@ -476,13 +601,12 @@ function stopBGM(){
 
 function toggleMute(){
   muted=!muted;
-  el('muteBtn').textContent = muted ? '🔇' : '🔊';
-  el('muteBtn').classList.toggle('muted', muted);
-  if(muted){
-    stopBGM();
-  } else {
-    if(running) startBGM();
-  }
+  ['muteBtn','muteBtn-m'].forEach(id=>{
+    const b=el(id); if(!b) return;
+    b.textContent=muted?'🔇':'🔊';
+    b.classList.toggle('muted',muted);
+  });
+  if(muted){ stopBGM(); } else { if(running) startBGM(); }
 }
 
 /* ════════════════════════════════
@@ -677,14 +801,32 @@ function spawnSparks(x,y,num=5){
    UI / タイマー
 ════════════════════════════════ */
 function updateUI(){
-  el('score').textContent=score;
-  el('time').textContent=Math.ceil(timeLeft);
+  const t=Math.ceil(timeLeft);
   const pct=timeLeft/60*100;
+  const bg=pct>40?'linear-gradient(90deg,#f4845f,#e8bc5a)':
+           pct>20?'linear-gradient(90deg,#e87040,#e05a2a)':
+                  'linear-gradient(90deg,#e02020,#c01010)';
+  /* PC */
+  el('score').textContent=score;
+  el('time').textContent=t;
   el('fill').style.width=pct+'%';
-  el('fill').style.background=
-    pct>40?'linear-gradient(90deg,#f4845f,#e8bc5a)':
-    pct>20?'linear-gradient(90deg,#e87040,#e05a2a)':
-           'linear-gradient(90deg,#e02020,#c01010)';
+  el('fill').style.background=bg;
+  /* スマホ */
+  const sm=el('score-m'), tm=el('time-m'), fm=el('fill-m'), hm=el('high-m');
+  if(sm) sm.textContent=score;
+  if(tm) tm.textContent=t;
+  if(fm){fm.style.width=pct+'%';fm.style.background=bg;}
+}
+
+/* スコアに応じた時間減少係数
+   0〜99:  ×1.0  100〜199: ×1.25
+   200〜299: ×1.55  300〜: ×1.90
+*/
+function decayRate(){
+  if(score>=300) return 1.90;
+  if(score>=200) return 1.55;
+  if(score>=100) return 1.25;
+  return 1.0;
 }
 
 function startGame(){
@@ -694,9 +836,10 @@ function startGame(){
   const T=LANGS[lang];
   el('startBtn').disabled=true;
   el('startBtn').textContent=T.playing;
+  const sbm=el('startBtn-m'); if(sbm){sbm.disabled=true;sbm.textContent=T.playing;}
   startBGM();
   timer=setInterval(()=>{
-    timeLeft-=0.1;
+    timeLeft-=0.1*decayRate();
     if(timeLeft<=0){ timeLeft=0; updateUI(); endGame(); return; }
     updateUI();
   },100);
@@ -725,7 +868,9 @@ function saveScore(){
 }
 
 function loadScore(){
-  el('high').textContent=localStorage.getItem('cookieHigh')||0;
+  const v=localStorage.getItem('cookieHigh')||0;
+  el('high').textContent=v;
+  const hm=el('high-m'); if(hm) hm.textContent=v;
 }
 
 function showRanking(){
@@ -756,6 +901,7 @@ function resetGame(){
   el('gameover').classList.remove('show');
   el('startBtn').disabled=false;
   el('startBtn').textContent=LANGS[lang].start;
+  const sbm2=el('startBtn-m'); if(sbm2){sbm2.disabled=false;sbm2.textContent=LANGS[lang].start;}
   createGrid();
   let n=0;
   while(findMatch().size>0&&n++<20) createGrid();
@@ -769,6 +915,57 @@ function resetGame(){
 ════════════════════════════════ */
 resetGame();
 applyLang();
+
+/* ════════════════════════════════
+   スマホ: グリッドをviewport幅に合わせてscale
+   元グリッドサイズ: 66×7 + 6×6 = 498px
+════════════════════════════════ */
+const GRID_NATIVE_W = 66*7 + 6*6; // 498px
+
+function scaleGrid(){
+  const grid = document.getElementById('grid');
+  const wrapper = document.getElementById('grid-wrapper');
+  const vw = window.innerWidth;
+  if(vw <= 600){
+    const avail = vw - 8; // 左右4pxずつのpadding分
+    const s = Math.min(1, avail / GRID_NATIVE_W);
+    grid.style.transform = 'scale(' + s + ')';
+    // wrapperの高さをscale後の実高に合わせる
+    const nativeH = 66*9 + 6*8; // 630px
+    wrapper.style.width  = Math.round(GRID_NATIVE_W * s) + 'px';
+    wrapper.style.height = Math.round(nativeH * s) + 'px';
+    wrapper.style.overflow = 'hidden';
+    // グリッドをwrapper左端に合わせる（transform-origin:top center なので中央揃え）
+    grid.style.marginLeft = '0';
+  } else {
+    grid.style.transform = '';
+    wrapper.style.width  = '';
+    wrapper.style.height = '';
+    wrapper.style.overflow = '';
+  }
+}
+
+scaleGrid();
+window.addEventListener('resize', scaleGrid);
 </script>
+
+<!-- Donation固定ボタン -->
+<a id="donateBtn"
+   href="https://taroponta.itch.io/cookie-puzzle/donate"
+   target="_blank" rel="noopener"
+   style="
+     position:fixed;right:16px;bottom:16px;z-index:200;
+     background:#f4845f;color:#fff;
+     font-family:'Fredoka One',cursive;font-size:.95rem;
+     padding:10px 16px;border-radius:14px;
+     box-shadow:0 4px 0 #c95c3a;
+     text-decoration:none;
+     transition:transform .1s,box-shadow .1s;
+   "
+   onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 0 #c95c3a'"
+   onmouseout="this.style.transform='';this.style.boxShadow='0 4px 0 #c95c3a'"
+   onmousedown="this.style.transform='translateY(2px)';this.style.boxShadow='0 2px 0 #c95c3a'"
+   onmouseup="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 0 #c95c3a'"
+>☕ おやつ代をあげる</a>
 </body>
 </html>
