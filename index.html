@@ -2,891 +2,566 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>🍪 クッキーパズル</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+
 <style>
-:root {
---bg: #fdf4e7;
---accent: #f4845f;
---accent2: #6ec6a0;
---text: #3d2b1f;
---shadow: rgba(180,120,60,0.12);
---muted: #c4956a;
+:root{
+--bg:#fdf4e7;
+--accent:#f4845f;
+--accent2:#6ec6a0;
+--text:#3d2b1f;
+--muted:#c4956a;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-background: var(--bg);
-font-family: 'Nunito', sans-serif;
-color: var(--text);
-min-height: 100vh;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-overflow-x: auto;
-overflow-y: auto;
-}
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
-body::before {
-content: '';
-position: fixed; inset: 0;
+body{
+font-family:'Nunito',sans-serif;
+background:var(--bg);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:auto;
+color:var(--text);
+position:relative;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+z-index:0;
 background:
 radial-gradient(circle at 15% 20%, #fde8d8 0%, transparent 45%),
 radial-gradient(circle at 85% 75%, #dff5ea 0%, transparent 45%),
 radial-gradient(circle at 50% 50%, #fff8ee 0%, transparent 70%);
-z-index: 0;
 }
 
-.container {
-position: relative; z-index: 1;
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 14px;
-padding: 20px;
-width: 100%;
-max-width: 1100px;
-margin: 0 auto;
+.container{
+position:relative;
+z-index:1;
+padding:20px;
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:18px;
 }
 
-h1 {
-font-family: 'Fredoka One', cursive;
-font-size: 2.4rem;
-color: var(--accent);
-letter-spacing: 2px;
-text-shadow: 3px 3px 0 #fde0d0;
+h1{
+font-family:'Fredoka One',cursive;
+font-size:2.6rem;
+color:var(--accent);
+text-shadow:3px 3px 0 #fde0d0;
 }
 
-.game-wrapper {
-display: flex;
-gap: 28px;
-align-items: flex-start;
-justify-content: center;
-flex-wrap: wrap;
+.game-wrap{
+display:flex;
+gap:28px;
+align-items:flex-start;
+flex-wrap:wrap;
+justify-content:center;
 }
 
-/* ── GRID ── */
-#grid {
-display: grid;
-grid-template-columns: repeat(7, 62px);
-grid-template-rows: repeat(9, 62px);
-gap: 6px;
+/* GRID */
+#grid{
+display:grid;
+grid-template-columns:repeat(7,62px);
+grid-template-rows:repeat(9,62px);
+gap:6px;
+min-width:max-content;
 }
 
-.cell {
-width: 62px; height: 62px;
-border-radius: 16px;
-display: flex; align-items: center; justify-content: center;
-font-size: 2.1rem;
-cursor: pointer;
-user-select: none;
-position: relative;
-/* 背景なし・枠なし → 影だけで浮かせる */
-background: transparent;
-transition: transform 0.12s, filter 0.12s;
-filter: drop-shadow(0 4px 6px rgba(120,60,0,0.18));
+.cell{
+width:62px;
+height:62px;
+border-radius:16px;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:2rem;
+cursor:pointer;
+user-select:none;
+background:#fff8f2;
+box-shadow:0 4px 8px rgba(0,0,0,0.08);
+transition:transform .12s;
 }
 
-.cell:hover {
-transform: scale(1.18) rotate(-3deg);
-filter: drop-shadow(0 6px 10px rgba(120,60,0,0.28));
-z-index: 2;
+.cell:hover{
+transform:scale(1.1);
 }
 
-.cell:active { transform: scale(0.92); }
-
-.cell.matched {
-animation: matchBurst 0.38s ease forwards;
+.cell.matched{
+animation:pop .35s forwards;
 }
 
-.cell.dropping {
-animation: dropIn 0.32s cubic-bezier(0.34,1.56,0.64,1) forwards;
+.cell.drop{
+animation:drop .25s;
 }
 
-@keyframes matchBurst {
-0% { transform: scale(1); opacity: 1; filter: brightness(1); }
-35% { transform: scale(1.4); opacity: 1; filter: brightness(1.6); }
-100% { transform: scale(0); opacity: 0; }
+@keyframes pop{
+0%{transform:scale(1);opacity:1;}
+100%{transform:scale(0);opacity:0;}
 }
 
-@keyframes dropIn {
-from { transform: translateY(-70px) scale(0.7); opacity: 0; }
-to { transform: translateY(0) scale(1); opacity: 1; }
+@keyframes drop{
+0%{transform:translateY(-30px);}
+100%{transform:translateY(0);}
 }
 
-/* ── SIDE PANEL ── */
-.side-panel {
-display: flex;
-flex-direction: column;
-gap: 14px;
-width: 136px;
-padding-top: 4px;
+/* PANEL */
+.panel{
+width:150px;
+display:flex;
+flex-direction:column;
+gap:14px;
 }
 
-.score-block {
-text-align: center;
+.block{
+text-align:center;
 }
 
-.score-label {
-font-size: 0.72rem;
-font-weight: 800;
-color: var(--muted);
-text-transform: uppercase;
-letter-spacing: 1.5px;
-margin-bottom: 2px;
+.label{
+font-size:.8rem;
+font-weight:800;
+color:var(--muted);
+margin-bottom:4px;
 }
 
-.score-value {
-font-family: 'Fredoka One', cursive;
-font-size: 2.6rem;
-color: var(--accent);
-line-height: 1;
-text-shadow: 2px 2px 0 #fde0d0;
+.value{
+font-family:'Fredoka One',cursive;
+font-size:2.5rem;
+color:var(--accent);
+line-height:1;
 }
 
-/* Timer */
-.timer-block { text-align: center; }
-
-.timer-label {
-font-size: 0.72rem;
-font-weight: 800;
-color: var(--muted);
-text-transform: uppercase;
-letter-spacing: 1.5px;
-margin-bottom: 6px;
+.divider{
+height:1px;
+background:rgba(0,0,0,.08);
 }
 
-.timer-track {
-width: 100%;
-height: 16px;
-background: rgba(180,120,60,0.15);
-border-radius: 99px;
-overflow-x: auto;
-overflow-y: auto;
-margin-bottom: 6px;
+.timerbar{
+height:16px;
+border-radius:999px;
+background:#e7d9c9;
+overflow:hidden;
+margin-bottom:6px;
 }
 
-#timer-fill {
-height: 100%;
-width: 100%;
-background: linear-gradient(90deg, #f4845f, #e8bc5a);
-border-radius: 99px;
-transition: width 0.18s linear, background 0.5s;
+#fill{
+height:100%;
+width:100%;
+background:linear-gradient(90deg,#f4845f,#e8bc5a);
+transition:width .1s linear;
 }
 
-.timer-text {
-font-family: 'Fredoka One', cursive;
-font-size: 1.5rem;
-color: var(--accent);
+.btn{
+border:none;
+border-radius:14px;
+padding:12px;
+font-family:'Fredoka One',cursive;
+font-size:1rem;
+cursor:pointer;
+color:#fff;
+background:var(--accent);
+box-shadow:0 4px 0 #ca6140;
 }
 
-/* Divider */
-.divider {
-width: 100%;
-height: 1px;
-background: linear-gradient(90deg, transparent, rgba(180,120,60,0.2), transparent);
+.btn:active{
+transform:translateY(2px);
+box-shadow:0 2px 0 #ca6140;
 }
 
-/* Buttons */
-.btn {
-font-family: 'Fredoka One', cursive;
-font-size: 1.05rem;
-background: var(--accent);
-color: #fff;
-border: none;
-border-radius: 14px;
-padding: 11px 0;
-width: 100%;
-cursor: pointer;
-box-shadow: 0 4px 0 #c95c3a;
-transition: transform 0.1s, box-shadow 0.1s;
-letter-spacing: 0.5px;
+.btn.green{
+background:var(--accent2);
+box-shadow:0 4px 0 #4a9f7a;
 }
 
-.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #c95c3a; }
-.btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #c95c3a; }
-
-.btn.green {
-background: var(--accent2);
-box-shadow: 0 4px 0 #4a9f7a;
-}
-.btn.green:hover { box-shadow: 0 6px 0 #4a9f7a; }
-.btn.green:active { box-shadow: 0 2px 0 #4a9f7a; }
-
-/* Mute toggle */
-.mute-btn {
-background: none;
-border: none;
-cursor: pointer;
-font-size: 1.5rem;
-opacity: 0.7;
-transition: opacity 0.15s, transform 0.1s;
-align-self: center;
-}
-.mute-btn:hover { opacity: 1; transform: scale(1.15); }
-
-/* ── COMBO ── */
-#combo-display {
-position: fixed;
-top: 46%; left: 50%;
-transform: translate(-50%, -50%);
-font-family: 'Fredoka One', cursive;
-font-size: 3.8rem;
-color: var(--accent);
-text-shadow: 3px 3px 0 #fff, 6px 6px 0 #fde0d0;
-opacity: 0;
-pointer-events: none;
-z-index: 100;
+#combo{
+position:fixed;
+left:50%;
+top:45%;
+transform:translate(-50%,-50%);
+font-family:'Fredoka One',cursive;
+font-size:3rem;
+color:var(--accent);
+opacity:0;
+pointer-events:none;
+z-index:30;
 }
 
-/* ── PARTICLES ── */
-.particles {
-position: fixed; inset: 0;
-pointer-events: none; z-index: 50;
-overflow-x: auto;
-overflow-y: auto;
+#gameover{
+position:fixed;
+inset:0;
+background:rgba(255,248,240,.94);
+display:none;
+z-index:40;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+gap:16px;
 }
 
-.particle {
-position: absolute;
-font-size: 1.6rem;
-animation: floatUp 0.9s ease-out forwards;
-pointer-events: none;
+#gameover.show{
+display:flex;
 }
 
-@keyframes floatUp {
-from { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
-to { opacity: 0; transform: translateY(-90px) rotate(30deg) scale(0.4); }
+#gameover h2{
+font-family:'Fredoka One',cursive;
+font-size:3rem;
+color:var(--accent);
 }
 
-/* ── GAME OVER ── */
-#gameover {
-display: none;
-position: fixed; inset: 0;
-background: rgba(253,244,231,0.93);
-z-index: 200;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 18px;
-backdrop-filter: blur(6px);
+#final{
+font-family:'Fredoka One',cursive;
+font-size:4rem;
 }
 
-#gameover.show { display: flex; }
-
-#gameover h2 {
-font-family: 'Fredoka One', cursive;
-font-size: 3.5rem;
-color: var(--accent);
-text-shadow: 3px 3px 0 #fde0d0;
-}
-
-#gameover .go-label {
-font-size: 0.9rem; color: var(--muted);
-font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
-}
-
-#gameover .final-score {
-font-family: 'Fredoka One', cursive;
-font-size: 5rem;
-color: var(--text);
-line-height: 1;
+#ranking{
+line-height:1.8;
+text-align:center;
 }
 </style>
 </head>
+
 <body>
 
-<div class="particles" id="particles"></div>
-<div id="combo-display"></div>
+<div id="combo"></div>
 
 <div class="container">
 <h1>🍪 クッキーパズル</h1>
 
-<div class="game-wrapper">
+<div class="game-wrap">
 
 <div id="grid"></div>
 
-<div class="side-panel">
-<div class="score-block">
-<div class="score-label">食べた数</div>
-<div class="score-value" id="score">0</div>
-</div>
-<div class="divider"></div>
+<div class="panel">
 
-<div class="score-block">
-<div class="score-label">ハイスコア</div>
-<div class="score-value" id="highscore">0</div>
+<div class="block">
+<div class="label">食べた数</div>
+<div class="value" id="score">0</div>
 </div>
 
 <div class="divider"></div>
 
-<div class="timer-block">
-<div class="timer-label">⏱ タイム</div>
-<div class="timer-track">
-<div id="timer-fill"></div>
-</div>
-<div class="timer-text" id="timer-text">60</div>
+<div class="block">
+<div class="label">ハイスコア</div>
+<div class="value" id="high">0</div>
 </div>
 
 <div class="divider"></div>
 
-<button class="btn" id="start-btn" onclick="startGame()">▶ スタート</button>
+<div class="block">
+<div class="label">タイム</div>
+<div class="timerbar"><div id="fill"></div></div>
+<div class="value" id="time" style="font-size:2rem;">60</div>
+</div>
+
+<div class="divider"></div>
+
+<button class="btn" onclick="startGame()" id="startBtn">▶ スタート</button>
 <button class="btn green" onclick="resetGame()">↺ リセット</button>
-<button class="mute-btn" id="mute-btn" onclick="toggleMute()" title="ミュート">🔊</button>
-</div>
 
+</div>
 </div>
 </div>
 
 <div id="gameover">
 <h2>🍪 ゲームオーバー</h2>
-<div class="go-label">最終スコア</div>
-<div class="final-score" id="final-score">0</div>
-<div class="go-label">TODAY RANKING</div>
-<div id="ranking-list"></div>
-<button class="btn" style="width:220px;" onclick="resetGame()">もう一度あそぶ</button>
-
-<button class="btn green" style="width:220px;" onclick="shareScore()">
-𝕏 スコアをシェア
-</button>
+<div id="final">0</div>
+<div id="ranking"></div>
+<button class="btn" onclick="resetGame()">もう一度あそぶ</button>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════
-WEB AUDIO ENGINE
-═══════════════════════════════════════════ */
-let audioCtx = null;
-let muted = false;
-let bgmNodes = {}; // 再生中のBGMノード群
+const ROWS=9;
+const COLS=7;
+const NEED=4;
+const ITEMS=['🍪','🧁','🍩','🍰','🍫','🍬'];
 
-function getCtx() {
-if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-return audioCtx;
-}
+let grid=[];
+let score=0;
+let timeLeft=60;
+let timer=null;
+let running=false;
+let busy=false;
 
-// マスターボリューム
-function masterGain(ctx, vol = 0.22) {
-const g = ctx.createGain();
-g.gain.value = vol;
-g.connect(ctx.destination);
-return g;
-}
+/* ---------- util ---------- */
+function el(id){return document.getElementById(id);}
+function rand(){return Math.floor(Math.random()*ITEMS.length);}
 
-// 基本のオシレーター音
-function playTone(freq, type, dur, vol, startTime, ctx, dest) {
-const osc = ctx.createOscillator();
-const gain = ctx.createGain();
-osc.type = type;
-osc.frequency.setValueAtTime(freq, startTime);
-gain.gain.setValueAtTime(vol, startTime);
-gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);
-osc.connect(gain);
-gain.connect(dest);
-osc.start(startTime);
-osc.stop(startTime + dur);
-}
-
-// 消去効果音: キラキラポップ
-function playClearSound(chain = 0) {
-if (muted) return;
-const ctx = getCtx();
-const out = masterGain(ctx, 0.3);
-const now = ctx.currentTime;
-// 上昇アルペジオ
-const base = 520 + chain * 80;
-const notes = [base, base * 1.26, base * 1.5, base * 2];
-notes.forEach((f, i) => {
-playTone(f, 'sine', 0.18, 0.5, now + i * 0.055, ctx, out);
-// shimmer (triangle)
-playTone(f * 2, 'triangle', 0.12, 0.18, now + i * 0.055 + 0.02, ctx, out);
-});
-// チャイム的な余韻
-playTone(base * 3, 'sine', 0.4, 0.2, now + 0.22, ctx, out);
-}
-
-// クリック音: ポップ
-function playClickSound() {
-if (muted) return;
-const ctx = getCtx();
-const out = masterGain(ctx, 0.25);
-const now = ctx.currentTime;
-playTone(440, 'sine', 0.06, 0.6, now, ctx, out);
-playTone(660, 'triangle', 0.05, 0.4, now+0.03, ctx, out);
-}
-
-// コンボ音: 高揚感
-function playComboSound(chain) {
-if (muted) return;
-const ctx = getCtx();
-const out = masterGain(ctx, 0.32);
-const now = ctx.currentTime;
-const scale = [523,659,784,1047,1319];
-const top = Math.min(chain + 2, scale.length - 1);
-for (let i = 0; i <= top; i++) {
-playTone(scale[i], 'sine', 0.22, 0.55, now + i*0.07, ctx, out);
-playTone(scale[i]*1.5, 'triangle', 0.12, 0.3, now + i*0.07+0.01, ctx, out);
-}
-}
-
-// ゲームオーバー音
-function playGameoverSound() {
-if (muted) return;
-const ctx = getCtx();
-const out = masterGain(ctx, 0.28);
-const now = ctx.currentTime;
-[440,392,349,294,261].forEach((f, i) => {
-playTone(f, 'sine', 0.25, 0.5, now + i * 0.12, ctx, out);
-});
-}
-
-/* ── BGM: かわいいポップなループ ── */
-function startBGM(speed = 1) {
-if (muted) return;
-stopBGM();
-const ctx = getCtx();
-// テンポ
-const bpm = 128 * speed;
-const beat = 60 / bpm;
-// メロディ音符 (音程, 長さ(拍))
-const melody = [
-[523,1],[659,1],[784,1],[880,0.5],[784,0.5],
-[659,1],[523,1],[392,2],
-[440,1],[523,1],[659,1],[784,0.5],[880,0.5],
-[784,1],[659,1],[523,2],
-[784,1],[880,1],[1047,1],[880,0.5],[784,0.5],
-[659,1],[523,1],[440,2],
-[523,1],[659,1],[784,1],[659,0.5],[523,0.5],
-[392,1],[440,1],[523,3],
-];
-// ベース音符
-const bass = [
-[131,2],[165,2],[196,2],[220,2],
-[131,2],[165,2],[196,2],[220,2],
-[175,2],[220,2],[261,2],[220,2],
-[131,2],[165,2],[196,4],
-];
-
-const melOut = masterGain(ctx, 0.13);
-const bassOut = masterGain(ctx, 0.09);
-const hihatOut = masterGain(ctx, 0.06);
-
-// ループ長計算
-const totalBeats = melody.reduce((s, n) => s + n[1], 0);
-const loopDur = totalBeats * beat;
-
-function scheduleMelody(startAt) {
-let t = startAt;
-melody.forEach(([freq, dur]) => {
-playTone(freq, 'sine', dur * beat * 0.85, 0.55, t, ctx, melOut);
-t += dur * beat;
-});
-}
-
-function scheduleBass(startAt) {
-let t = startAt;
-bass.forEach(([freq, dur]) => {
-playTone(freq, 'triangle', dur * beat * 0.7, 0.65, t, ctx, bassOut);
-t += dur * beat;
-});
-}
-
-function scheduleHihat(startAt) {
-// 16th note hihat
-const steps = totalBeats * 4;
-for (let i = 0; i < steps; i++) {
-const t = startAt + i * beat * 0.25;
-const vol = i % 2 === 0 ? 0.45 : 0.2;
-playTone(8000 + Math.random()*2000, 'sawtooth', 0.025, vol, t, ctx, hihatOut);
-}
-}
-
-let loopStart = ctx.currentTime + 0.05;
-
-function loop() {
-scheduleMelody(loopStart);
-scheduleBass(loopStart);
-scheduleHihat(loopStart);
-loopStart += loopDur;
-}
-
-loop();
-// 2ループ先取りスケジュール、以降インターバルで継続
-loop();
-bgmNodes.interval = setInterval(() => {
-if (!muted && bgmNodes.interval) loop();
-}, loopDur * 1000 - 200);
-}
-
-function stopBGM() {
-if (bgmNodes.interval) {
-clearInterval(bgmNodes.interval);
-bgmNodes.interval = null;
-}
-}
-
-function toggleMute() {
-muted = !muted;
-document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
-if (muted) {
-stopBGM();
-} else if (gameRunning) {
-startBGM();
-}
-}
-
-/* ═══════════════════════════════════════════
-GAME LOGIC
-═══════════════════════════════════════════ */
-const COLS = 7, ROWS = 9;
-const COOKIES = ['🍪','🧁','🍩','🍰','🍫','🍬'];
-const MATCH_COUNT = 4;
-
-let grid = [];
-let score = 0;
-let timeLeft = 60;
-let maxTime = 60;
-let bgmSpeedUp = false;
-let timerInterval = null;
-let gameRunning = false;
-let processing = false;
-
-function el(id) { return document.getElementById(id); }
-
-function randomType() { return Math.floor(Math.random() * COOKIES.length); }
-
-function initGrid() {
-grid = [];
-for (let r = 0; r < ROWS; r++) {
-grid[r] = [];
-for (let c = 0; c < COLS; c++) grid[r][c] = randomType();
-}
-}
-
-function renderGrid(droppingSet) {
-const g = el('grid');
-g.innerHTML = '';
-for (let r = 0; r < ROWS; r++) {
-for (let c = 0; c < COLS; c++) {
-const t = grid[r][c];
-const div = document.createElement('div');
-div.className = 'cell';
-if (droppingSet && droppingSet.has(`${r},${c}`)) div.classList.add('dropping');
-div.textContent = t >= 0 ? COOKIES[t] : '';
-div.dataset.r = r;
-div.dataset.c = c;
-div.addEventListener('click', onCellClick);
-g.appendChild(div);
+/* ---------- init ---------- */
+function createGrid(){
+grid=[];
+for(let r=0;r<ROWS;r++){
+grid[r]=[];
+for(let c=0;c<COLS;c++){
+grid[r][c]=rand();
 }
 }
 }
 
-function findMatches() {
-const matched = new Set();
-const visited = Array.from({length: ROWS}, () => Array(COLS).fill(false));
+function render(dropSet=null){
+const g=el("grid");
+g.innerHTML="";
 
-for (let r = 0; r < ROWS; r++) {
-for (let c = 0; c < COLS; c++) {
-if (visited[r][c] || grid[r][c] === -1) continue;
+for(let r=0;r<ROWS;r++){
+for(let c=0;c<COLS;c++){
+const d=document.createElement("div");
+d.className="cell";
+if(dropSet && dropSet.has(r+","+c)) d.classList.add("drop");
 
-const type = grid[r][c];
-const group = [];
-const stack = [[r,c]];
-visited[r][c] = true;
+d.dataset.r=r;
+d.dataset.c=c;
 
-while (stack.length) {
-const [cr, cc] = stack.pop();
-group.push([cr,cc]);
+if(grid[r][c]!==-1){
+d.textContent=ITEMS[grid[r][c]];
+}
 
-[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc]) => {
-const nr = cr + dr;
-const nc = cc + dc;
+d.onclick=clickCell;
+g.appendChild(d);
+}
+}
+}
 
-if (
-nr >= 0 && nr < ROWS &&
-nc >= 0 && nc < COLS &&
-!visited[nr][nc] &&
-grid[nr][nc] === type
-) {
-visited[nr][nc] = true;
-stack.push([nr,nc]);
+/* ---------- click ---------- */
+async function clickCell(e){
+if(!running || busy) return;
+busy=true;
+
+const r=+e.currentTarget.dataset.r;
+const c=+e.currentTarget.dataset.c;
+
+grid[r][c]=-1;
+timeLeft=Math.max(0,timeLeft-1);
+updateUI();
+
+render();
+await sleep(120);
+
+const drop=gravity();
+render(drop);
+
+await sleep(220);
+
+await chain(0);
+
+busy=false;
+}
+
+/* ---------- match ---------- */
+function findMatch(){
+const set=new Set();
+const seen=[...Array(ROWS)].map(()=>Array(COLS).fill(false));
+
+for(let r=0;r<ROWS;r++){
+for(let c=0;c<COLS;c++){
+
+if(grid[r][c]===-1 || seen[r][c]) continue;
+
+const type=grid[r][c];
+const stack=[[r,c]];
+const group=[];
+seen[r][c]=true;
+
+while(stack.length){
+const [y,x]=stack.pop();
+group.push([y,x]);
+
+[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dy,dx])=>{
+const ny=y+dy,nx=x+dx;
+if(
+ny>=0&&ny<ROWS&&
+nx>=0&&nx<COLS&&
+!seen[ny][nx]&&
+grid[ny][nx]===type
+){
+seen[ny][nx]=true;
+stack.push([ny,nx]);
 }
 });
 }
 
-if (group.length >= MATCH_COUNT)
-group.forEach(([gr,gc]) => matched.add(`${gr},${gc}`));
+if(group.length>=NEED){
+group.forEach(v=>set.add(v[0]+","+v[1]));
 }
+}
+}
+return set;
+}
+
+function gravity(){
+const drop=new Set();
+
+for(let c=0;c<COLS;c++){
+let w=ROWS-1;
+
+for(let r=ROWS-1;r>=0;r--){
+if(grid[r][c]!==-1){
+grid[w][c]=grid[r][c];
+if(w!==r) drop.add(w+","+c);
+w--;
 }
 }
 
-return matched;
+for(let r=w;r>=0;r--){
+grid[r][c]=rand();
+drop.add(r+","+c);
+}
+}
+return drop;
 }
 
-function applyGravity() {
-const dropping = new Set();
-for (let c = 0; c < COLS; c++) {
-let write = ROWS - 1;
-for (let r = ROWS - 1; r >= 0; r--) {
-if (grid[r][c] !== -1) {
-if (write !== r) dropping.add(`${write},${c}`);
-grid[write][c] = grid[r][c];
-write--;
-}
-}
-for (let r = write; r >= 0; r--) {
-grid[r][c] = randomType();
-dropping.add(`${r},${c}`);
-}
-}
-return dropping;
-}
+async function chain(n){
+const hit=findMatch();
 
-async function processMatches(chain) {
-const matched = findMatches();
-if (matched.size === 0) {
-processing = false;
-return;
-}
+if(hit.size===0) return;
 
-/* 全対象セルへ確実にエフェクト付与 */
-matched.forEach(key => {
-const [r,c] = key.split(',').map(Number);
-const target = document.querySelector(
-`.cell[data-r="${r}"][data-c="${c}"]`
-);
-if (target) target.classList.add('matched');
+hit.forEach(key=>{
+const [r,c]=key.split(",");
+grid[r][c]=-1;
 });
 
-/* 効果音 */
-playClearSound(chain);
+score+=hit.size;
+timeLeft=Math.min(60,timeLeft+Math.floor(hit.size*0.7));
 
-await sleep(380);
+updateUI();
 
-// 消去
-matched.forEach(key => {
-const [r, c] = key.split(',').map(Number);
-grid[r][c] = -1;
-});
+if(n>0) combo(n+1);
 
-// スコア・タイム
-score += matched.size;
-el('score').textContent = score;
+render();
+await sleep(200);
 
-timeLeft = Math.min(maxTime, timeLeft + Math.floor(matched.size * 0.8));
-updateTimerUI();
-
-// コンボ
-if (chain > 0) {
-showCombo(chain + 1);
-playComboSound(chain);
-}
-
-// パーティクル
-const gridEl = el('grid');
-const gridRect = gridEl.getBoundingClientRect();
-matched.forEach(key => {
-const [r, c] = key.split(',').map(Number);
-const x = gridRect.left + c * 68 + 31;
-const y = gridRect.top + r * 68 + 31;
-spawnParticle(x, y);
-});
-
-await sleep(100);
-
-const dropping = applyGravity();
-renderGrid(dropping);
-await sleep(330);
-
-await processMatches(chain + 1);
-}
-  
-async function onCellClick(e) {
-if (!gameRunning || processing) return;
-
-processing = true;
-playClickSound();
-
-const r = +e.currentTarget.dataset.r;
-const c = +e.currentTarget.dataset.c;
-
-/* クリックしたセルを先に演出で消す */
-const cell = e.currentTarget;
-cell.classList.add("matched");
+const drop=gravity();
+render(drop);
 
 await sleep(250);
 
-/* 実データ削除（必ず1個消える） */
-grid[r][c] = -1;
-
-/* タイム消費 */
-timeLeft = Math.max(0, timeLeft - 1.2);
-updateTimerUI();
-
-renderGrid();
-
-await sleep(100);
-
-/* 落下 */
-const dropping = applyGravity();
-renderGrid(dropping);
-
-await sleep(300);
-
-/* 自動4個消し判定 */
-await processMatches(0);
-
-renderGrid();
-processing = false;
+await chain(n+1);
 }
 
-function updateTimerUI() {
-const pct = (timeLeft / maxTime) * 100;
-el('timer-fill').style.width = pct + '%';
-el('timer-fill').style.background =
-pct > 40 ? 'linear-gradient(90deg,#f4845f,#e8bc5a)' :
-pct > 20 ? 'linear-gradient(90deg,#e87040,#e05a2a)' :
-'linear-gradient(90deg,#e02020,#e05a2a)';
-el('timer-text').textContent = Math.ceil(timeLeft);
+/* ---------- timer ---------- */
+function startGame(){
+if(running) return;
+
+running=true;
+el("startBtn").disabled=true;
+el("startBtn").textContent="⏳ プレイ中";
+
+timer=setInterval(()=>{
+timeLeft-=0.1;
+
+if(timeLeft<=0){
+timeLeft=0;
+updateUI();
+endGame();
+return;
 }
 
-function startTimer() {
-timerInterval = setInterval(() => {
-if (!gameRunning) return;
-timeLeft -= 0.1;
-if (timeLeft <= 10 && !bgmSpeedUp) {
-bgmSpeedUp = true;
-stopBGM();
-startBGM(1.35);
-}
-if (timeLeft <= 0) { timeLeft = 0; updateTimerUI(); endGame(); }
-else updateTimerUI();
-}, 100);
+updateUI();
+},100);
 }
 
-function startGame() {
-// AudioContext はユーザー操作後でないと動かないのでここで初期化
-getCtx().resume();
-el('start-btn').disabled = true;
-el('start-btn').textContent = '⏳ プレイ中';
-gameRunning = true;
-startTimer();
-startBGM();
+function endGame(){
+running=false;
+clearInterval(timer);
+
+saveScore();
+
+el("final").textContent=score;
+showRanking();
+
+el("gameover").classList.add("show");
 }
 
-function endGame() {
-gameRunning = false;
-clearInterval(timerInterval);
-stopBGM();
-playGameoverSound();
-
-saveHighScore();
-saveRanking();
-
-el('final-score').textContent = score;
-el('gameover').classList.add('show');
+/* ---------- score ---------- */
+function saveScore(){
+let hs=+localStorage.getItem("cookieHigh")||0;
+if(score>hs){
+localStorage.setItem("cookieHigh",score);
+}
+let arr=JSON.parse(localStorage.getItem("cookieRank")||"[]");
+arr.push(score);
+arr.sort((a,b)=>b-a);
+arr=arr.slice(0,5);
+localStorage.setItem("cookieRank",JSON.stringify(arr));
 }
 
-function loadHighScore() {
-const hs = localStorage.getItem("cookieHighScore") || 0;
-el("highscore").textContent = hs;
+function loadScore(){
+el("high").textContent=localStorage.getItem("cookieHigh")||0;
 }
 
-function saveHighScore() {
-const hs = Number(localStorage.getItem("cookieHighScore") || 0);
-
-if (score > hs) {
-localStorage.setItem("cookieHighScore", score);
-el("highscore").textContent = score;
-}
-}
-function saveRanking() {
-let list = JSON.parse(localStorage.getItem("cookieRanking") || "[]");
-
-list.push(score);
-list.sort((a,b)=>b-a);
-list = list.slice(0,5);
-
-localStorage.setItem("cookieRanking", JSON.stringify(list));
-
-renderRanking(list);
+function showRanking(){
+const arr=JSON.parse(localStorage.getItem("cookieRank")||"[]");
+el("ranking").innerHTML=arr.map((v,i)=>`${i+1}位　${v}個`).join("<br>");
+loadScore();
 }
 
-function renderRanking(list) {
-el("ranking-list").innerHTML =
-list.map((s,i)=>
-`${i+1}位　${s}個`
-).join("<br>");
-}
-function resetGame() {
-clearInterval(timerInterval);
-stopBGM();
-gameRunning = false;
-processing = false;
-score = 0;
-timeLeft = 60;
-el('score').textContent = '0';
-el('gameover').classList.remove('show');
-el('start-btn').disabled = false;
-el('start-btn').textContent = '▶ スタート';
-initGrid();
-let tries = 0;
-while (findMatches().size > 0 && tries++ < 20) initGrid();
-renderGrid(null);
-updateTimerUI();
+/* ---------- ui ---------- */
+function updateUI(){
+el("score").textContent=score;
+el("time").textContent=Math.ceil(timeLeft);
 
-loadHighScore();
-renderRanking(
-JSON.parse(localStorage.getItem("cookieRanking") || "[]")
-);
-
-bgmSpeedUp = false;
-}
-/* ── Combo display ── */
-function showCombo(n) {
-const d = el('combo-display');
-d.textContent = `${n} CHAIN! 🔥`;
-d.style.transition = 'none';
-d.style.opacity = '1';
-d.style.transform = 'translate(-50%,-50%) scale(1.1)';
-requestAnimationFrame(() => requestAnimationFrame(() => {
-d.style.transition = 'opacity 0.7s 0.35s, transform 0.7s 0.35s';
-d.style.opacity = '0';
-d.style.transform = 'translate(-50%,-60%) scale(0.9)';
-}));
+const p=(timeLeft/60)*100;
+el("fill").style.width=p+"%";
 }
 
-/* ── Particles ── */
-function spawnParticle(x, y) {
-const icons = ['✨','⭐','💫','🌟','🎉','🍬'];
-const span = document.createElement('span');
-span.className = 'particle';
-span.textContent = icons[Math.floor(Math.random() * icons.length)];
-span.style.left = (x + (Math.random()-0.5)*50) + 'px';
-span.style.top = (y + (Math.random()-0.5)*20) + 'px';
-el('particles').appendChild(span);
-setTimeout(() => span.remove(), 950);
+function combo(n){
+const d=el("combo");
+d.textContent=n+" CHAIN!";
+d.style.opacity="1";
+d.style.transform="translate(-50%,-50%) scale(1.2)";
+
+setTimeout(()=>{
+d.style.transition=".5s";
+d.style.opacity="0";
+d.style.transform="translate(-50%,-65%) scale(.8)";
+},50);
+
+setTimeout(()=>{
+d.style.transition="none";
+},600);
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+/* ---------- reset ---------- */
+function resetGame(){
+clearInterval(timer);
+running=false;
+busy=false;
+score=0;
+timeLeft=60;
 
-/* Xシェア機能 */
-function shareScore() {
-const text =
-`#クッキーパズル で${score}個お菓子を食べたよ！
-あなたは何個いける？`;
+el("gameover").classList.remove("show");
+el("startBtn").disabled=false;
+el("startBtn").textContent="▶ スタート";
 
-const url =
-"https://twitter.com/intent/tweet?text=" +
-encodeURIComponent(text);
+createGrid();
 
-window.open(url, "_blank");
+let safe=0;
+while(findMatch().size>0 && safe<20){
+createGrid();
+safe++;
+}
+
+render();
+updateUI();
+loadScore();
+showRanking();
+}
+
+function sleep(ms){
+return new Promise(r=>setTimeout(r,ms));
 }
 
 resetGame();
 </script>
+
 </body>
 </html>
