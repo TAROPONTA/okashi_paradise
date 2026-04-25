@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🍪 クッキーパズル</title>
+<title>🍪 Cookie Puzzle</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -33,6 +33,29 @@ body::before{
   z-index:0;pointer-events:none;
 }
 
+/* ── 言語切り替えボタン ── */
+#lang-switch{
+  position:fixed;
+  top:14px;left:14px;
+  z-index:200;
+  display:flex;gap:6px;
+}
+.lang-btn{
+  border:2px solid var(--accent);
+  border-radius:10px;
+  padding:4px 10px;
+  font-family:'Fredoka One',cursive;
+  font-size:.85rem;
+  cursor:pointer;
+  background:#fff8f0;
+  color:var(--accent);
+  transition:background .15s,color .15s;
+}
+.lang-btn.active{
+  background:var(--accent);
+  color:#fff;
+}
+
 .container{
   position:relative;z-index:1;
   width:max-content;
@@ -53,19 +76,19 @@ h1{
   flex-wrap:wrap;justify-content:center;
 }
 
+/* ── グリッド: アイコンを少し大きく ── */
 #grid{
   display:grid;
-  grid-template-columns:repeat(7,62px);
-  grid-template-rows:repeat(9,62px);
+  grid-template-columns:repeat(7,66px);
+  grid-template-rows:repeat(9,66px);
   gap:6px;
 }
 
-/* 通常セル */
 .cell{
-  width:62px;height:62px;
+  width:66px;height:66px;
   border-radius:16px;
   display:flex;align-items:center;justify-content:center;
-  font-size:2.1rem;
+  font-size:2.4rem;          /* 2.1rem → 2.4rem */
   cursor:pointer;user-select:none;
   background:transparent;
   filter:drop-shadow(0 3px 5px rgba(120,60,0,.2));
@@ -77,33 +100,21 @@ h1{
 }
 .cell:active{transform:scale(.92)}
 
-/* 消えた場所: 完全に非表示・クリック不可 */
 .cell-empty{
-  width:62px;height:62px;
+  width:66px;height:66px;
   visibility:hidden;
   pointer-events:none;
 }
 
-/* 消えるアニメ */
-.cell.pop{
-  animation:burst .4s forwards;
-  pointer-events:none;
-}
-@keyframes burst{
-  0%  {transform:scale(1);   opacity:1;filter:brightness(1)}
-  40% {transform:scale(1.5); opacity:1;filter:brightness(2)}
-  100%{transform:scale(0);   opacity:0}
-}
-
-/* 落下アニメ */
 .cell.drop{animation:dropIn .3s cubic-bezier(.34,1.56,.64,1)}
 @keyframes dropIn{
-  from{transform:translateY(-60px) scale(.7);opacity:0}
+  from{transform:translateY(-66px) scale(.7);opacity:0}
   to  {transform:translateY(0)     scale(1); opacity:1}
 }
 
+/* ── パネル ── */
 .panel{
-  width:160px;
+  width:164px;
   display:flex;flex-direction:column;gap:12px;
 }
 .label{font-size:.78rem;color:var(--muted);font-weight:800;letter-spacing:1px;text-transform:uppercase}
@@ -131,6 +142,11 @@ h1{
 .btn.x-btn:hover{box-shadow:0 6px 0 #333}
 .btn.x-btn:active{box-shadow:0 2px 0 #333}
 
+/* ミュートボタン: トグル中は半透明 */
+#muteBtn{font-size:1.3rem;padding:8px;opacity:1;transition:opacity .2s}
+#muteBtn.muted{opacity:.5}
+
+/* ── コンボ ── */
 #combo{
   position:fixed;left:50%;top:44%;
   transform:translate(-50%,-50%);
@@ -140,25 +156,22 @@ h1{
   opacity:0;pointer-events:none;z-index:50;
 }
 
+/* ── パーティクル ── */
 #particles{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .spark{
-  position:absolute;
-  font-size:1.6rem;
-  animation:fly .85s ease-out forwards;
-  pointer-events:none;
+  position:absolute;font-size:1.6rem;
+  animation:fly .85s ease-out forwards;pointer-events:none;
 }
 @keyframes fly{
-  0%  {opacity:1;transform:translateY(0)    rotate(0deg)  scale(1)}
+  0%  {opacity:1;transform:translateY(0) rotate(0deg) scale(1)}
   100%{opacity:0;transform:translateY(-90px) rotate(30deg) scale(.3)}
 }
 
+/* ── ゲームオーバー ── */
 #gameover{
-  position:fixed;inset:0;
-  display:none;
-  background:rgba(255,248,240,.95);
-  backdrop-filter:blur(6px);
-  z-index:60;
-  justify-content:center;align-items:center;flex-direction:column;gap:14px;
+  position:fixed;inset:0;display:none;
+  background:rgba(255,248,240,.95);backdrop-filter:blur(6px);
+  z-index:60;justify-content:center;align-items:center;flex-direction:column;gap:14px;
 }
 #gameover.show{display:flex}
 #gameover h2{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--accent);text-shadow:3px 3px 0 #fde0d0}
@@ -170,64 +183,139 @@ h1{
 </head>
 <body>
 
+<!-- 言語切り替え -->
+<div id="lang-switch">
+  <button class="lang-btn active" onclick="setLang('ja')">JP</button>
+  <button class="lang-btn"        onclick="setLang('en')">EN</button>
+</div>
+
 <div id="combo"></div>
 <div id="particles"></div>
 
 <div class="container">
-  <h1>🍪 クッキーパズル</h1>
+  <h1 id="txt-title">🍪 クッキーパズル</h1>
   <div class="wrap">
     <div id="grid"></div>
     <div class="panel">
-      <div class="label">食べた数</div>
+      <div class="label" id="txt-score-label">食べた数</div>
       <div class="value" id="score">0</div>
-      <div class="label">ハイスコア</div>
+      <div class="label" id="txt-high-label">ハイスコア</div>
       <div class="value" id="high">0</div>
       <div class="sep"></div>
-      <div class="label">タイム</div>
+      <div class="label" id="txt-time-label">タイム</div>
       <div class="timerbar"><div id="fill"></div></div>
       <div class="value" id="time" style="font-size:2rem">60</div>
       <div class="sep"></div>
-      <button class="btn" onclick="startGame()" id="startBtn">▶ スタート</button>
-      <button class="btn green" onclick="resetGame()">↺ リセット</button>
-      <button class="btn" onclick="toggleMute()" id="muteBtn" style="font-size:1.3rem;padding:8px">🔊</button>
+      <button class="btn"       onclick="startGame()" id="startBtn">▶ スタート</button>
+      <button class="btn green" onclick="resetGame()" id="resetBtn">↺ リセット</button>
+      <button class="btn"       onclick="toggleMute()" id="muteBtn">🔊</button>
     </div>
   </div>
 </div>
 
 <div id="gameover">
-  <h2>🍪 ゲームオーバー！</h2>
-  <div class="go-label">今回のスコア</div>
+  <h2 id="txt-go-title">🍪 ゲームオーバー！</h2>
+  <div class="go-label" id="txt-go-score">今回のスコア</div>
   <div id="final">0</div>
   <div id="ranking"></div>
   <div class="go-btns">
-    <button class="btn" onclick="resetGame()">もう一度 🍪</button>
-    <button class="btn x-btn" onclick="shareX()">𝕏 シェア</button>
+    <button class="btn"   onclick="resetGame()" id="txt-go-retry">もう一度 🍪</button>
+    <button class="btn x-btn" onclick="shareX()" id="txt-go-share">𝕏 シェア</button>
   </div>
 </div>
 
 <script>
+/* ════════════════════════════════
+   多言語テキスト
+════════════════════════════════ */
+const LANGS={
+  ja:{
+    title:'🍪 クッキーパズル',
+    scoreLabel:'食べた数',
+    highLabel:'ハイスコア',
+    timeLabel:'タイム',
+    start:'▶ スタート',
+    playing:'⏳ プレイ中',
+    reset:'↺ リセット',
+    goTitle:'🍪 ゲームオーバー！',
+    goScore:'今回のスコア',
+    goRetry:'もう一度 🍪',
+    goShare:'𝕏 シェア',
+    rankSuffix:' 個',
+    shareText:(s)=>`#クッキーパズル\nお菓子を${s}個食べたよ！🍪\nあなたは何個食べられるかな？`,
+  },
+  en:{
+    title:'🍪 Cookie Puzzle',
+    scoreLabel:'Cookies Eaten',
+    highLabel:'High Score',
+    timeLabel:'Time',
+    start:'▶ Start',
+    playing:'⏳ Playing',
+    reset:'↺ Reset',
+    goTitle:'🍪 Game Over!',
+    goScore:'Your Score',
+    goRetry:'Play Again 🍪',
+    goShare:'𝕏 Share',
+    rankSuffix:'',
+    shareText:(s)=>`#CookiePuzzle\nI ate ${s} cookies! 🍪\nCan you beat my score?`,
+  }
+};
+
+let lang='ja';
+
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent===(l==='ja'?'JP':'EN')));
+  applyLang();
+}
+
+function applyLang(){
+  const T=LANGS[lang];
+  document.getElementById('txt-title').textContent       = T.title;
+  document.getElementById('txt-score-label').textContent = T.scoreLabel;
+  document.getElementById('txt-high-label').textContent  = T.highLabel;
+  document.getElementById('txt-time-label').textContent  = T.timeLabel;
+  document.getElementById('txt-go-title').textContent    = T.goTitle;
+  document.getElementById('txt-go-score').textContent    = T.goScore;
+  document.getElementById('txt-go-retry').textContent    = T.goRetry;
+  document.getElementById('txt-go-share').textContent    = T.goShare;
+  const sb=document.getElementById('startBtn');
+  sb.textContent = running ? T.playing : T.start;
+  document.getElementById('resetBtn').textContent = T.reset;
+  /* ランキング再描画（言語更新のため） */
+  showRanking();
+}
+
+/* ════════════════════════════════
+   定数 / 状態
+════════════════════════════════ */
 const ROWS=9, COLS=7, NEED=4;
 const ITEMS=['🍪','🧁','🍩','🍰','🍫','🍬'];
 
 let grid=[], score=0, timeLeft=60;
 let running=false, busy=false, timer=null;
-let audioCtx=null, muted=false, bgmHandle=null;
+let muted=false;
 
-const el   = id => document.getElementById(id);
-const rand = () => Math.floor(Math.random()*ITEMS.length);
+/* BGMはAudioContextをまるごと管理 */
+let bgmCtx=null, bgmInterval=null;
+
+const el    = id => document.getElementById(id);
+const rand  = () => Math.floor(Math.random()*ITEMS.length);
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
 /* ════════════════════════════════
-   Web Audio
+   Web Audio（効果音用）
 ════════════════════════════════ */
-function getCtx(){
-  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  return audioCtx;
+let sfxCtx=null;
+function getSfxCtx(){
+  if(!sfxCtx||sfxCtx.state==='closed')
+    sfxCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return sfxCtx;
 }
 
 function tone(freq,dur=0.12,vol=0.06,type='sine',delay=0,dest=null){
   if(muted) return;
-  const c=getCtx();
+  const c=getSfxCtx();
   if(!dest) dest=c.destination;
   const o=c.createOscillator(), g=c.createGain();
   const t=c.currentTime+delay;
@@ -240,7 +328,7 @@ function tone(freq,dur=0.12,vol=0.06,type='sine',delay=0,dest=null){
 
 function playClear(n=0){
   if(muted) return;
-  const c=getCtx();
+  const c=getSfxCtx();
   const mg=c.createGain(); mg.gain.value=0.36; mg.connect(c.destination);
   const base=560+n*80;
   [1,1.26,1.5,2].forEach((r,i)=>{
@@ -252,7 +340,7 @@ function playClear(n=0){
 
 function playCombo(n){
   if(muted) return;
-  const c=getCtx();
+  const c=getSfxCtx();
   const mg=c.createGain(); mg.gain.value=0.33; mg.connect(c.destination);
   const sc=[523,659,784,1047,1319];
   const top=Math.min(n,sc.length-1);
@@ -268,16 +356,17 @@ function playOver(){
 }
 
 /* ════════════════════════════════
-   BGM: 明るくポップ & 弾むビート
-   メロディ + カウンター + ベース + ドラム
+   BGM: AudioContextをまるごと作り直す方式
+   → stopBGM()でclose()すれば音が即座に止まる
 ════════════════════════════════ */
 function startBGM(){
-  stopBGM();
+  stopBGM();          /* 既存を必ず先に完全停止 */
   if(muted) return;
-  const c=getCtx();
+
+  bgmCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const c=bgmCtx;
   const BPM=152, beat=60/BPM;
 
-  /* メロディ: 跳ねるポップなフレーズ */
   const mel=[
     [784,.5],[880,.5],[1047,1],[880,.5],[784,.5],
     [659,1 ],[784,1 ],[659,.5],[523,.5],
@@ -288,9 +377,7 @@ function startBGM(){
     [659,.5],[784,.5],[880,1 ],[784,.5],[659,.5],
     [523,1 ],[659,1 ],[784,2 ],
   ];
-  /* カウンターメロディ */
   const cnt=mel.map(([f,d])=>[f*1.498,d]);
-  /* ベース */
   const bass=[
     [196,.5],[196,.5],[196,1],[220,.5],[196,.5],
     [165,1 ],[196,1 ],[165,.5],[131,.5],
@@ -311,10 +398,18 @@ function startBGM(){
   const gHat=c.createGain(); gHat.gain.value=0.032;gHat.connect(c.destination);
   const gKik=c.createGain(); gKik.gain.value=0.11; gKik.connect(c.destination);
 
-  function sched(start,notes,dest,type='sine'){
+  function schedNotes(start,notes,dest,type='sine'){
     let t=start;
     notes.forEach(([f,d])=>{
-      tone(f,d*beat*0.76,0.55,type,t-c.currentTime,dest);
+      if(c.state==='closed') return;
+      try{
+        const o=c.createOscillator(), g=c.createGain();
+        o.type=type; o.frequency.value=f;
+        g.gain.setValueAtTime(0.55,t);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+d*beat*0.76);
+        o.connect(g); g.connect(dest);
+        o.start(t); o.stop(t+d*beat*0.76);
+      }catch(e){}
       t+=d*beat;
     });
   }
@@ -322,43 +417,72 @@ function startBGM(){
   function schedDrum(start){
     const steps=totalBeats*2;
     for(let i=0;i<steps;i++){
+      if(c.state==='closed') break;
       const t=start+i*beat*0.5;
-      /* 16分ハイハット */
-      tone(10000+Math.random()*4000,0.016,i%2===0?0.42:0.16,'sawtooth',t-c.currentTime,gHat);
-      /* キック: 1・3拍目 */
-      if(i%4===0){
-        tone(80, 0.16,0.85,'sine',t-c.currentTime,gKik);
-        tone(55, 0.20,0.55,'sine',t-c.currentTime+0.01,gKik);
-      }
-      /* スネア: 2・4拍目 */
-      if(i%4===2){
-        tone(220+Math.random()*80,0.08,0.3,'sawtooth',t-c.currentTime,gHat);
-        tone(180,0.10,0.22,'square',t-c.currentTime,gHat);
-      }
+      try{
+        /* ハイハット */
+        const oh=c.createOscillator(), gh=c.createGain();
+        oh.type='sawtooth'; oh.frequency.value=10000+Math.random()*4000;
+        gh.gain.setValueAtTime(i%2===0?0.42:0.16,t);
+        gh.gain.exponentialRampToValueAtTime(0.0001,t+0.016);
+        oh.connect(gh); gh.connect(gHat); oh.start(t); oh.stop(t+0.016);
+        /* キック */
+        if(i%4===0){
+          [80,55].forEach((f,j)=>{
+            const ok=c.createOscillator(), gk=c.createGain();
+            ok.type='sine'; ok.frequency.value=f;
+            gk.gain.setValueAtTime(j===0?0.85:0.55,t+j*0.01);
+            gk.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
+            ok.connect(gk); gk.connect(gKik); ok.start(t+j*0.01); ok.stop(t+0.2);
+          });
+        }
+        /* スネア */
+        if(i%4===2){
+          const os=c.createOscillator(), gs=c.createGain();
+          os.type='sawtooth'; os.frequency.value=220+Math.random()*80;
+          gs.gain.setValueAtTime(0.3,t); gs.gain.exponentialRampToValueAtTime(0.0001,t+0.08);
+          os.connect(gs); gs.connect(gHat); os.start(t); os.stop(t+0.08);
+        }
+      }catch(e){}
     }
   }
 
   let nextStart=c.currentTime+0.05;
   function loop(){
-    sched(nextStart,mel, gMel,'sine');
-    sched(nextStart,cnt, gCnt,'triangle');
-    sched(nextStart,bass,gBas,'triangle');
+    if(c.state==='closed') return;
+    schedNotes(nextStart,mel, gMel,'sine');
+    schedNotes(nextStart,cnt, gCnt,'triangle');
+    schedNotes(nextStart,bass,gBas,'triangle');
     schedDrum(nextStart);
     nextStart+=loopSec;
   }
+
   loop(); loop();
-  bgmHandle=setInterval(()=>{ if(!muted&&bgmHandle) loop(); },(loopSec-0.3)*1000);
+  bgmInterval=setInterval(()=>{
+    if(c.state==='closed'){ clearInterval(bgmInterval); bgmInterval=null; return; }
+    loop();
+  },(loopSec-0.3)*1000);
 }
 
 function stopBGM(){
-  if(bgmHandle){ clearInterval(bgmHandle); bgmHandle=null; }
+  /* インターバルを止める */
+  if(bgmInterval){ clearInterval(bgmInterval); bgmInterval=null; }
+  /* AudioContextをcloseして即座に音を止める */
+  if(bgmCtx){
+    try{ bgmCtx.close(); }catch(e){}
+    bgmCtx=null;
+  }
 }
 
 function toggleMute(){
   muted=!muted;
-  el('muteBtn').textContent=muted?'🔇':'🔊';
-  if(muted) stopBGM();
-  else if(running) startBGM();
+  el('muteBtn').textContent = muted ? '🔇' : '🔊';
+  el('muteBtn').classList.toggle('muted', muted);
+  if(muted){
+    stopBGM();
+  } else {
+    if(running) startBGM();
+  }
 }
 
 /* ════════════════════════════════
@@ -372,7 +496,6 @@ function createGrid(){
   }
 }
 
-/* grid[r][c] === -1 のセルは完全非表示の空枠 */
 function render(dropSet=null){
   const g=el('grid');
   g.innerHTML='';
@@ -381,7 +504,6 @@ function render(dropSet=null){
       const val=grid[r][c];
       const d=document.createElement('div');
       if(val===-1){
-        /* 消えたセル: 見えない・触れない */
         d.className='cell-empty';
       } else {
         d.className='cell';
@@ -395,7 +517,6 @@ function render(dropSet=null){
   }
 }
 
-/* マッチ判定: 連結グループ4個以上 */
 function findMatch(){
   const seen=Array.from({length:ROWS},()=>Array(COLS).fill(false));
   const set=new Set();
@@ -437,9 +558,19 @@ function gravity(){
   return drop;
 }
 
-/* 座標(r,c)からDOMセルを取得するヘルパー */
 function getCellEl(r,c){
   return el('grid').querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+}
+
+/* ════════════════════════════════
+   タイム回復: 連鎖数が増えるほど大きくなる係数
+   chain=1: ×0.6  chain=2: ×1.2  chain=3: ×2.0
+   chain=4: ×3.0  chain≥5: ×4.5
+════════════════════════════════ */
+function timeBonus(hitSize, chainN){
+  const mul=[0,0.6,1.2,2.0,3.0,4.5];
+  const m=mul[Math.min(chainN,mul.length-1)];
+  return hitSize*m;
 }
 
 /* ════════════════════════════════
@@ -452,7 +583,6 @@ async function clickCell(e){
   const r=+e.currentTarget.dataset.r;
   const c=+e.currentTarget.dataset.c;
 
-  /* ① パーティクル発火 → grid即消去 → render で絵文字を消す */
   const cellEl=getCellEl(r,c);
   if(cellEl){
     const rect=cellEl.getBoundingClientRect();
@@ -461,14 +591,12 @@ async function clickCell(e){
   playClear(0);
   grid[r][c]=-1;
   timeLeft=Math.max(0,timeLeft-1);
-  render(null);   /* ← ここで確実に空セルになる */
+  render(null);
 
-  /* ② 落下 */
   await sleep(160);
   const drop=gravity();
   render(drop);
 
-  /* ③ 落下アニメ待ち → 連鎖チェック */
   await sleep(300);
   await chain(1);
   busy=false;
@@ -481,34 +609,30 @@ async function chain(n){
   const hit=findMatch();
   if(hit.size===0) return;
 
-  /* コンボ表示 */
   showCombo(n);
   if(n>1) playCombo(n);
 
-  /* ① パーティクル発火 → grid即消去 → render で絵文字を全部消す */
   hit.forEach(k=>{
     const[r,c]=k.split(',').map(Number);
     const cellEl=getCellEl(r,c);
     if(!cellEl) return;
     const rect=cellEl.getBoundingClientRect();
     spawnSparks(rect.left+rect.width/2, rect.top+rect.height/2, 5);
-    grid[r][c]=-1;   /* ← renderより先にgridを-1に */
+    grid[r][c]=-1;
   });
 
   playClear(n-1);
-  render(null);     /* ← 全対象セルが空セルになって確実に消える */
+  render(null);
 
-  /* スコア・タイム更新 */
   score+=hit.size;
-  timeLeft=Math.min(60,timeLeft+Math.floor(hit.size*0.7));
+  /* 連鎖数に応じてタイム回復量が増加 */
+  timeLeft=Math.min(60, timeLeft+timeBonus(hit.size, n));
   updateUI();
 
-  /* ② キラキラを見せる間を置いて落下 */
   await sleep(480);
   const drop=gravity();
   render(drop);
 
-  /* ③ 落下アニメ待ち → 次の連鎖 */
   await sleep(300);
   await chain(n+1);
 }
@@ -528,7 +652,7 @@ function showCombo(n){
       d.style.transition='opacity .65s, transform .65s';
       d.style.opacity='0';
       d.style.transform='translate(-50%,-63%) scale(.87)';
-    }, 750);
+    },750);
   });
 }
 
@@ -565,10 +689,11 @@ function updateUI(){
 
 function startGame(){
   if(running) return;
-  getCtx().resume();
+  getSfxCtx().resume();
   running=true;
+  const T=LANGS[lang];
   el('startBtn').disabled=true;
-  el('startBtn').textContent='⏳ プレイ中';
+  el('startBtn').textContent=T.playing;
   startBGM();
   timer=setInterval(()=>{
     timeLeft-=0.1;
@@ -606,8 +731,9 @@ function loadScore(){
 function showRanking(){
   const arr=JSON.parse(localStorage.getItem('cookieRank')||'[]');
   const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+  const suf=LANGS[lang].rankSuffix;
   el('ranking').innerHTML=arr.length
-    ? arr.map((v,i)=>`${medals[i]} ${v} 個`).join('<br>')
+    ? arr.map((v,i)=>`${medals[i]} ${v}${suf}`).join('<br>')
     : '';
   loadScore();
 }
@@ -616,20 +742,20 @@ function showRanking(){
    X シェア
 ════════════════════════════════ */
 function shareX(){
-  const text=`#クッキーパズル\nお菓子を${score}個食べたよ！🍪\nあなたは何個食べられるかな？`;
+  const text=LANGS[lang].shareText(score);
   window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','noopener');
 }
 
 /* ════════════════════════════════
-   リセット
+   リセット: BGMを完全停止してから初期化
 ════════════════════════════════ */
 function resetGame(){
   clearInterval(timer);
-  stopBGM();
+  stopBGM();            /* AudioContextをcloseして音を完全停止 */
   running=false; busy=false; score=0; timeLeft=60;
   el('gameover').classList.remove('show');
   el('startBtn').disabled=false;
-  el('startBtn').textContent='▶ スタート';
+  el('startBtn').textContent=LANGS[lang].start;
   createGrid();
   let n=0;
   while(findMatch().size>0&&n++<20) createGrid();
@@ -638,7 +764,11 @@ function resetGame(){
   loadScore();
 }
 
+/* ════════════════════════════════
+   初期化
+════════════════════════════════ */
 resetGame();
+applyLang();
 </script>
 </body>
 </html>
