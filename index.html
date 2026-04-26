@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🍪 Cookie Puzzle</title>
+<title>Cookie Puzzle</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -15,7 +15,8 @@
 body{
   font-family:'Nunito',sans-serif;
   background:var(--bg);color:var(--text);
-  min-height:100vh;overflow:auto;padding:12px 20px 20px;
+  min-height:100vh;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;
 }
 body::before{
   content:'';position:fixed;inset:0;
@@ -26,76 +27,80 @@ body::before{
 }
 
 /* 言語ボタン */
-#lang-switch{position:fixed;top:14px;left:14px;z-index:200;display:flex;gap:6px;}
+#lang-switch{position:fixed;top:12px;left:12px;z-index:200;display:flex;gap:6px;}
 .lang-btn{
-  border:2px solid var(--accent);border-radius:10px;padding:4px 10px;
-  font-family:'Fredoka One',cursive;font-size:.85rem;cursor:pointer;
+  border:2px solid var(--accent);border-radius:10px;padding:3px 9px;
+  font-family:'Fredoka One',cursive;font-size:.82rem;cursor:pointer;
   background:#fff8f0;color:var(--accent);transition:background .15s,color .15s;
 }
 .lang-btn.active{background:var(--accent);color:#fff;}
 
-/* コンテナ */
-.container{
-  position:relative;z-index:1;width:max-content;
-  margin:0 auto;display:flex;flex-direction:column;
-  align-items:center;gap:10px;padding-bottom:16px;
+/* タイトルロゴ */
+#title-logo{
+  position:relative;z-index:1;
+  margin:10px 0 8px;
+  flex-shrink:0;
 }
-h1{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);text-shadow:3px 3px 0 #fde0d0;}
-.wrap{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;justify-content:center;}
 
-/* グリッド */
-#grid-wrapper{display:flex;align-items:flex-start;flex-direction:column;}
+/* メインレイアウト */
+.game-area{
+  position:relative;z-index:1;
+  display:flex;gap:20px;align-items:flex-start;
+  flex-shrink:1;
+}
+
+/* グリッドWrapper */
+#grid-wrapper{
+  background:rgba(255,248,240,0.72);
+  border-radius:16px;
+  border:1.5px solid rgba(220,170,110,0.28);
+  box-shadow:0 4px 24px rgba(180,110,50,0.12);
+  padding:8px;
+  flex-shrink:0;
+  transform-origin:top left;
+}
 #grid{
   display:grid;
-  grid-template-columns:repeat(7,66px);
-  grid-template-rows:repeat(8,66px);
-  gap:6px;transform-origin:top left;
+  grid-template-columns:repeat(7,60px);
+  grid-template-rows:repeat(8,60px);
+  gap:5px;
 }
 .cell{
-  width:66px;height:66px;border-radius:14px;
+  width:60px;height:60px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
-  font-size:2.4rem;cursor:pointer;user-select:none;
-  background:rgba(255,255,255,0.55);
-  border:1.5px solid rgba(210,160,100,0.22);
-  box-shadow:0 2px 8px rgba(150,90,30,0.10), inset 0 1px 0 rgba(255,255,255,0.7);
-  transition:transform .12s,box-shadow .12s;
+  cursor:pointer;user-select:none;
+  background:rgba(255,255,255,0.6);
+  border:1.5px solid rgba(210,160,100,0.20);
+  box-shadow:0 2px 6px rgba(150,90,30,0.08),inset 0 1px 0 rgba(255,255,255,0.8);
+  transition:transform .12s,box-shadow .12s,background .12s;
   -webkit-tap-highlight-color:transparent;
+  overflow:hidden;
 }
 .cell:hover{
-  transform:scale(1.12) rotate(-3deg);
-  box-shadow:0 6px 18px rgba(150,90,30,0.22), inset 0 1px 0 rgba(255,255,255,0.8);
-  background:rgba(255,255,255,0.80);
+  transform:scale(1.13) rotate(-3deg);
+  box-shadow:0 6px 16px rgba(150,90,30,0.20),inset 0 1px 0 rgba(255,255,255,0.9);
+  background:rgba(255,255,255,0.88);
 }
-.cell:active{transform:scale(.92)}
-.cell-empty{width:66px;height:66px;visibility:hidden;pointer-events:none;}
-
-/* グリッドエリアに薄いカード背景 */
-#grid-wrapper{
-  background:rgba(255,248,240,0.60);
-  border-radius:18px;
-  border:1.5px solid rgba(220,170,110,0.25);
-  box-shadow:0 4px 24px rgba(180,110,50,0.10);
-  padding:10px;
-}
-.cell.drop{animation:dropIn .3s cubic-bezier(.34,1.56,.64,1)}
+.cell:active{transform:scale(.9)}
+.cell-empty{width:60px;height:60px;visibility:hidden;pointer-events:none;}
+.cell.drop{animation:dropIn .28s cubic-bezier(.34,1.56,.64,1)}
 @keyframes dropIn{
-  from{transform:translateY(-66px) scale(.7);opacity:0}
+  from{transform:translateY(-60px) scale(.7);opacity:0}
   to{transform:translateY(0) scale(1);opacity:1}
 }
 
 /* PCパネル */
-.panel{width:150px;display:flex;flex-direction:column;gap:8px;}
+.panel{width:148px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
 .panel-mobile{display:none}
-.label{font-size:.78rem;color:var(--muted);font-weight:800;letter-spacing:1px;text-transform:uppercase}
-.value{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);text-shadow:2px 2px 0 #fde0d0}
-.timerbar{height:16px;border-radius:999px;background:rgba(180,120,60,.15);overflow:hidden}
+.label{font-size:.75rem;color:var(--muted);font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.value{font-family:'Fredoka One',cursive;font-size:1.9rem;color:var(--accent);text-shadow:2px 2px 0 #fde0d0;line-height:1.1;}
+.timerbar{height:14px;border-radius:999px;background:rgba(180,120,60,.15);overflow:hidden}
 #fill,#fill-m{height:100%;width:100%;background:linear-gradient(90deg,#f4845f,#e8bc5a);transition:.15s linear}
 .sep{height:1px;background:linear-gradient(90deg,transparent,rgba(180,120,60,.2),transparent)}
 
-/* ボタン */
 .btn{
-  border:none;border-radius:14px;padding:12px;cursor:pointer;
-  font-family:'Fredoka One',cursive;font-size:1rem;
+  border:none;border-radius:12px;padding:10px;cursor:pointer;
+  font-family:'Fredoka One',cursive;font-size:.95rem;
   color:#fff;background:var(--accent);box-shadow:0 4px 0 #c95c3a;
   transition:transform .1s,box-shadow .1s;-webkit-tap-highlight-color:transparent;
 }
@@ -107,20 +112,19 @@ h1{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);text-sha
 .btn.x-btn{background:#000;box-shadow:0 4px 0 #333}
 .btn.x-btn:hover{box-shadow:0 6px 0 #333}
 .btn.x-btn:active{box-shadow:0 2px 0 #333}
-#muteBtn,#muteBtn-m{font-size:1.3rem;padding:8px;opacity:1;transition:opacity .2s}
+#muteBtn,#muteBtn-m{font-size:1.2rem;padding:7px;opacity:1;transition:opacity .2s}
 #muteBtn.muted,#muteBtn-m.muted{opacity:.5}
 
 /* コンボ */
 #combo{
   position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
-  font-family:'Fredoka One',cursive;font-size:3.2rem;
+  font-family:'Fredoka One',cursive;font-size:3rem;
   color:var(--accent);text-shadow:3px 3px 0 #fff,5px 5px 0 #fde0d0;
   opacity:0;pointer-events:none;z-index:50;
 }
-
 /* パーティクル */
 #particles{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
-.spark{position:absolute;font-size:1.6rem;animation:fly .85s ease-out forwards;pointer-events:none;}
+.spark{position:absolute;font-size:1.5rem;animation:fly .85s ease-out forwards;pointer-events:none;}
 @keyframes fly{
   0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}
   100%{opacity:0;transform:translateY(-90px) rotate(30deg) scale(.3)}
@@ -130,57 +134,37 @@ h1{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);text-sha
 #gameover{
   position:fixed;inset:0;display:none;
   background:rgba(255,248,240,.95);backdrop-filter:blur(6px);
-  z-index:60;justify-content:center;align-items:center;flex-direction:column;gap:14px;
+  z-index:60;justify-content:center;align-items:center;flex-direction:column;gap:12px;
 }
 #gameover.show{display:flex}
-#gameover h2{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--accent);text-shadow:3px 3px 0 #fde0d0}
-#final{font-family:'Fredoka One',cursive;font-size:4.2rem;color:var(--text)}
-.go-label{font-size:.8rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
-#ranking{text-align:center;line-height:2;font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--muted);}
+#gameover h2{font-family:'Fredoka One',cursive;font-size:2.8rem;color:var(--accent);text-shadow:3px 3px 0 #fde0d0}
+#final{font-family:'Fredoka One',cursive;font-size:4rem;color:var(--text)}
+.go-label{font-size:.78rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
+#go-title-badge{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--accent);text-shadow:2px 2px 0 #fde0d0;}
+#ranking{text-align:center;line-height:1.9;font-family:'Fredoka One',cursive;font-size:1rem;color:var(--muted);}
 .go-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
-/* ⑤ ピンチ点滅 (タイム残り10秒以下) */
-@keyframes dangerPulse{
-  0%,100%{color:var(--accent);}
-  50%{color:#e02020;}
-}
+/* ピンチ点滅 */
+@keyframes dangerPulse{0%,100%{color:var(--accent);}50%{color:#e02020;}}
 .danger{animation:dangerPulse .5s infinite;}
 
-/* ② マイルストーン表示 */
+/* マイルストーン */
 #milestone-msg{
-  position:fixed;left:50%;top:36%;
-  transform:translate(-50%,-50%);
-  font-family:'Fredoka One',cursive;font-size:2.6rem;
-  color:#6ec6a0;
-  text-shadow:3px 3px 0 #fff,5px 5px 0 #c8f0e0;
+  position:fixed;left:50%;top:36%;transform:translate(-50%,-50%);
+  font-family:'Fredoka One',cursive;font-size:2.4rem;
+  color:#6ec6a0;text-shadow:3px 3px 0 #fff,5px 5px 0 #c8f0e0;
   opacity:0;pointer-events:none;z-index:51;
 }
-
-/* ① NEW RECORD */
+/* NEW RECORD */
 #new-record{
-  position:fixed;left:50%;top:30%;
-  transform:translate(-50%,-50%);
-  font-family:'Fredoka One',cursive;font-size:3rem;
-  color:#e8bc5a;
-  text-shadow:3px 3px 0 #fff,5px 5px 0 #fde8a0;
+  position:fixed;left:50%;top:30%;transform:translate(-50%,-50%);
+  font-family:'Fredoka One',cursive;font-size:2.8rem;
+  color:#e8bc5a;text-shadow:3px 3px 0 #fff,5px 5px 0 #fde8a0;
   opacity:0;pointer-events:none;z-index:52;
 }
-
-/* ④ 称号 */
-#player-title{
-  font-family:'Fredoka One',cursive;font-size:1.1rem;
-  color:var(--muted);text-align:center;margin-top:-8px;
-}
-#go-title-badge{
-  font-family:'Fredoka One',cursive;font-size:1.6rem;
-  color:var(--accent);text-align:center;
-  text-shadow:2px 2px 0 #fde0d0;
-}
-
 /* 紙吹雪 */
 .confetti{
-  position:fixed;pointer-events:none;z-index:55;
-  width:10px;height:10px;border-radius:2px;
+  position:fixed;pointer-events:none;z-index:55;border-radius:2px;
   animation:confettiFall linear forwards;
 }
 @keyframes confettiFall{
@@ -190,29 +174,62 @@ h1{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);text-sha
 
 /* スマホ */
 @media(max-width:600px){
-  body{padding:8px 4px 120px;}
-  #lang-switch{top:8px;left:8px;}
-  h1{font-size:1.6rem;margin-top:32px;}
+  /* 全体を100dvhに収める */
+  body{
+    overflow:hidden;
+    height:100dvh;
+    height:100vh; /* fallback */
+    flex-direction:column;
+    justify-content:flex-start;
+    padding:0;
+  }
+  #lang-switch{top:6px;left:8px;z-index:300;}
+
+  /* タイトルロゴをコンパクトに */
+  #title-logo{margin:30px 0 4px;flex-shrink:0;}
+  #title-logo svg{height:36px;width:auto;}
+
+  /* game-areaは縦並び */
+  .game-area{flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
+
+  /* PCパネル非表示 */
   .panel{display:none}
+
+  /* スマホパネル */
   .panel-mobile{
-    display:flex;flex-direction:column;gap:8px;
-    width:100%;max-width:520px;padding:0 4px;
+    display:flex;flex-direction:column;gap:5px;
+    width:100%;padding:0 10px;
+    flex-shrink:0;
+    box-sizing:border-box;
   }
-  .mob-stats{display:flex;gap:8px;justify-content:space-between;align-items:flex-end;}
+  .mob-stats{display:flex;gap:6px;justify-content:space-between;align-items:flex-end;}
   .mob-stat{flex:1;text-align:center;}
-  .mob-stat .label{font-size:.65rem;}
-  .mob-stat .value{font-size:1.7rem;}
+  .mob-stat .label{font-size:.60rem;}
+  .mob-stat .value{font-size:1.45rem;line-height:1.1;}
   .mob-timer{width:100%;}
-  .mob-btns{display:flex;gap:8px;}
-  .mob-btns .btn{flex:1;padding:10px 4px;font-size:.9rem;}
-  #grid-wrapper{width:100%;display:flex;justify-content:center;}
-  #grid{transform-origin:top center;}
+  .timerbar{height:12px;}
+  .mob-btns{display:flex;gap:6px;}
+  .mob-btns .btn{flex:1;padding:8px 2px;font-size:.82rem;border-radius:10px;}
+
+  /* グリッドwrapperはscaleGridがサイズ決定 */
+  #grid-wrapper{transform-origin:top center;flex-shrink:0;}
+
+  /* donateボタンはスマホでは非fixed・小さくインライン配置 */
   #donateBtn{
-    right:auto!important;left:50%!important;
-    transform:translateX(-50%)!important;
-    bottom:10px!important;font-size:.8rem!important;padding:8px 14px!important;
+    position:relative!important;
+    right:auto!important;bottom:auto!important;
+    left:auto!important;
+    transform:none!important;
+    display:block;
+    width:calc(100% - 20px);
+    margin:4px 10px 6px;
+    text-align:center;
+    font-size:.82rem!important;
+    padding:8px 10px!important;
+    box-sizing:border-box;
+    z-index:1;
   }
-  #combo{font-size:2rem;}
+  #combo{font-size:1.8rem;}
 }
 </style>
 </head>
@@ -228,49 +245,91 @@ h1{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);text-sha
 <div id="new-record"></div>
 <div id="particles"></div>
 
-<div class="container">
-  <h1 id="txt-title">🍪 クッキーパズル</h1>
-  <div class="wrap">
-    <div id="grid-wrapper"><div id="grid"></div></div>
-    <div class="panel">
-      <div class="label" id="txt-score-label">食べた数</div>
-      <div class="value" id="score">0</div>
-      <div id="player-title"></div>
-      <div class="label" id="txt-high-label">ハイスコア</div>
-      <div class="value" id="high">0</div>
-      <div class="sep"></div>
-      <div class="label" id="txt-time-label">タイム</div>
-      <div class="timerbar"><div id="fill"></div></div>
-      <div class="value" id="time" style="font-size:2rem">60</div>
-      <div class="sep"></div>
-      <button class="btn"       onclick="startGame()" id="startBtn">▶ スタート</button>
-      <button class="btn green" onclick="resetGame()" id="resetBtn">↺ リセット</button>
-      <button class="btn"       onclick="toggleMute()" id="muteBtn">🔊</button>
-    </div>
-  </div>
-  <div class="panel-mobile">
-    <div class="mob-stats">
-      <div class="mob-stat">
-        <div class="label" id="txt-score-label-m">食べた数</div>
-        <div class="value" id="score-m">0</div>
-      </div>
-      <div class="mob-stat">
-        <div class="label" id="txt-high-label-m">ハイスコア</div>
-        <div class="value" id="high-m">0</div>
-      </div>
-      <div class="mob-stat">
-        <div class="label" id="txt-time-label-m">タイム</div>
-        <div class="value" id="time-m" style="font-size:1.7rem">60</div>
-      </div>
-    </div>
-    <div class="mob-timer timerbar"><div id="fill-m"></div></div>
-    <div class="mob-btns">
-      <button class="btn"       onclick="startGame()" id="startBtn-m">▶ スタート</button>
-      <button class="btn green" onclick="resetGame()" id="resetBtn-m">↺ リセット</button>
-      <button class="btn"       onclick="toggleMute()" id="muteBtn-m">🔊</button>
-    </div>
+<!-- SVGタイトルロゴ -->
+<div id="title-logo">
+<svg viewBox="0 0 420 62" xmlns="http://www.w3.org/2000/svg" height="56" width="auto">
+  <defs>
+    <linearGradient id="tg1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f9a87a"/>
+      <stop offset="100%" stop-color="#e8603a"/>
+    </linearGradient>
+    <linearGradient id="tg2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffe8a0"/>
+      <stop offset="100%" stop-color="#f4c040"/>
+    </linearGradient>
+    <filter id="tshadow" x="-5%" y="-5%" width="110%" height="130%">
+      <feDropShadow dx="2" dy="3" stdDeviation="2" flood-color="#c95c3a" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <!-- 装飾クッキー (左) -->
+  <circle cx="28" cy="31" r="20" fill="#d9934a" filter="url(#tshadow)"/>
+  <circle cx="28" cy="31" r="18" fill="#e8a85a"/>
+  <circle cx="22" cy="26" r="3" fill="#8b5e2a"/><circle cx="33" cy="24" r="2.4" fill="#8b5e2a"/>
+  <circle cx="23" cy="35" r="2.2" fill="#8b5e2a"/><circle cx="35" cy="35" r="2.8" fill="#8b5e2a"/>
+  <!-- メインテキスト「Cookie」 -->
+  <text x="56" y="45" font-family="'Fredoka One',cursive" font-size="42" fill="url(#tg1)" filter="url(#tshadow)" letter-spacing="1">Cookie</text>
+  <!-- メインテキスト「Puzzle」-->
+  <text x="228" y="45" font-family="'Fredoka One',cursive" font-size="42" fill="url(#tg2)" filter="url(#tshadow)" letter-spacing="1">Puzzle</text>
+  <!-- ハートアクセント -->
+  <text x="396" y="30" font-size="18" fill="#f4845f" opacity=".8">♥</text>
+  <text x="38"  y="16" font-size="14" fill="#e8bc5a" opacity=".7">★</text>
+</svg>
+</div>
+
+<div class="game-area">
+  <div id="grid-wrapper"><div id="grid"></div></div>
+  <div class="panel">
+    <div class="label" id="txt-score-label">食べた数</div>
+    <div class="value" id="score">0</div>
+    <div class="label" id="txt-high-label">ハイスコア</div>
+    <div class="value" id="high">0</div>
+    <div class="sep"></div>
+    <div class="label" id="txt-time-label">タイム</div>
+    <div class="timerbar"><div id="fill"></div></div>
+    <div class="value" id="time" style="font-size:1.9rem">60</div>
+    <div class="sep"></div>
+    <button class="btn"       onclick="startGame()" id="startBtn">▶ スタート</button>
+    <button class="btn green" onclick="resetGame()" id="resetBtn">↺ リセット</button>
+    <button class="btn"       onclick="toggleMute()" id="muteBtn">🔊</button>
   </div>
 </div>
+
+<div class="panel-mobile">
+  <div class="mob-stats">
+    <div class="mob-stat">
+      <div class="label" id="txt-score-label-m">食べた数</div>
+      <div class="value" id="score-m">0</div>
+    </div>
+    <div class="mob-stat">
+      <div class="label" id="txt-high-label-m">ハイスコア</div>
+      <div class="value" id="high-m">0</div>
+    </div>
+    <div class="mob-stat">
+      <div class="label" id="txt-time-label-m">タイム</div>
+      <div class="value" id="time-m" style="font-size:1.6rem">60</div>
+    </div>
+  </div>
+  <div class="mob-timer timerbar"><div id="fill-m"></div></div>
+  <div class="mob-btns">
+    <button class="btn"       onclick="startGame()" id="startBtn-m">▶ スタート</button>
+    <button class="btn green" onclick="resetGame()" id="resetBtn-m">↺ リセット</button>
+    <button class="btn"       onclick="toggleMute()" id="muteBtn-m">🔊</button>
+  </div>
+</div>
+
+<!-- donateBtn はスマホでは relative でパネル下に表示、PCでは fixed -->
+<a id="donateBtn"
+   href="https://taroponta.itch.io/cookie-puzzle/donate"
+   target="_blank" rel="noopener"
+   style="position:fixed;right:16px;bottom:16px;z-index:200;
+     background:#f4845f;color:#fff;font-family:'Fredoka One',cursive;font-size:.9rem;
+     padding:9px 14px;border-radius:13px;box-shadow:0 4px 0 #c95c3a;
+     text-decoration:none;transition:transform .1s,box-shadow .1s;"
+   onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 0 #c95c3a'"
+   onmouseout="this.style.transform='';this.style.boxShadow='0 4px 0 #c95c3a'"
+   onmousedown="this.style.transform='translateY(2px)';this.style.boxShadow='0 2px 0 #c95c3a'"
+   onmouseup="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 0 #c95c3a'"
+>☕ おやつ代をあげる</a>
 
 <div id="gameover">
   <h2 id="txt-go-title">🍪 ゲームオーバー！</h2>
@@ -285,81 +344,43 @@ h1{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);text-sha
 </div>
 
 <script>
-/* ═══════════════════════════════════
+/* ══════════════════════════════════
    多言語
-═══════════════════════════════════ */
+══════════════════════════════════ */
 const LANGS={
   ja:{
-    title:'🍪 クッキーパズル',scoreLabel:'食べた数',highLabel:'ハイスコア',timeLabel:'タイム',
+    scoreLabel:'食べた数',highLabel:'ハイスコア',timeLabel:'タイム',
     start:'▶ スタート',playing:'⏳ プレイ中',reset:'↺ リセット',
     goTitle:'🍪 ゲームオーバー！',goScore:'今回のスコア',goRetry:'もう一度 🍪',goShare:'𝕏 シェア',
-    rankSuffix:' 個',
-    shareText:s=>`#クッキーパズル\nお菓子を${s}個食べたよ！🍪\nあなたは何個食べられるかな？\nhttps://taroponta.itch.io/cookie-puzzle`,
+    rankSuffix:' 個',newRecord:'🎉 NEW RECORD!',milestone:n=>`${n}個達成！🍪`,
     donate:'☕ おやつ代をあげる',
-    newRecord:'🎉 NEW RECORD!',
-    milestone:n=>`${n}個達成！🍪`,
     titles:[
-      [0,    '🍪 おやつ見習い'],
-      [20,   '🧁 スイーツ好き'],
-      [40,   '🍩 ドーナツ職人'],
-      [70,   '🍰 ケーキ職人'],
-      [100,  '🍫 チョコレート師'],
-      [140,  '🍬 キャンディマスター'],
-      [180,  '✨ スイーツの達人'],
-      [230,  '🌟 お菓子の申し子'],
-      [280,  '💎 パティシエ見習い'],
-      [340,  '🏆 一流パティシエ'],
-      [400,  '👑 お菓子の貴族'],
-      [470,  '🌈 お菓子の王子/王女'],
-      [550,  '🔥 伝説のパティシエ'],
-      [640,  '🎖️ お菓子の騎士'],
-      [740,  '🗡️ スイーツの勇者'],
-      [850,  '🧙 お菓子の魔法使い'],
-      [970,  '🌙 夜のパティシエ'],
-      [1000, '🍪👑 お菓子大王'],
-      [1100, '⚡ お菓子の覇者'],
-      [1250, '🌌 スイーツの神'],
-      [1400, '🔮 お菓子の賢者'],
-      [1600, '💫 究極のパティシエ'],
-      [1800, '🌠 お菓子の伝説'],
-      [2000, '🍪✨👑 お菓子の神様'],
+      [0,'🍪 おやつ見習い'],[20,'🧁 スイーツ好き'],[40,'🍩 ドーナツ職人'],
+      [70,'🍰 ケーキ職人'],[100,'🍫 チョコレート師'],[140,'🍬 キャンディマスター'],
+      [180,'✨ スイーツの達人'],[230,'🌟 お菓子の申し子'],[280,'💎 パティシエ見習い'],
+      [340,'🏆 一流パティシエ'],[400,'👑 お菓子の貴族'],[470,'🌈 お菓子の王子/王女'],
+      [550,'🔥 伝説のパティシエ'],[640,'🎖️ お菓子の騎士'],[740,'🗡️ スイーツの勇者'],
+      [850,'🧙 お菓子の魔法使い'],[970,'🌙 夜のパティシエ'],[1000,'🍪👑 お菓子大王'],
+      [1100,'⚡ お菓子の覇者'],[1250,'🌌 スイーツの神'],[1400,'🔮 お菓子の賢者'],
+      [1600,'💫 究極のパティシエ'],[1800,'🌠 お菓子の伝説'],[2000,'🍪✨👑 お菓子の神様'],
     ],
     shareTitle:(s,t)=>`#クッキーパズル\nお菓子を${s}個食べたよ！${t}\nあなたは何個食べられるかな？\nhttps://taroponta.itch.io/cookie-puzzle`,
   },
   en:{
-    title:'🍪 Cookie Puzzle',scoreLabel:'Cookies Eaten',highLabel:'High Score',timeLabel:'Time',
+    scoreLabel:'Cookies Eaten',highLabel:'High Score',timeLabel:'Time',
     start:'▶ Start',playing:'⏳ Playing',reset:'↺ Reset',
     goTitle:'🍪 Game Over!',goScore:'Your Score',goRetry:'Play Again 🍪',goShare:'𝕏 Share',
-    rankSuffix:'',
-    shareText:s=>`#CookiePuzzle\nI ate ${s} cookies! 🍪\nCan you beat my score?\nhttps://taroponta.itch.io/cookie-puzzle`,
+    rankSuffix:'',newRecord:'🎉 NEW RECORD!',milestone:n=>`${n} Cookies! 🍪`,
     donate:'☕ Buy me a snack',
-    newRecord:'🎉 NEW RECORD!',
-    milestone:n=>`${n} Cookies! 🍪`,
     titles:[
-      [0,    '🍪 Cookie Rookie'],
-      [20,   '🧁 Sweet Lover'],
-      [40,   '🍩 Donut Artisan'],
-      [70,   '🍰 Cake Crafter'],
-      [100,  '🍫 Chocolate Expert'],
-      [140,  '🍬 Candy Master'],
-      [180,  '✨ Sweets Virtuoso'],
-      [230,  '🌟 Cookie Prodigy'],
-      [280,  '💎 Junior Patissier'],
-      [340,  '🏆 Master Patissier'],
-      [400,  '👑 Confectionery Noble'],
-      [470,  '🌈 Cookie Prince/Princess'],
-      [550,  '🔥 Legendary Patissier'],
-      [640,  '🎖️ Cookie Knight'],
-      [740,  '🗡️ Sweets Champion'],
-      [850,  '🧙 Cookie Sorcerer'],
-      [970,  '🌙 Midnight Patissier'],
-      [1000, '🍪👑 Cookie Monarch'],
-      [1100, '⚡ Cookie Conqueror'],
-      [1250, '🌌 Sweets Deity'],
-      [1400, '🔮 Cookie Sage'],
-      [1600, '💫 Ultimate Patissier'],
-      [1800, '🌠 Cookie Legend'],
-      [2000, '🍪✨👑 Cookie God'],
+      [0,'🍪 Cookie Rookie'],[20,'🧁 Sweet Lover'],[40,'🍩 Donut Artisan'],
+      [70,'🍰 Cake Crafter'],[100,'🍫 Chocolate Expert'],[140,'🍬 Candy Master'],
+      [180,'✨ Sweets Virtuoso'],[230,'🌟 Cookie Prodigy'],[280,'💎 Junior Patissier'],
+      [340,'🏆 Master Patissier'],[400,'👑 Confectionery Noble'],[470,'🌈 Cookie Prince/Princess'],
+      [550,'🔥 Legendary Patissier'],[640,'🎖️ Cookie Knight'],[740,'🗡️ Sweets Champion'],
+      [850,'🧙 Cookie Sorcerer'],[970,'🌙 Midnight Patissier'],[1000,'🍪👑 Cookie Monarch'],
+      [1100,'⚡ Cookie Conqueror'],[1250,'🌌 Sweets Deity'],[1400,'🔮 Cookie Sage'],
+      [1600,'💫 Ultimate Patissier'],[1800,'🌠 Cookie Legend'],[2000,'🍪✨👑 Cookie God'],
     ],
     shareTitle:(s,t)=>`#CookiePuzzle\nI ate ${s} cookies! ${t}\nCan you beat my score?\nhttps://taroponta.itch.io/cookie-puzzle`,
   }
@@ -374,58 +395,222 @@ function setLang(l){
 function applyLang(){
   const T=LANGS[lang];
   const ids={
-    'txt-title':T.title,'txt-score-label':T.scoreLabel,'txt-high-label':T.highLabel,
-    'txt-time-label':T.timeLabel,'txt-go-title':T.goTitle,'txt-go-score':T.goScore,
-    'txt-go-retry':T.goRetry,'txt-go-share':T.goShare,
+    'txt-score-label':T.scoreLabel,'txt-high-label':T.highLabel,'txt-time-label':T.timeLabel,
+    'txt-go-title':T.goTitle,'txt-go-score':T.goScore,'txt-go-retry':T.goRetry,'txt-go-share':T.goShare,
     'txt-score-label-m':T.scoreLabel,'txt-high-label-m':T.highLabel,'txt-time-label-m':T.timeLabel,
   };
-  Object.entries(ids).forEach(([id,v])=>{ const e=document.getElementById(id); if(e) e.textContent=v; });
+  Object.entries(ids).forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=v;});
   document.getElementById('startBtn').textContent=running?T.playing:T.start;
   document.getElementById('resetBtn').textContent=T.reset;
-  const sbm=document.getElementById('startBtn-m'); if(sbm) sbm.textContent=running?T.playing:T.start;
-  const rbm=document.getElementById('resetBtn-m'); if(rbm) rbm.textContent=T.reset;
-  const db=document.getElementById('donateBtn');   if(db)  db.textContent=T.donate;
+  const sbm=document.getElementById('startBtn-m');if(sbm)sbm.textContent=running?T.playing:T.start;
+  const rbm=document.getElementById('resetBtn-m');if(rbm)rbm.textContent=T.reset;
+  const db=document.getElementById('donateBtn');if(db)db.textContent=T.donate;
   showRanking();
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════
    定数 / 状態
-═══════════════════════════════════ */
+══════════════════════════════════ */
 const ROWS=8,COLS=7,NEED=4;
-const ITEMS=['🍪','🧁','🍩','🍰','🍫','🍬'];
-
 let grid=[],score=0,timeLeft=60;
 let running=false,busy=false,timer=null;
 let muted=false;
 
-const el    = id=>document.getElementById(id);
-const rand  = ()=>Math.floor(Math.random()*ITEMS.length);
-const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+const el=id=>document.getElementById(id);
+const rand=()=>Math.floor(Math.random()*6);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
-/* ═══════════════════════════════════
-   効果音 (sfxCtx)
-═══════════════════════════════════ */
+/* ══════════════════════════════════
+   SVGお菓子ブロック (6種) — かわいく美味しそうなデザイン
+══════════════════════════════════ */
+const COOKIE_SVG=[
+  /* 0: チョコチップクッキー */
+  `<svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="c0g" cx="40%" cy="35%">
+        <stop offset="0%" stop-color="#f0b060"/>
+        <stop offset="100%" stop-color="#c87830"/>
+      </radialGradient>
+    </defs>
+    <circle cx="27" cy="27" r="23" fill="#b86820" opacity=".3"/>
+    <circle cx="27" cy="26" r="23" fill="url(#c0g)"/>
+    <circle cx="20" cy="21" r="3.5" fill="#5a3010"/>
+    <circle cx="33" cy="19" r="2.8" fill="#5a3010"/>
+    <circle cx="18" cy="32" r="2.5" fill="#5a3010"/>
+    <circle cx="32" cy="32" r="3" fill="#5a3010"/>
+    <circle cx="27" cy="26" r="2" fill="#5a3010"/>
+    <circle cx="20" cy="21" r="1.2" fill="#8b5a28" opacity=".6"/>
+    <circle cx="33" cy="19" r="1" fill="#8b5a28" opacity=".6"/>
+    <ellipse cx="18" cy="19" rx="5" ry="3" fill="#fff" opacity=".15" transform="rotate(-20 18 19)"/>
+  </svg>`,
+
+  /* 1: カップケーキ */
+  `<svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="c1g" cx="40%" cy="30%">
+        <stop offset="0%" stop-color="#ffeef5"/>
+        <stop offset="100%" stop-color="#f8c0d8"/>
+      </radialGradient>
+      <radialGradient id="c1b" cx="50%" cy="40%">
+        <stop offset="0%" stop-color="#e8904a"/>
+        <stop offset="100%" stop-color="#c06030"/>
+      </radialGradient>
+    </defs>
+    <!-- カップ -->
+    <path d="M14 36 L17 50 Q27 54 37 50 L40 36 Z" fill="url(#c1b)"/>
+    <path d="M14 36 L40 36" stroke="#a04820" stroke-width="1.5" fill="none"/>
+    <line x1="20" y1="38" x2="18" y2="50" stroke="#a04820" stroke-width=".8" opacity=".5"/>
+    <line x1="27" y1="37" x2="27" y2="52" stroke="#a04820" stroke-width=".8" opacity=".5"/>
+    <line x1="34" y1="38" x2="36" y2="50" stroke="#a04820" stroke-width=".8" opacity=".5"/>
+    <!-- クリーム -->
+    <ellipse cx="27" cy="28" rx="14" ry="10" fill="url(#c1g)"/>
+    <path d="M14 32 Q17 22 21 26 Q24 20 27 24 Q30 18 33 24 Q36 20 40 32 Q36 36 27 36 Q18 36 14 32Z" fill="url(#c1g)"/>
+    <ellipse cx="27" cy="30" rx="13" ry="8" fill="#fff" opacity=".35"/>
+    <!-- いちご -->
+    <ellipse cx="27" cy="19" rx="5" ry="6" fill="#f03040"/>
+    <ellipse cx="27" cy="18" rx="4.5" ry="5.5" fill="#f85060"/>
+    <path d="M24 14 Q27 11 30 14" stroke="#4a9020" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <circle cx="25" cy="20" r=".8" fill="#fff" opacity=".7"/>
+    <circle cx="29" cy="18" r=".6" fill="#fff" opacity=".7"/>
+  </svg>`,
+
+  /* 2: ドーナツ */
+  `<svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="c2g" cx="50%" cy="50%">
+        <stop offset="0%" stop-color="#e8a050"/>
+        <stop offset="100%" stop-color="#c07828"/>
+      </radialGradient>
+    </defs>
+    <circle cx="27" cy="27" r="23" fill="#a06020" opacity=".25"/>
+    <circle cx="27" cy="26" r="22" fill="url(#c2g)"/>
+    <!-- グレーズ -->
+    <path d="M8 22 Q27 10 46 22 Q46 14 27 10 Q8 14 8 22Z" fill="#f070a0" opacity=".9"/>
+    <path d="M8 24 Q27 12 46 24" fill="#f898c0" opacity=".7" stroke="none"/>
+    <!-- スプリンクル -->
+    <rect x="16" y="14" width="5" height="2" rx="1" fill="#fff" transform="rotate(-30 16 14)"/>
+    <rect x="30" y="12" width="5" height="2" rx="1" fill="#ffe030" transform="rotate(15 30 12)"/>
+    <rect x="38" y="18" width="4" height="2" rx="1" fill="#60d8f0" transform="rotate(-45 38 18)"/>
+    <rect x="20" y="11" width="4" height="2" rx="1" fill="#a0f060" transform="rotate(20 20 11)"/>
+    <!-- 穴 -->
+    <circle cx="27" cy="26" r="9" fill="#fdf4e7"/>
+    <circle cx="27" cy="26" r="9" fill="none" stroke="#c07828" stroke-width="1.5" opacity=".4"/>
+    <ellipse cx="23" cy="22" rx="4" ry="2.5" fill="#fff" opacity=".2" transform="rotate(-30 23 22)"/>
+  </svg>`,
+
+  /* 3: ショートケーキ */
+  `<svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="c3s" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#f5e8a8"/>
+        <stop offset="100%" stop-color="#e8c870"/>
+      </linearGradient>
+    </defs>
+    <!-- ケーキ本体 -->
+    <rect x="9" y="30" width="36" height="18" rx="4" fill="url(#c3s)"/>
+    <!-- スポンジ層 -->
+    <rect x="9" y="33" width="36" height="4" fill="#f0b050" opacity=".6"/>
+    <!-- クリーム中段 -->
+    <rect x="9" y="26" width="36" height="7" rx="2" fill="#fff8f8"/>
+    <!-- クリームトップ -->
+    <path d="M9 26 Q18 18 27 22 Q36 18 45 26 L45 28 Q36 20 27 24 Q18 20 9 28Z" fill="#fff"/>
+    <!-- いちご×3 -->
+    <ellipse cx="18" cy="22" rx="5" ry="5.5" fill="#f03040"/>
+    <ellipse cx="18" cy="21" rx="4.5" ry="5" fill="#f85060"/>
+    <path d="M15.5 17 Q18 14.5 20.5 17" stroke="#4a9020" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="27" cy="21" rx="5" ry="5.5" fill="#f03040"/>
+    <ellipse cx="27" cy="20" rx="4.5" ry="5" fill="#f85060"/>
+    <path d="M24.5 16 Q27 13.5 29.5 16" stroke="#4a9020" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="36" cy="22" rx="5" ry="5.5" fill="#f03040"/>
+    <ellipse cx="36" cy="21" rx="4.5" ry="5" fill="#f85060"/>
+    <path d="M33.5 17 Q36 14.5 38.5 17" stroke="#4a9020" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- 光沢 -->
+    <ellipse cx="16" cy="19" rx="2" ry="1.5" fill="#fff" opacity=".7" transform="rotate(-20 16 19)"/>
+    <ellipse cx="25" cy="18" rx="2" ry="1.5" fill="#fff" opacity=".7" transform="rotate(-20 25 18)"/>
+  </svg>`,
+
+  /* 4: チョコレートバー */
+  `<svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="c4g" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#8b4a20"/>
+        <stop offset="100%" stop-color="#5a2a08"/>
+      </linearGradient>
+    </defs>
+    <rect x="7" y="13" width="40" height="28" rx="6" fill="#3a1808" opacity=".3"/>
+    <rect x="7" y="12" width="40" height="28" rx="6" fill="url(#c4g)"/>
+    <!-- ブロック -->
+    <rect x="11" y="16" width="13" height="9" rx="2.5" fill="#a05828"/>
+    <rect x="29" y="16" width="13" height="9" rx="2.5" fill="#a05828"/>
+    <rect x="11" y="29" width="13" height="8" rx="2.5" fill="#a05828"/>
+    <rect x="29" y="29" width="13" height="8" rx="2.5" fill="#a05828"/>
+    <!-- 溝 -->
+    <rect x="24" y="14" width="3" height="24" rx="1.5" fill="#3a1808"/>
+    <rect x="9" y="25" width="36" height="3" rx="1.5" fill="#3a1808"/>
+    <!-- 光沢 -->
+    <ellipse cx="16" cy="18" rx="5" ry="2.5" fill="#fff" opacity=".18" transform="rotate(-15 16 18)"/>
+    <ellipse cx="34" cy="18" rx="5" ry="2.5" fill="#fff" opacity=".18" transform="rotate(-15 34 18)"/>
+    <!-- 端っこ溶け -->
+    <path d="M7 28 Q5 30 7 34 L7 38 Q7 40 11 40 L11 37 Q9 37 9 34 Z" fill="#7a3818" opacity=".5"/>
+  </svg>`,
+
+  /* 5: キャンディ (ラムネ風まるっこい) */
+  `<svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="c5g" cx="38%" cy="32%">
+        <stop offset="0%" stop-color="#c0a0f8"/>
+        <stop offset="55%" stop-color="#9060e0"/>
+        <stop offset="100%" stop-color="#6030b8"/>
+      </radialGradient>
+    </defs>
+    <!-- 棒 -->
+    <rect x="24" y="38" width="6" height="13" rx="3" fill="#f8c840"/>
+    <rect x="25" y="38" width="2" height="13" rx="1" fill="#fff" opacity=".4"/>
+    <!-- キャンディ本体 -->
+    <circle cx="27" cy="25" r="19" fill="#5020a0" opacity=".2"/>
+    <circle cx="27" cy="24" r="19" fill="url(#c5g)"/>
+    <!-- ハートもよう -->
+    <path d="M27 32 Q20 26 20 20 Q20 15 27 18 Q34 15 34 20 Q34 26 27 32Z" fill="#fff" opacity=".2"/>
+    <!-- スター -->
+    <text x="19" y="20" font-size="7" fill="#fff" opacity=".5">★</text>
+    <text x="29" y="30" font-size="5" fill="#fff" opacity=".4">✦</text>
+    <!-- 光沢 -->
+    <ellipse cx="20" cy="16" rx="6" ry="4" fill="#fff" opacity=".35" transform="rotate(-30 20 16)"/>
+    <circle cx="32" cy="19" r="2.5" fill="#fff" opacity=".2"/>
+  </svg>`,
+];
+
+function makeCookieEl(type){
+  const w=document.createElement('div');
+  w.style.cssText='width:50px;height:50px;display:flex;align-items:center;justify-content:center;pointer-events:none;';
+  w.innerHTML=COOKIE_SVG[type];
+  const svg=w.querySelector('svg');
+  if(svg){svg.style.width='50px';svg.style.height='50px';}
+  return w;
+}
+
+/* ══════════════════════════════════
+   効果音
+══════════════════════════════════ */
 let sfxCtx=null;
 function getSfx(){
-  if(!sfxCtx||sfxCtx.state==='closed')
-    sfxCtx=new(window.AudioContext||window.webkitAudioContext)();
-  if(sfxCtx.state==='suspended') sfxCtx.resume();
+  if(!sfxCtx||sfxCtx.state==='closed')sfxCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(sfxCtx.state==='suspended')sfxCtx.resume();
   return sfxCtx;
 }
 function tone(freq,dur,vol,type,delay,dest){
-  if(muted) return;
-  const c=getSfx(); if(!dest) dest=c.destination;
+  if(muted)return;
+  const c=getSfx();if(!dest)dest=c.destination;
   const o=c.createOscillator(),g=c.createGain();
   const t=c.currentTime+(delay||0);
-  o.type=type||'sine'; o.frequency.setValueAtTime(freq,t);
+  o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
   g.gain.setValueAtTime(vol||0.06,t);
   g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.12));
   o.connect(g);g.connect(dest);o.start(t);o.stop(t+(dur||0.12));
 }
 function playClear(n){
-  if(muted) return;
-  const c=getSfx();
-  const mg=c.createGain();mg.gain.value=0.36;mg.connect(c.destination);
+  if(muted)return;
+  const c=getSfx();const mg=c.createGain();mg.gain.value=0.34;mg.connect(c.destination);
   const base=560+(n||0)*80;
   [1,1.26,1.5,2].forEach((r,i)=>{
     tone(base*r,0.14,0.5,'sine',i*0.055,mg);
@@ -434,130 +619,101 @@ function playClear(n){
   tone(base*2.5,0.3,0.2,'sine',0.23,mg);
 }
 function playCombo(n){
-  if(muted) return;
-  const c=getSfx();
-  const mg=c.createGain();mg.gain.value=0.33;mg.connect(c.destination);
-  const sc=[523,659,784,1047,1319];
-  const top=Math.min(n,sc.length-1);
+  if(muted)return;
+  const c=getSfx();const mg=c.createGain();mg.gain.value=0.3;mg.connect(c.destination);
+  const sc=[523,659,784,1047,1319];const top=Math.min(n,sc.length-1);
   for(let i=0;i<=top;i++){
     tone(sc[i],0.18,0.5,'sine',i*0.07,mg);
     tone(sc[i]*1.5,0.1,0.2,'triangle',i*0.07+0.01,mg);
   }
 }
 function playOver(){
-  if(muted) return;
+  if(muted)return;
   [440,392,349,294,261].forEach((f,i)=>tone(f,0.28,0.06,'sine',i*0.12));
 }
 
-/* ═══════════════════════════════════
-   BGM — "look-ahead scheduler" 方式
-   Web Audio APIのcurrentTimeを基準に
-   常に少し先をスケジュールし続けることで
-   途切れ・重複のない安定ループを実現する
-═══════════════════════════════════ */
-let bgmAC   = null;   /* BGM専用AudioContext          */
-let bgmTick = null;   /* scheduler用setInterval       */
-let bgmNext = 0;      /* 次にスケジュールする絶対時刻  */
-let bgmActiveBPM = 0; /* 現在再生中のBPM              */
+/* ══════════════════════════════════
+   BGM — look-ahead scheduler
+   ・通常テンポ: BPM148 (長いフレーズ32拍)
+   ・残り10秒:  BPM200 に切り替え
+══════════════════════════════════ */
+let bgmAC=null,bgmTick=null,bgmNext=0,bgmActiveBPM=0;
+const SCHED_AHEAD=0.35,SCHED_TICK=50;
 
-/* スコア段階に対応したBPM */
 function bgmBPM(){
-  if(score>=300) return 220;
-  if(score>=200) return 196;
-  if(score>=100) return 172;
-  return 148;
+  /* タイム残り10秒以下でのみ加速 */
+  return (running&&timeLeft<=10)?200:148;
 }
 
-/* ノートを1個スケジュール */
 function schedNote(ac,dest,type,freq,startT,durT,vol){
   try{
     const o=ac.createOscillator(),g=ac.createGain();
-    o.type=type; o.frequency.value=freq;
+    o.type=type;o.frequency.value=freq;
     g.gain.setValueAtTime(vol,startT);
     g.gain.exponentialRampToValueAtTime(0.0001,startT+durT);
-    o.connect(g);g.connect(dest);
-    o.start(startT);o.stop(startT+durT);
+    o.connect(g);g.connect(dest);o.start(startT);o.stop(startT+durT);
   }catch(e){}
 }
 
-/* 1ループ分をスケジュール。startT=開始絶対時刻, beat=1拍の秒数 */
 function schedLoop(ac,startT,beat){
-  const gMel=ac.createGain(); gMel.gain.value=0.10; gMel.connect(ac.destination);
-  const gCnt=ac.createGain(); gCnt.gain.value=0.05; gCnt.connect(ac.destination);
-  const gBas=ac.createGain(); gBas.gain.value=0.09; gBas.connect(ac.destination);
-  const gHat=ac.createGain(); gHat.gain.value=0.032;gHat.connect(ac.destination);
-  const gKik=ac.createGain(); gKik.gain.value=0.11; gKik.connect(ac.destination);
+  const gM=ac.createGain();gM.gain.value=0.09;gM.connect(ac.destination);
+  const gC=ac.createGain();gC.gain.value=0.045;gC.connect(ac.destination);
+  const gB=ac.createGain();gB.gain.value=0.085;gB.connect(ac.destination);
+  const gH=ac.createGain();gH.gain.value=0.028;gH.connect(ac.destination);
+  const gK=ac.createGain();gK.gain.value=0.10;gK.connect(ac.destination);
 
-  /* メロディ (音程Hz, 拍数) */
+  /* 32拍メロディ — かわいくポップなフレーズ */
   const mel=[
-    [784,.5],[880,.5],[1047,1],[880,.5],[784,.5],
-    [659,1],[784,1],[659,.5],[523,.5],
-    [523,.5],[659,.5],[784,1],[880,.5],[1047,.5],
-    [880,1],[784,1],[659,2],
+    [523,.5],[659,.5],[784,1],[659,.5],[523,.5],[392,1],[440,.5],[523,.5],
+    [659,1],[784,.5],[880,.5],[784,1],[659,.5],[523,.5],[392,2],
+    [440,.5],[523,.5],[659,1],[784,.5],[880,.5],[1047,1],[880,.5],[784,.5],
+    [659,1],[523,.5],[440,.5],[523,1],[392,.5],[330,.5],[392,1],[523,2],
   ];
-  /* カウンターメロディ (5度上) */
-  const cnt=mel.map(([f,d])=>[f*1.498,d]);
+  /* ハーモニー */
+  const har=mel.map(([f,d])=>[f*1.26,d]);
   /* ベース */
   const bass=[
-    [196,.5],[196,.5],[196,1],[220,.5],[196,.5],
-    [165,1],[196,1],[165,.5],[131,.5],
-    [131,.5],[165,.5],[196,1],[220,.5],[261,.5],
-    [220,1],[196,1],[165,2],
+    [131,1],[165,1],[196,1],[175,1],[131,1],[165,1],[131,2],
+    [165,1],[196,1],[220,1],[196,1],[165,1],[131,1],[98,2],
+    [110,1],[131,1],[165,1],[196,1],[220,1],[261,1],[220,1],[196,1],
+    [165,1],[131,1],[110,1],[131,1],[98,1],[82,1],[98,1],[131,2],
   ];
 
-  /* メロディ・カウンター・ベースをスケジュール */
-  [[mel,gMel,'sine'],[cnt,gCnt,'triangle'],[bass,gBas,'triangle']].forEach(([notes,dest,type])=>{
+  const totalBeats=mel.reduce((s,[,d])=>s+d,0);
+
+  [[mel,gM,'sine'],[har,gC,'triangle'],[bass,gB,'triangle']].forEach(([notes,dest,type])=>{
     let t=startT;
     notes.forEach(([f,d])=>{
-      const dur=d*beat*0.78;
-      schedNote(ac,dest,type,f,t,dur,0.55);
+      schedNote(ac,dest,type,f,t,d*beat*0.80,0.55);
       t+=d*beat;
     });
   });
 
-  /* ドラム (8分音符ステップ) */
-  const totalBeats=mel.reduce((s,[,d])=>s+d,0);
+  /* ドラム (8分ステップ) */
   const steps=totalBeats*2;
   for(let i=0;i<steps;i++){
     const t=startT+i*beat*0.5;
-    /* ハイハット */
-    schedNote(ac,gHat,'sawtooth',9000+Math.random()*4000,t,0.016,i%2===0?0.42:0.16);
-    /* キック (1・3拍目) */
-    if(i%4===0){
-      schedNote(ac,gKik,'sine',80,t,0.18,0.85);
-      schedNote(ac,gKik,'sine',55,t+0.01,0.20,0.55);
-    }
-    /* スネア (2・4拍目) */
-    if(i%4===2){
-      schedNote(ac,gHat,'sawtooth',220+Math.random()*80,t,0.08,0.30);
-    }
+    schedNote(ac,gH,'sawtooth',9000+Math.random()*4000,t,0.015,i%2===0?0.40:0.14);
+    if(i%4===0){schedNote(ac,gK,'sine',80,t,0.17,0.80);schedNote(ac,gK,'sine',55,t+0.01,0.19,0.50);}
+    if(i%4===2)schedNote(ac,gH,'sawtooth',220+Math.random()*80,t,0.07,0.28);
   }
-
-  /* このループの長さ(秒)を返す */
   return totalBeats*beat;
 }
 
-/* BGMスケジューラーの心臓部
-   50msごとに呼ばれ、現在時刻から0.3秒先までをスケジュール済みにする */
-const SCHED_AHEAD = 0.3; /* 先読み秒数 */
-const SCHED_TICK  = 50;  /* チェック間隔ms */
-
 function bgmScheduler(){
-  if(!bgmAC||bgmAC.state==='closed') return;
-  const beat=60/bgmActiveBPM;
-  while(bgmNext < bgmAC.currentTime + SCHED_AHEAD){
-    const loopDur=schedLoop(bgmAC,bgmNext,beat);
-    bgmNext+=loopDur;
+  if(!bgmAC||bgmAC.state==='closed')return;
+  const bpm=bgmActiveBPM,beat=60/bpm;
+  while(bgmNext<bgmAC.currentTime+SCHED_AHEAD){
+    bgmNext+=schedLoop(bgmAC,bgmNext,beat);
   }
 }
 
 function startBGM(){
-  stopBGM();
-  if(muted) return;
+  stopBGM();if(muted)return;
   bgmActiveBPM=bgmBPM();
   bgmAC=new(window.AudioContext||window.webkitAudioContext)();
   bgmNext=bgmAC.currentTime+0.05;
-  bgmScheduler(); /* 即座に最初の分をスケジュール */
+  bgmScheduler();
   bgmTick=setInterval(bgmScheduler,SCHED_TICK);
 }
 
@@ -567,108 +723,24 @@ function stopBGM(){
   bgmActiveBPM=0;
 }
 
-/* スコアが閾値を超えてBPMが変わったら即切り替え */
-function checkBPM(){
-  if(running&&!muted&&bgmBPM()!==bgmActiveBPM) startBGM();
+/* 残り10秒切りでBPM切り替え */
+function checkBGMTempo(){
+  const needed=bgmBPM();
+  if(running&&!muted&&needed!==bgmActiveBPM)startBGM();
 }
 
 function toggleMute(){
   muted=!muted;
   ['muteBtn','muteBtn-m'].forEach(id=>{
     const b=el(id);if(!b)return;
-    b.textContent=muted?'🔇':'🔊';
-    b.classList.toggle('muted',muted);
+    b.textContent=muted?'🔇':'🔊';b.classList.toggle('muted',muted);
   });
-  if(muted){stopBGM();}else if(running){startBGM();}
+  if(muted)stopBGM();else if(running)startBGM();
 }
 
-
-/* ══════════════════════════════════════════
-   SVGお菓子ブロック (6種)
-   各関数は 56×56 の SVG文字列を返す
-══════════════════════════════════════════ */
-const COOKIE_SVG = [
-  /* 0: クッキー (茶色の丸) */
-  `<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="28" cy="28" r="24" fill="#c8813a"/>
-    <circle cx="28" cy="28" r="22" fill="#d9934a"/>
-    <circle cx="20" cy="22" r="3.5" fill="#8b5e2a"/>
-    <circle cx="34" cy="20" r="2.8" fill="#8b5e2a"/>
-    <circle cx="22" cy="34" r="2.5" fill="#8b5e2a"/>
-    <circle cx="36" cy="33" r="3.2" fill="#8b5e2a"/>
-    <circle cx="29" cy="28" r="2" fill="#8b5e2a"/>
-    <ellipse cx="28" cy="28" rx="22" ry="22" fill="none" stroke="#b87030" stroke-width="1.5" opacity=".4"/>
-  </svg>`,
-  /* 1: カップケーキ */
-  `<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="28" cy="37" rx="16" ry="10" fill="#e8955a"/>
-    <rect x="13" y="33" width="30" height="12" rx="4" fill="#c8703a"/>
-    <path d="M13 37 Q16 33 19 37 Q22 41 25 37 Q28 33 31 37 Q34 41 37 37 Q40 33 43 37 L43 45 Q43 49 39 49 L17 49 Q13 49 13 45 Z" fill="#d9834a"/>
-    <ellipse cx="28" cy="24" rx="14" ry="13" fill="#f9d0e0"/>
-    <ellipse cx="28" cy="22" rx="12" ry="11" fill="#fce4ee"/>
-    <circle cx="28" cy="14" r="4" fill="#f4845f"/>
-    <circle cx="28" cy="12" r="2" fill="#e05a3a"/>
-    <rect x="27" y="10" width="2" height="5" fill="#8b3a1a"/>
-  </svg>`,
-  /* 2: ドーナツ */
-  `<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="28" cy="28" r="22" fill="#d9934a"/>
-    <circle cx="28" cy="28" r="10" fill="#fdf4e7"/>
-    <circle cx="28" cy="28" r="22" fill="none" stroke="#c8813a" stroke-width="2" opacity=".5"/>
-    <path d="M10 24 Q28 14 46 24" stroke="#f06090" stroke-width="7" fill="none" stroke-linecap="round" opacity=".9"/>
-    <path d="M10 28 Q28 18 46 28" stroke="#f48ab0" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
-    <circle cx="18" cy="22" r="2" fill="#fff" opacity=".8"/>
-    <circle cx="36" cy="18" r="1.5" fill="#fff" opacity=".8"/>
-    <circle cx="40" cy="28" r="2" fill="#fff" opacity=".8"/>
-  </svg>`,
-  /* 3: ケーキ (ショートケーキ) */
-  `<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <rect x="10" y="30" width="36" height="16" rx="3" fill="#f5e6a0"/>
-    <rect x="10" y="30" width="36" height="7" fill="#f9c0a0"/>
-    <rect x="10" y="22" width="36" height="10" rx="2" fill="#fff8f0"/>
-    <rect x="10" y="22" width="36" height="4" fill="#fce8f0"/>
-    <ellipse cx="28" cy="22" rx="18" ry="5" fill="#fce8f0"/>
-    <ellipse cx="28" cy="22" rx="16" ry="4" fill="#fff"/>
-    <circle cx="22" cy="20" r="4" fill="#f44"/>
-    <circle cx="34" cy="20" r="4" fill="#f44"/>
-    <circle cx="28" cy="19" r="3.5" fill="#f66"/>
-    <rect x="10" y="36" width="36" height="2" fill="#e8c870" opacity=".5"/>
-  </svg>`,
-  /* 4: チョコレートバー */
-  `<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <rect x="8" y="14" width="40" height="28" rx="5" fill="#6b3a1f"/>
-    <rect x="8" y="14" width="40" height="28" rx="5" fill="none" stroke="#4a2510" stroke-width="1.5"/>
-    <rect x="12" y="18" width="14" height="10" rx="2" fill="#7d4a28"/>
-    <rect x="30" y="18" width="14" height="10" rx="2" fill="#7d4a28"/>
-    <rect x="12" y="32" width="14" height="7" rx="2" fill="#7d4a28"/>
-    <rect x="30" y="32" width="14" height="7" rx="2" fill="#7d4a28"/>
-    <rect x="26" y="18" width="4" height="21" fill="#4a2510"/>
-    <rect x="12" y="28" width="32" height="4" fill="#4a2510"/>
-    <rect x="10" y="16" width="6" height="3" rx="1" fill="#8b5a30" opacity=".5"/>
-  </svg>`,
-  /* 5: キャンディ */
-  `<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="28" cy="26" rx="17" ry="17" fill="#9b59b6"/>
-    <ellipse cx="28" cy="26" rx="15" ry="15" fill="#b06fd0"/>
-    <path d="M28 11 Q45 26 28 41 Q11 26 28 11Z" fill="#d090f0" opacity=".5"/>
-    <ellipse cx="22" cy="20" rx="4" ry="6" fill="#fff" opacity=".3" transform="rotate(-30 22 20)"/>
-    <rect x="25" y="40" width="6" height="11" rx="3" fill="#d0a030"/>
-    <rect x="24" y="39" width="8" height="4" rx="2" fill="#c09020"/>
-    <line x1="28" y1="41" x2="28" y2="51" stroke="#e8b840" stroke-width="1" opacity=".5"/>
-  </svg>`,
-];
-
-function makeCookieEl(type){
-  const wrap = document.createElement('div');
-  wrap.style.cssText='width:56px;height:56px;display:flex;align-items:center;justify-content:center;';
-  wrap.innerHTML = COOKIE_SVG[type];
-  const svg = wrap.querySelector('svg');
-  if(svg){ svg.style.width='54px'; svg.style.height='54px'; }
-  return wrap;
-}
-/* ═══════════════════════════════════
+/* ══════════════════════════════════
    グリッド
-═══════════════════════════════════ */
+══════════════════════════════════ */
 function createGrid(){
   grid=[];
   for(let r=0;r<ROWS;r++){grid[r]=[];for(let c=0;c<COLS;c++)grid[r][c]=rand();}
@@ -678,16 +750,14 @@ function render(dropSet){
   const g=el('grid');g.innerHTML='';
   for(let r=0;r<ROWS;r++){
     for(let c=0;c<COLS;c++){
-      const val=grid[r][c];
-      const d=document.createElement('div');
+      const val=grid[r][c],d=document.createElement('div');
       if(val===-1){
         d.className='cell-empty';
       }else{
         d.className='cell';
         if(dropSet&&dropSet.has(r+','+c))d.classList.add('drop');
         d.appendChild(makeCookieEl(val));
-        d.onclick=clickCell;
-        d.dataset.r=r;d.dataset.c=c;
+        d.onclick=clickCell;d.dataset.r=r;d.dataset.c=c;
       }
       g.appendChild(d);
     }
@@ -733,53 +803,28 @@ function getCellEl(r,c){
   return el('grid').querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
 }
 
-/* ═══════════════════════════════════
-   タイム回復係数（連鎖数に応じて増加・全体的に控えめに）
-   chain=1: ×0.3  chain=2: ×0.5  chain=3: ×0.8
-   chain=4: ×1.2  chain≥5: ×1.8
-═══════════════════════════════════ */
-/* タイム回復係数 (前回と難しすぎ版の中間)
-   chain=1: ×0.45  chain=2: ×0.8  chain=3: ×1.3
-   chain=4: ×2.0   chain≥5: ×3.0
-*/
+/* タイム回復 */
 function timeBonus(hitSize,chainN){
   const mul=[0,0.45,0.8,1.3,2.0,3.0];
   return hitSize*mul[Math.min(chainN,mul.length-1)];
 }
 
-/* ═══════════════════════════════════
-   クリック: 1個消去 → 落下 → 連鎖
-═══════════════════════════════════ */
+/* ══════════════════════════════════
+   クリック → 落下 → 連鎖
+══════════════════════════════════ */
 async function clickCell(e){
-  if(!running||busy)return;
-  busy=true;
+  if(!running||busy)return;busy=true;
   const r=+e.currentTarget.dataset.r,c=+e.currentTarget.dataset.c;
   const cellEl=getCellEl(r,c);
-  if(cellEl){
-    const rect=cellEl.getBoundingClientRect();
-    spawnSparks(rect.left+rect.width/2,rect.top+rect.height/2,4);
-  }
-  playClear(0);
-  grid[r][c]=-1;
-  timeLeft=Math.max(0,timeLeft-1);
-  render(null);
-  await sleep(160);
-  const drop=gravity();render(drop);
-  await sleep(300);
-  await chain(1);
-  busy=false;
+  if(cellEl){const rect=cellEl.getBoundingClientRect();spawnSparks(rect.left+rect.width/2,rect.top+rect.height/2,4);}
+  playClear(0);grid[r][c]=-1;timeLeft=Math.max(0,timeLeft-1);render(null);
+  await sleep(160);const drop=gravity();render(drop);
+  await sleep(300);await chain(1);busy=false;
 }
 
-/* ═══════════════════════════════════
-   連鎖処理
-═══════════════════════════════════ */
 async function chain(n){
-  const hit=findMatch();
-  if(hit.size===0)return;
-
-  showCombo(n);
-  if(n>1)playCombo(n);
-
+  const hit=findMatch();if(hit.size===0)return;
+  showCombo(n);if(n>1)playCombo(n);
   hit.forEach(k=>{
     const[r,c]=k.split(',').map(Number);
     const cellEl=getCellEl(r,c);
@@ -788,61 +833,47 @@ async function chain(n){
     spawnSparks(rect.left+rect.width/2,rect.top+rect.height/2,5);
     grid[r][c]=-1;
   });
-
-  playClear(n-1);
-  render(null);
-
+  playClear(n-1);render(null);
   score+=hit.size;
   timeLeft=Math.min(60,timeLeft+timeBonus(hit.size,n));
-  updateUI();
-  checkBPM();
-  checkMilestone();
-
-  await sleep(480);
-  const drop=gravity();render(drop);
-  await sleep(300);
-  await chain(n+1);
+  updateUI();checkMilestone();checkBGMTempo();
+  await sleep(480);const drop=gravity();render(drop);
+  await sleep(300);await chain(n+1);
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════
    コンボ表示
-═══════════════════════════════════ */
+══════════════════════════════════ */
 function showCombo(n){
   const d=el('combo');
-  d.style.transition='none';d.style.opacity='0';
-  d.textContent=n+' CHAIN! 🔥';
+  d.style.transition='none';d.style.opacity='0';d.textContent=n+' CHAIN! 🔥';
   requestAnimationFrame(()=>{
     d.style.opacity='1';d.style.transform='translate(-50%,-50%) scale(1.15)';
     setTimeout(()=>{
-      d.style.transition='opacity .65s, transform .65s';
+      d.style.transition='opacity .65s,transform .65s';
       d.style.opacity='0';d.style.transform='translate(-50%,-63%) scale(.87)';
     },750);
   });
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════
    パーティクル
-═══════════════════════════════════ */
+══════════════════════════════════ */
 function spawnSparks(x,y,num){
-  const icons=['✨','⭐','💫','🌟','🎉','🍬'];
-  const p=el('particles');
+  const icons=['✨','⭐','💫','🌟','🎉','🍬'];const p=el('particles');
   for(let i=0;i<(num||5);i++){
-    const s=document.createElement('div');
-    s.className='spark';
+    const s=document.createElement('div');s.className='spark';
     s.textContent=icons[Math.floor(Math.random()*icons.length)];
-    s.style.left=(x+(Math.random()-.5)*60)+'px';
-    s.style.top =(y+(Math.random()-.5)*30)+'px';
-    p.appendChild(s);
-    setTimeout(()=>s.remove(),900);
+    s.style.left=(x+(Math.random()-.5)*60)+'px';s.style.top=(y+(Math.random()-.5)*30)+'px';
+    p.appendChild(s);setTimeout(()=>s.remove(),900);
   }
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════
    UI / タイマー
-═══════════════════════════════════ */
+══════════════════════════════════ */
 function updateUI(){
-  const t=Math.ceil(timeLeft);
-  const pct=timeLeft/60*100;
+  const t=Math.ceil(timeLeft),pct=timeLeft/60*100;
   const bg=pct>40?'linear-gradient(90deg,#f4845f,#e8bc5a)':
            pct>20?'linear-gradient(90deg,#e87040,#e05a2a)':
                   'linear-gradient(90deg,#e02020,#c01010)';
@@ -851,22 +882,18 @@ function updateUI(){
   const sm=el('score-m'),tm=el('time-m'),fm=el('fill-m');
   if(sm)sm.textContent=score;if(tm)tm.textContent=t;
   if(fm){fm.style.width=pct+'%';fm.style.background=bg;}
-  updateTitle();
-  updateDanger();
+  /* ピンチ演出 */
+  const danger=running&&timeLeft<=10;
+  ['time','time-m'].forEach(id=>{const e=el(id);if(e)e.classList.toggle('danger',danger);});
+  document.body.style.background=danger?'linear-gradient(135deg,#fdf4e7 60%,#ffe0e0 100%)':'';
 }
 
-/* タイム減少係数 (スコアで加速) */
 function decayRate(){
-  if(score>=300)return 1.90;
-  if(score>=200)return 1.55;
-  if(score>=100)return 1.25;
-  return 1.0;
+  if(score>=300)return 1.90;if(score>=200)return 1.55;if(score>=100)return 1.25;return 1.0;
 }
 
 function startGame(){
-  if(running)return;
-  getSfx().resume();
-  running=true;
+  if(running)return;getSfx().resume();running=true;
   const T=LANGS[lang];
   el('startBtn').disabled=true;el('startBtn').textContent=T.playing;
   const sbm=el('startBtn-m');if(sbm){sbm.disabled=true;sbm.textContent=T.playing;}
@@ -874,32 +901,79 @@ function startGame(){
   timer=setInterval(()=>{
     timeLeft-=0.1*decayRate();
     if(timeLeft<=0){timeLeft=0;updateUI();endGame();return;}
-    updateUI();
+    updateUI();checkBGMTempo();
   },100);
 }
 
 function endGame(){
-  running=false;clearInterval(timer);
-  stopBGM();playOver();
-  /* ピンチ演出リセット */
+  running=false;clearInterval(timer);stopBGM();playOver();
   document.body.style.background='';
   ['time','time-m'].forEach(id=>{const e=el(id);if(e)e.classList.remove('danger');});
   const prevHigh=+localStorage.getItem('cookieHigh')||0;
   const isNewRecord=score>prevHigh;
   saveScore();
   el('final').textContent=score;
-  /* 称号 */
-  const titleBadge=el('go-title-badge');
-  if(titleBadge)titleBadge.textContent=getTitle(score);
-  showRanking();
-  el('gameover').classList.add('show');
-  /* NEW RECORD演出 */
-  if(isNewRecord&&score>0) setTimeout(showNewRecord,400);
+  const badge=el('go-title-badge');if(badge)badge.textContent=getTitle(score);
+  showRanking();el('gameover').classList.add('show');
+  if(isNewRecord&&score>0)setTimeout(showNewRecord,400);
 }
 
-/* ═══════════════════════════════════
-   スコア保存 / ランキング
-═══════════════════════════════════ */
+/* ══════════════════════════════════
+   称号 (リザルト画面のみ)
+══════════════════════════════════ */
+function getTitle(s){
+  const list=[...LANGS[lang].titles].reverse();
+  for(const[min,name]of list){if(s>=min)return name;}
+  return LANGS[lang].titles[0][1];
+}
+
+/* マイルストーン */
+const MILESTONES=[30,60,100,140,180,230,280,340,400,470,550,640,740,850,970,1000,1100,1250,1400,1600,1800,2000];
+let lastMilestone=0;
+function checkMilestone(){
+  const T=LANGS[lang];
+  for(const m of MILESTONES){
+    if(score>=m&&lastMilestone<m){lastMilestone=m;showMilestone(T.milestone(m));return;}
+  }
+}
+function showMilestone(text){
+  const d=el('milestone-msg');
+  d.textContent=text;d.style.transition='none';d.style.opacity='1';
+  d.style.transform='translate(-50%,-50%) scale(1.1)';
+  setTimeout(()=>{
+    d.style.transition='opacity .8s,transform .8s';
+    d.style.opacity='0';d.style.transform='translate(-50%,-60%) scale(.9)';
+  },900);
+}
+
+/* NEW RECORD */
+function showNewRecord(){
+  const d=el('new-record');
+  d.textContent=LANGS[lang].newRecord;d.style.transition='none';d.style.opacity='1';
+  d.style.transform='translate(-50%,-50%) scale(1.15)';
+  setTimeout(()=>{
+    d.style.transition='opacity 1s,transform 1s';
+    d.style.opacity='0';d.style.transform='translate(-50%,-65%) scale(.9)';
+  },1200);
+  launchConfetti();
+}
+function launchConfetti(){
+  const cols=['#f4845f','#e8bc5a','#6ec6a0','#90caf9','#ce93d8','#f48fb1'];
+  for(let i=0;i<60;i++){
+    setTimeout(()=>{
+      const s=document.createElement('div');s.className='confetti';
+      s.style.left=Math.random()*100+'vw';
+      s.style.background=cols[Math.floor(Math.random()*cols.length)];
+      s.style.width=(8+Math.random()*8)+'px';s.style.height=(8+Math.random()*8)+'px';
+      s.style.animationDuration=(1.5+Math.random()*2)+'s';
+      document.body.appendChild(s);setTimeout(()=>s.remove(),4000);
+    },i*40);
+  }
+}
+
+/* ══════════════════════════════════
+   スコア保存 / ランキング / シェア
+══════════════════════════════════ */
 function saveScore(){
   let hs=+localStorage.getItem('cookieHigh')||0;
   if(score>hs)localStorage.setItem('cookieHigh',score);
@@ -909,189 +983,105 @@ function saveScore(){
 }
 function loadScore(){
   const v=localStorage.getItem('cookieHigh')||0;
-  el('high').textContent=v;
-  const hm=el('high-m');if(hm)hm.textContent=v;
+  el('high').textContent=v;const hm=el('high-m');if(hm)hm.textContent=v;
 }
 function showRanking(){
   const arr=JSON.parse(localStorage.getItem('cookieRank')||'[]');
-  const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
-  const suf=LANGS[lang].rankSuffix;
+  const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];const suf=LANGS[lang].rankSuffix;
   el('ranking').innerHTML=arr.length?arr.map((v,i)=>`${medals[i]} ${v}${suf}`).join('<br>'):'';
   loadScore();
 }
-
-/* X シェア */
 function shareX(){
-  const T=LANGS[lang];
-  const title=getTitle(score);
-  const text=T.shareTitle?T.shareTitle(score,title):T.shareText(score);
-  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','noopener');
+  const T=LANGS[lang];const title=getTitle(score);
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(T.shareTitle(score,title)),'_blank','noopener');
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════
    リセット
-═══════════════════════════════════ */
+══════════════════════════════════ */
 function resetGame(){
   clearInterval(timer);stopBGM();
-  running=false;busy=false;score=0;timeLeft=60;
+  running=false;busy=false;score=0;timeLeft=60;lastMilestone=0;
+  document.body.style.background='';
   el('gameover').classList.remove('show');
   el('startBtn').disabled=false;el('startBtn').textContent=LANGS[lang].start;
   const sbm2=el('startBtn-m');if(sbm2){sbm2.disabled=false;sbm2.textContent=LANGS[lang].start;}
-  lastMilestone=0;
   createGrid();
   let n=0;while(findMatch().size>0&&n++<20)createGrid();
   render();updateUI();loadScore();
 }
 
-/* ═══════════════════════════════════
-   ④ 称号取得
-═══════════════════════════════════ */
-function getTitle(s){
-  const T=LANGS[lang];
-  const list=[...T.titles].reverse();
-  for(const[min,name] of list){if(s>=min)return name;}
-  return T.titles[0][1];
-}
-function updateTitle(){
-  /* 340(一流パティシエ)未満はスタート前は非表示 */
-  const threshold=340;
-  const pt=el('player-title');
-  if(!pt)return;
-  if(!running&&score<threshold){ pt.textContent=''; return; }
-  const t=getTitle(score);
-  pt.textContent=(score>=threshold||running)?t:'';
-}
+/* ══════════════════════════════════
+   初期化 & スケール
+══════════════════════════════════ */
+resetGame();applyLang();
 
-/* ② マイルストーン表示 */
-const MILESTONES=[30,60,100,150,200,250,300,400,500,600,750,900,1000];
-let lastMilestone=0;
-function checkMilestone(){
-  const T=LANGS[lang];
-  for(const m of MILESTONES){
-    if(score>=m&&lastMilestone<m){
-      lastMilestone=m;
-      showMilestone(T.milestone(m));
-      return;
-    }
-  }
-}
-function showMilestone(text){
-  const d=el('milestone-msg');
-  d.textContent=text;
-  d.style.transition='none';d.style.opacity='1';
-  d.style.transform='translate(-50%,-50%) scale(1.1)';
-  setTimeout(()=>{
-    d.style.transition='opacity .8s,transform .8s';
-    d.style.opacity='0';
-    d.style.transform='translate(-50%,-60%) scale(.9)';
-  },900);
-}
-
-/* ① NEW RECORD 紙吹雪 */
-function showNewRecord(){
-  const d=el('new-record');
-  const T=LANGS[lang];
-  d.textContent=T.newRecord;
-  d.style.transition='none';d.style.opacity='1';
-  d.style.transform='translate(-50%,-50%) scale(1.15)';
-  setTimeout(()=>{
-    d.style.transition='opacity 1s,transform 1s';
-    d.style.opacity='0';
-    d.style.transform='translate(-50%,-65%) scale(.9)';
-  },1200);
-  launchConfetti();
-}
-function launchConfetti(){
-  const colors=['#f4845f','#e8bc5a','#6ec6a0','#90caf9','#ce93d8','#f48fb1'];
-  for(let i=0;i<60;i++){
-    setTimeout(()=>{
-      const s=document.createElement('div');
-      s.className='confetti';
-      s.style.left=Math.random()*100+'vw';
-      s.style.background=colors[Math.floor(Math.random()*colors.length)];
-      s.style.width=(8+Math.random()*8)+'px';
-      s.style.height=(8+Math.random()*8)+'px';
-      s.style.animationDuration=(1.5+Math.random()*2)+'s';
-      s.style.animationDelay='0s';
-      document.body.appendChild(s);
-      setTimeout(()=>s.remove(),4000);
-    },i*40);
-  }
-}
-
-/* ⑤ ピンチ演出 */
-function updateDanger(){
-  const te=el('time'),tme=el('time-m');
-  const body=document.body;
-  if(timeLeft<=10&&running){
-    if(te)te.classList.add('danger');
-    if(tme)tme.classList.add('danger');
-    body.style.transition='background .3s';
-    body.style.background='linear-gradient(135deg,#fdf4e7 60%,#ffe0e0 100%)';
-  }else{
-    if(te)te.classList.remove('danger');
-    if(tme)tme.classList.remove('danger');
-    body.style.background='';
-  }
-}
-
-/* ═══════════════════════════════════
-   初期化
-═══════════════════════════════════ */
-resetGame();
-applyLang();
-
-/* PC・スマホ両対応: グリッドをvp幅・高さに合わせてscale */
-const GRID_COLS=7, GRID_ROWS=8, CELL=66, GAP=6;
-const GRID_W = CELL*GRID_COLS + GAP*(GRID_COLS-1); /* 498px */
-const GRID_H = CELL*GRID_ROWS + GAP*(GRID_ROWS-1); /* 576px */
+/* PC・スマホ両対応 viewport fit
+   グリッドネイティブサイズ: 60×7 + 5×6 = 450px (W), 60×8 + 5×7 = 515px (H)
+   wrapper padding 8px → 内部 450×515
+   wrapper外サイズ: 450+16=466 × 515+16=531
+*/
+const GW_INNER_W=60*7+5*6;  /* 450 */
+const GW_INNER_H=60*8+5*7;  /* 515 */
+const GW_PAD=8;
+const GW_W=GW_INNER_W+GW_PAD*2; /* 466 */
+const GW_H=GW_INNER_H+GW_PAD*2; /* 531 */
 
 function scaleGrid(){
-  const g  = document.getElementById('grid');
-  const w  = document.getElementById('grid-wrapper');
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const isMobile = vw <= 600;
+  const gw=el('grid-wrapper');
+  const vw=window.innerWidth;
+  const vh=window.innerHeight;
+  const isMobile=vw<=600;
 
-  /* 利用可能な幅・高さを推定
-     PC  : タイトル(~60px)+gap(18px)+padding(40px) = ~118px をvhから引く
-     Mobile: タイトル(~48px)+gap(18px)+panel下部(~130px)+padding(16px) = ~212px */
-  const reservedH = isMobile ? 212 : 118;
-  const reservedW = isMobile ? 8   : 24+164+24+40; /* grid側の余白 */
+  if(isMobile){
+    /* ── スマホ: 全要素の高さを実測して残りをグリッドに割り当て ── */
+    /* いったんscaleをリセットしてから他要素の高さを取得 */
+    gw.style.transform='scale(1)';
+    gw.style.marginBottom='0';
 
-  const availW = vw - reservedW;
-  const availH = vh - reservedH;
+    const logoH  = (el('title-logo')||{offsetHeight:40}).offsetHeight;
+    const panelH = (document.querySelector('.panel-mobile')||{offsetHeight:130}).offsetHeight;
+    const donateH= (el('donateBtn')||{offsetHeight:0}).offsetHeight;
+    const gaps   = 4+4+6+4; /* game-area gap + 各margin */
 
-  const sW = availW / GRID_W;
-  const sH = availH / GRID_H;
-  const s  = Math.min(sW, sH, 1); /* 1より大きくはしない */
+    const availW = vw - 20;          /* 左右10pxずつ */
+    const availH = vh - logoH - panelH - donateH - gaps - 40; /* 40=lang+余裕 */
 
-  g.style.transform       = 'scale('+s+')';
-  g.style.transformOrigin = isMobile ? 'top center' : 'top left';
-  w.style.width    = Math.round(GRID_W*s)+'px';
-  w.style.height   = Math.round(GRID_H*s)+'px';
-  w.style.overflow = 'hidden';
+    const sW = availW / GW_W;
+    const sH = availH / GW_H;
+    const s  = Math.min(sW, sH, 0.99); /* 1未満に抑える */
+
+    gw.style.transformOrigin = 'top center';
+    gw.style.transform = 'scale('+s+')';
+    gw.style.width  = GW_W+'px';
+    gw.style.height = GW_H+'px';
+    gw.style.marginBottom = -(GW_H - Math.round(GW_H*s))+'px';
+    gw.style.marginRight  = '';
+
+  }else{
+    /* ── PC ── */
+    const logoEl=el('title-logo');
+    const logoH=logoEl?logoEl.offsetHeight+8:70;
+    const availW=vw-148-20-40;
+    const availH=vh-logoH-24;
+    const s=Math.min(availW/GW_W, availH/GW_H, 1);
+
+    gw.style.transformOrigin='top left';
+    gw.style.transform='scale('+s+')';
+    gw.style.width  = GW_W+'px';
+    gw.style.height = GW_H+'px';
+    const scaledH=Math.round(GW_H*s);
+    const scaledW=Math.round(GW_W*s);
+    gw.style.marginBottom=-(GW_H-scaledH)+'px';
+    gw.style.marginRight =-(GW_W-scaledW)+'px';
+  }
 }
 
 scaleGrid();
-window.addEventListener('resize', scaleGrid);
+window.addEventListener('resize',scaleGrid);
+/* ロゴのフォント読み込み後に再計算 */
+document.fonts.ready.then(scaleGrid);
 </script>
 
-<a id="donateBtn"
-   href="https://taroponta.itch.io/cookie-puzzle/donate"
-   target="_blank" rel="noopener"
-   style="
-     position:fixed;right:16px;bottom:16px;z-index:200;
-     background:#f4845f;color:#fff;
-     font-family:'Fredoka One',cursive;font-size:.95rem;
-     padding:10px 16px;border-radius:14px;
-     box-shadow:0 4px 0 #c95c3a;text-decoration:none;
-     transition:transform .1s,box-shadow .1s;
-   "
-   onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 0 #c95c3a'"
-   onmouseout="this.style.transform='';this.style.boxShadow='0 4px 0 #c95c3a'"
-   onmousedown="this.style.transform='translateY(2px)';this.style.boxShadow='0 2px 0 #c95c3a'"
-   onmouseup="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 0 #c95c3a'"
->☕ おやつ代をあげる</a>
 </body>
 </html>
