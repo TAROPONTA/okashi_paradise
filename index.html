@@ -148,6 +148,18 @@ body::before{
 @keyframes dangerPulse{0%,100%{color:var(--accent);}50%{color:#e02020;}}
 .danger{animation:dangerPulse .5s infinite;}
 
+/* 爆弾セルの輝き */
+@keyframes bombGlow{
+  0%,100%{box-shadow:0 0 8px 3px rgba(255,200,0,.5),0 2px 6px rgba(150,90,30,.08);}
+  50%{box-shadow:0 0 18px 7px rgba(255,220,0,.85),0 2px 6px rgba(150,90,30,.08);}
+}
+.cell.bomb-cell{
+  animation:bombGlow 0.9s ease-in-out infinite;
+  background:rgba(255,240,160,0.55)!important;
+  border-color:rgba(220,170,0,0.5)!important;
+  cursor:pointer;
+}
+
 /* マイルストーン */
 #milestone-msg{
   position:fixed;left:50%;top:36%;transform:translate(-50%,-50%);
@@ -161,6 +173,14 @@ body::before{
   font-family:'Fredoka One',cursive;font-size:2.8rem;
   color:#e8bc5a;text-shadow:3px 3px 0 #fff,5px 5px 0 #fde8a0;
   opacity:0;pointer-events:none;z-index:52;
+}
+/* LUCKY! */
+#lucky-msg{
+  position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);
+  font-family:'Fredoka One',cursive;font-size:3.8rem;
+  color:#f8d020;text-shadow:3px 3px 0 #fff,0 0 20px #ffaa00,6px 6px 0 #c88000;
+  opacity:0;pointer-events:none;z-index:53;
+  letter-spacing:4px;
 }
 /* 紙吹雪 */
 .confetti{
@@ -243,6 +263,7 @@ body::before{
 <div id="combo"></div>
 <div id="milestone-msg"></div>
 <div id="new-record"></div>
+<div id="lucky-msg"></div>
 <div id="particles"></div>
 
 <!-- SVGタイトルロゴ -->
@@ -412,12 +433,16 @@ function applyLang(){
    定数 / 状態
 ══════════════════════════════════ */
 const ROWS=8,COLS=7,NEED=4;
+const BOMB=6;          /* 爆弾ブロックの種別番号 */
+const BOMB_CHANCE=0.015; /* 落下時に爆弾になる確率 (1.5%) */
+
 let grid=[],score=0,timeLeft=60;
 let running=false,busy=false,timer=null;
 let muted=false;
 
 const el=id=>document.getElementById(id);
-const rand=()=>Math.floor(Math.random()*6);
+/* 通常ブロック or 稀に爆弾 */
+const rand=()=>Math.random()<BOMB_CHANCE?BOMB:Math.floor(Math.random()*6);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 /* ══════════════════════════════════
@@ -578,6 +603,47 @@ const COOKIE_SVG=[
     <ellipse cx="20" cy="16" rx="6" ry="4" fill="#fff" opacity=".35" transform="rotate(-30 20 16)"/>
     <circle cx="32" cy="19" r="2.5" fill="#fff" opacity=".2"/>
   </svg>`,
+  ,
+  /* 6: 💣 ゴールド爆弾ボム */
+  `<svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bg0" cx="38%" cy="32%">
+        <stop offset="0%" stop-color="#fff8a0"/>
+        <stop offset="40%" stop-color="#f8d020"/>
+        <stop offset="100%" stop-color="#c88000"/>
+      </radialGradient>
+      <radialGradient id="bg1" cx="50%" cy="50%">
+        <stop offset="0%" stop-color="#ffe060"/>
+        <stop offset="100%" stop-color="#e09000"/>
+      </radialGradient>
+      <filter id="bglow">
+        <feGaussianBlur stdDeviation="2.5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <!-- 発光リング -->
+    <circle cx="27" cy="29" r="22" fill="#ffdd00" opacity=".25" filter="url(#bglow)"/>
+    <!-- 本体 -->
+    <circle cx="27" cy="29" r="19" fill="#b07000" opacity=".4"/>
+    <circle cx="27" cy="28" r="19" fill="url(#bg0)"/>
+    <!-- 亀裂ライン -->
+    <line x1="27" y1="12" x2="27" y2="45" stroke="#c88000" stroke-width="1" opacity=".4"/>
+    <line x1="10" y1="28" x2="44" y2="28" stroke="#c88000" stroke-width="1" opacity=".4"/>
+    <!-- ★マーク -->
+    <text x="17" y="34" font-size="20" fill="#fff" opacity=".85" font-family="serif">★</text>
+    <!-- 光沢 -->
+    <ellipse cx="20" cy="20" rx="7" ry="4.5" fill="#fff" opacity=".45" transform="rotate(-30 20 20)"/>
+    <circle cx="32" cy="22" r="3" fill="#fff" opacity=".25"/>
+    <!-- 導火線 -->
+    <path d="M27 9 Q31 5 35 7 Q38 3 40 6" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- 火花 -->
+    <circle cx="40" cy="6" r="3.5" fill="#ff8800"/>
+    <circle cx="40" cy="6" r="2" fill="#ffee00"/>
+    <circle cx="40" cy="5" r="1" fill="#fff"/>
+    <line x1="40" y1="3" x2="42" y2="1" stroke="#ff8800" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="42" y1="5" x2="45" y2="4" stroke="#ffcc00" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="39" y1="2" x2="37" y2="0" stroke="#ff6600" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>`,
 ];
 
 function makeCookieEl(type){
@@ -630,6 +696,23 @@ function playCombo(n){
 function playOver(){
   if(muted)return;
   [440,392,349,294,261].forEach((f,i)=>tone(f,0.28,0.06,'sine',i*0.12));
+}
+
+/* 爆弾爆発サウンド: 派手な上昇ファンファーレ */
+function playBomb(){
+  if(muted)return;
+  const c=getSfx();
+  const mg=c.createGain();mg.gain.value=0.5;mg.connect(c.destination);
+  /* 低音ドン */
+  tone(80,0.4,0.9,'sine',0,mg);
+  tone(60,0.5,0.6,'sine',0.02,mg);
+  /* 上昇音 */
+  [523,659,784,1047,1319,1568,2093].forEach((f,i)=>{
+    tone(f,0.18,0.55,'sine',0.05+i*0.06,mg);
+    tone(f*1.5,0.1,0.25,'triangle',0.05+i*0.06+0.01,mg);
+  });
+  /* キラキラ余韻 */
+  [2093,1568,1047].forEach((f,i)=>tone(f,0.3,0.2,'sine',0.55+i*0.1,mg));
 }
 
 /* ══════════════════════════════════
@@ -755,6 +838,7 @@ function render(dropSet){
         d.className='cell-empty';
       }else{
         d.className='cell';
+        if(val===BOMB) d.classList.add('bomb-cell');
         if(dropSet&&dropSet.has(r+','+c))d.classList.add('drop');
         d.appendChild(makeCookieEl(val));
         d.onclick=clickCell;d.dataset.r=r;d.dataset.c=c;
@@ -769,7 +853,7 @@ function findMatch(){
   const set=new Set();
   for(let r=0;r<ROWS;r++){
     for(let c=0;c<COLS;c++){
-      if(grid[r][c]===-1||seen[r][c])continue;
+      if(grid[r][c]===-1||grid[r][c]===BOMB||seen[r][c])continue;
       const type=grid[r][c],stack=[[r,c]],group=[];
       seen[r][c]=true;
       while(stack.length){
@@ -815,11 +899,111 @@ function timeBonus(hitSize,chainN){
 async function clickCell(e){
   if(!running||busy)return;busy=true;
   const r=+e.currentTarget.dataset.r,c=+e.currentTarget.dataset.c;
+
+  /* 爆弾ブロックをクリックした場合 */
+  if(grid[r][c]===BOMB){
+    await triggerBomb(r,c);
+    busy=false;
+    return;
+  }
+
   const cellEl=getCellEl(r,c);
   if(cellEl){const rect=cellEl.getBoundingClientRect();spawnSparks(rect.left+rect.width/2,rect.top+rect.height/2,4);}
   playClear(0);grid[r][c]=-1;timeLeft=Math.max(0,timeLeft-1);render(null);
   await sleep(160);const drop=gravity();render(drop);
   await sleep(300);await chain(1);busy=false;
+}
+
+/* ══════════════════════════════════
+   💣 爆弾爆発処理
+   全ブロック消去・スコア+1・タイム全回復
+══════════════════════════════════ */
+async function triggerBomb(bombR,bombC){
+  /* 爆弾位置を起点に全セルへ派手な演出 */
+  playBomb();
+
+  /* 全セルの座標を収集 */
+  const allCells=[];
+  for(let r=0;r<ROWS;r++){
+    for(let cv=0;cv<COLS;cv++){
+      if(grid[r][cv]!==-1) allCells.push([r,cv]);
+    }
+  }
+
+  /* 爆発パーティクル: 爆弾セルから全方向へ */
+  const bombEl=getCellEl(bombR,bombC);
+  if(bombEl){
+    const rect=bombEl.getBoundingClientRect();
+    const bx=rect.left+rect.width/2,by=rect.top+rect.height/2;
+    /* 中心から大爆発 */
+    for(let i=0;i<30;i++){
+      setTimeout(()=>spawnSparks(
+        bx+(Math.random()-.5)*200,
+        by+(Math.random()-.5)*200,3
+      ),i*30);
+    }
+  }
+
+  /* 画面フラッシュ */
+  const flash=document.createElement('div');
+  flash.style.cssText='position:fixed;inset:0;background:#fff8a0;z-index:100;pointer-events:none;opacity:.85;transition:opacity .6s;';
+  document.body.appendChild(flash);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{flash.style.opacity='0';}));
+  setTimeout(()=>flash.remove(),700);
+
+  /* ★LUCKY!★ テキスト表示 */
+  showLuckyMsg();
+
+  await sleep(200);
+
+  /* 全セルを波紋状に順次消去 */
+  const sorted=allCells.sort(([r1,c1],[r2,c2])=>{
+    const d1=Math.abs(r1-bombR)+Math.abs(c1-bombC);
+    const d2=Math.abs(r2-bombR)+Math.abs(c2-bombC);
+    return d1-d2;
+  });
+
+  /* セルを波紋順にぱっと消す */
+  let prev=-1;
+  for(const[r,cv] of sorted){
+    const dist=Math.abs(r-bombR)+Math.abs(cv-bombC);
+    if(dist!==prev){await sleep(60);prev=dist;}
+    const cellEl=getCellEl(r,cv);
+    if(cellEl){
+      const rect=cellEl.getBoundingClientRect();
+      spawnSparks(rect.left+rect.width/2,rect.top+rect.height/2,3);
+    }
+    grid[r][cv]=-1;
+  }
+
+  render(null);
+  await sleep(200);
+
+  /* スコア+1・タイム全回復 */
+  score+=1;
+  timeLeft=60;
+  updateUI();checkMilestone();checkBGMTempo();
+
+  /* 紙吹雪 */
+  launchConfetti();
+
+  await sleep(400);
+
+  /* 全補充 */
+  const drop=gravity();render(drop);
+  await sleep(350);
+  await chain(1);
+}
+
+/* LUCKY! メッセージ */
+function showLuckyMsg(){
+  const d=el('lucky-msg');if(!d)return;
+  d.textContent='⭐ LUCKY! ⭐';
+  d.style.transition='none';d.style.opacity='1';d.style.transform='translate(-50%,-50%) scale(1.3)';
+  setTimeout(()=>{
+    d.style.transition='opacity .9s,transform .9s';
+    d.style.opacity='0';d.style.transform='translate(-50%,-70%) scale(.9)';
+  },1000);
 }
 
 async function chain(n){
