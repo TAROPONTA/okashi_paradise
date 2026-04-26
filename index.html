@@ -434,7 +434,7 @@ function applyLang(){
 ══════════════════════════════════ */
 const ROWS=8,COLS=7,NEED=4;
 const BOMB=6;          /* 爆弾ブロックの種別番号 */
-const BOMB_CHANCE=0.015; /* 落下時に爆弾になる確率 (1.5%) */
+const BOMB_CHANCE=0.00089; /* 落下時に爆弾になる確率 (約0.089% = 20面に1個相当) */
 
 let grid=[],score=0,timeLeft=60;
 let running=false,busy=false,timer=null;
@@ -603,7 +603,6 @@ const COOKIE_SVG=[
     <ellipse cx="20" cy="16" rx="6" ry="4" fill="#fff" opacity=".35" transform="rotate(-30 20 16)"/>
     <circle cx="32" cy="19" r="2.5" fill="#fff" opacity=".2"/>
   </svg>`,
-  ,
   /* 6: 💣 ゴールド爆弾ボム */
   `<svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
     <defs>
