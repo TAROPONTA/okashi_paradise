@@ -48,7 +48,7 @@ h1{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-s
 #grid{
   display:grid;
   grid-template-columns:repeat(7,66px);
-  grid-template-rows:repeat(9,66px);
+  grid-template-rows:repeat(8,66px);
   gap:6px;transform-origin:top left;
 }
 .cell{
@@ -125,6 +125,55 @@ h1{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-s
 #ranking{text-align:center;line-height:2;font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--muted);}
 .go-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
+/* ⑤ ピンチ点滅 (タイム残り10秒以下) */
+@keyframes dangerPulse{
+  0%,100%{color:var(--accent);}
+  50%{color:#e02020;}
+}
+.danger{animation:dangerPulse .5s infinite;}
+
+/* ② マイルストーン表示 */
+#milestone-msg{
+  position:fixed;left:50%;top:36%;
+  transform:translate(-50%,-50%);
+  font-family:'Fredoka One',cursive;font-size:2.6rem;
+  color:#6ec6a0;
+  text-shadow:3px 3px 0 #fff,5px 5px 0 #c8f0e0;
+  opacity:0;pointer-events:none;z-index:51;
+}
+
+/* ① NEW RECORD */
+#new-record{
+  position:fixed;left:50%;top:30%;
+  transform:translate(-50%,-50%);
+  font-family:'Fredoka One',cursive;font-size:3rem;
+  color:#e8bc5a;
+  text-shadow:3px 3px 0 #fff,5px 5px 0 #fde8a0;
+  opacity:0;pointer-events:none;z-index:52;
+}
+
+/* ④ 称号 */
+#player-title{
+  font-family:'Fredoka One',cursive;font-size:1.1rem;
+  color:var(--muted);text-align:center;margin-top:-8px;
+}
+#go-title-badge{
+  font-family:'Fredoka One',cursive;font-size:1.6rem;
+  color:var(--accent);text-align:center;
+  text-shadow:2px 2px 0 #fde0d0;
+}
+
+/* 紙吹雪 */
+.confetti{
+  position:fixed;pointer-events:none;z-index:55;
+  width:10px;height:10px;border-radius:2px;
+  animation:confettiFall linear forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1;}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0;}
+}
+
 /* スマホ */
 @media(max-width:600px){
   body{padding:8px 4px 120px;}
@@ -161,6 +210,8 @@ h1{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-s
 </div>
 
 <div id="combo"></div>
+<div id="milestone-msg"></div>
+<div id="new-record"></div>
 <div id="particles"></div>
 
 <div class="container">
@@ -170,6 +221,7 @@ h1{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-s
     <div class="panel">
       <div class="label" id="txt-score-label">食べた数</div>
       <div class="value" id="score">0</div>
+      <div id="player-title"></div>
       <div class="label" id="txt-high-label">ハイスコア</div>
       <div class="value" id="high">0</div>
       <div class="sep"></div>
@@ -209,6 +261,7 @@ h1{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-s
 <div id="gameover">
   <h2 id="txt-go-title">🍪 ゲームオーバー！</h2>
   <div class="go-label" id="txt-go-score">今回のスコア</div>
+  <div id="go-title-badge"></div>
   <div id="final">0</div>
   <div id="ranking"></div>
   <div class="go-btns">
@@ -227,16 +280,54 @@ const LANGS={
     start:'▶ スタート',playing:'⏳ プレイ中',reset:'↺ リセット',
     goTitle:'🍪 ゲームオーバー！',goScore:'今回のスコア',goRetry:'もう一度 🍪',goShare:'𝕏 シェア',
     rankSuffix:' 個',
-    shareText:s=>`#クッキーパズル\nお菓子を${s}個食べたよ！🍪\nあなたは何個食べられるかな？`,
+    shareText:s=>`#クッキーパズル\nお菓子を${s}個食べたよ！🍪\nあなたは何個食べられるかな？\nhttps://taroponta.itch.io/cookie-puzzle`,
     donate:'☕ おやつ代をあげる',
+    newRecord:'🎉 NEW RECORD!',
+    milestone:n=>`${n}個達成！🍪`,
+    titles:[
+      [0,   '🍪 おやつ見習い'],
+      [30,  '🧁 スイーツ好き'],
+      [60,  '🍩 ドーナツ職人'],
+      [100, '🍰 ケーキ職人'],
+      [150, '🍫 チョコレート師'],
+      [200, '🍬 キャンディマスター'],
+      [250, '✨ スイーツの達人'],
+      [300, '🌟 お菓子の申し子'],
+      [400, '💎 パティシエ見習い'],
+      [500, '🏆 一流パティシエ'],
+      [600, '👑 お菓子の貴族'],
+      [750, '🌈 お菓子の王子/王女'],
+      [900, '🔥 伝説のパティシエ'],
+      [1000,'🍪👑 お菓子大王'],
+    ],
+    shareTitle:(s,t)=>`#クッキーパズル\nお菓子を${s}個食べたよ！${t}\nあなたは何個食べられるかな？\nhttps://taroponta.itch.io/cookie-puzzle`,
   },
   en:{
     title:'🍪 Cookie Puzzle',scoreLabel:'Cookies Eaten',highLabel:'High Score',timeLabel:'Time',
     start:'▶ Start',playing:'⏳ Playing',reset:'↺ Reset',
     goTitle:'🍪 Game Over!',goScore:'Your Score',goRetry:'Play Again 🍪',goShare:'𝕏 Share',
     rankSuffix:'',
-    shareText:s=>`#CookiePuzzle\nI ate ${s} cookies! 🍪\nCan you beat my score?`,
+    shareText:s=>`#CookiePuzzle\nI ate ${s} cookies! 🍪\nCan you beat my score?\nhttps://taroponta.itch.io/cookie-puzzle`,
     donate:'☕ Buy me a snack',
+    newRecord:'🎉 NEW RECORD!',
+    milestone:n=>`${n} Cookies! 🍪`,
+    titles:[
+      [0,   '🍪 Cookie Rookie'],
+      [30,  '🧁 Sweet Lover'],
+      [60,  '🍩 Donut Artisan'],
+      [100, '🍰 Cake Crafter'],
+      [150, '🍫 Chocolate Expert'],
+      [200, '🍬 Candy Master'],
+      [250, '✨ Sweets Virtuoso'],
+      [300, '🌟 Cookie Prodigy'],
+      [400, '💎 Junior Patissier'],
+      [500, '🏆 Master Patissier'],
+      [600, '👑 Confectionery Noble'],
+      [750, '🌈 Cookie Prince/Princess'],
+      [900, '🔥 Legendary Patissier'],
+      [1000,'🍪👑 Cookie Monarch'],
+    ],
+    shareTitle:(s,t)=>`#CookiePuzzle\nI ate ${s} cookies! ${t}\nCan you beat my score?\nhttps://taroponta.itch.io/cookie-puzzle`,
   }
 };
 let lang='ja';
@@ -266,7 +357,7 @@ function applyLang(){
 /* ═══════════════════════════════════
    定数 / 状態
 ═══════════════════════════════════ */
-const ROWS=9,COLS=7,NEED=4;
+const ROWS=8,COLS=7,NEED=4;
 const ITEMS=['🍪','🧁','🍩','🍰','🍫','🍬'];
 
 let grid=[],score=0,timeLeft=60;
@@ -529,8 +620,12 @@ function getCellEl(r,c){
    chain=1: ×0.3  chain=2: ×0.5  chain=3: ×0.8
    chain=4: ×1.2  chain≥5: ×1.8
 ═══════════════════════════════════ */
+/* タイム回復係数 (前回と難しすぎ版の中間)
+   chain=1: ×0.45  chain=2: ×0.8  chain=3: ×1.3
+   chain=4: ×2.0   chain≥5: ×3.0
+*/
 function timeBonus(hitSize,chainN){
-  const mul=[0,0.3,0.5,0.8,1.2,1.8];
+  const mul=[0,0.45,0.8,1.3,2.0,3.0];
   return hitSize*mul[Math.min(chainN,mul.length-1)];
 }
 
@@ -582,7 +677,8 @@ async function chain(n){
   score+=hit.size;
   timeLeft=Math.min(60,timeLeft+timeBonus(hit.size,n));
   updateUI();
-  checkBPM(); /* BPM閾値チェック */
+  checkBPM();
+  checkMilestone();
 
   await sleep(480);
   const drop=gravity();render(drop);
@@ -637,6 +733,8 @@ function updateUI(){
   const sm=el('score-m'),tm=el('time-m'),fm=el('fill-m');
   if(sm)sm.textContent=score;if(tm)tm.textContent=t;
   if(fm){fm.style.width=pct+'%';fm.style.background=bg;}
+  updateTitle();
+  updateDanger();
 }
 
 /* タイム減少係数 (スコアで加速) */
@@ -665,10 +763,20 @@ function startGame(){
 function endGame(){
   running=false;clearInterval(timer);
   stopBGM();playOver();
+  /* ピンチ演出リセット */
+  document.body.style.background='';
+  ['time','time-m'].forEach(id=>{const e=el(id);if(e)e.classList.remove('danger');});
+  const prevHigh=+localStorage.getItem('cookieHigh')||0;
+  const isNewRecord=score>prevHigh;
   saveScore();
   el('final').textContent=score;
+  /* 称号 */
+  const titleBadge=el('go-title-badge');
+  if(titleBadge)titleBadge.textContent=getTitle(score);
   showRanking();
   el('gameover').classList.add('show');
+  /* NEW RECORD演出 */
+  if(isNewRecord&&score>0) setTimeout(showNewRecord,400);
 }
 
 /* ═══════════════════════════════════
@@ -696,7 +804,9 @@ function showRanking(){
 
 /* X シェア */
 function shareX(){
-  const text=LANGS[lang].shareText(score);
+  const T=LANGS[lang];
+  const title=getTitle(score);
+  const text=T.shareTitle?T.shareTitle(score,title):T.shareText(score);
   window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','noopener');
 }
 
@@ -709,9 +819,97 @@ function resetGame(){
   el('gameover').classList.remove('show');
   el('startBtn').disabled=false;el('startBtn').textContent=LANGS[lang].start;
   const sbm2=el('startBtn-m');if(sbm2){sbm2.disabled=false;sbm2.textContent=LANGS[lang].start;}
+  lastMilestone=0;
   createGrid();
   let n=0;while(findMatch().size>0&&n++<20)createGrid();
   render();updateUI();loadScore();
+}
+
+/* ═══════════════════════════════════
+   ④ 称号取得
+═══════════════════════════════════ */
+function getTitle(s){
+  const T=LANGS[lang];
+  const list=[...T.titles].reverse();
+  for(const[min,name] of list){if(s>=min)return name;}
+  return T.titles[0][1];
+}
+function updateTitle(){
+  const t=getTitle(score);
+  const pt=el('player-title');if(pt)pt.textContent=t;
+}
+
+/* ② マイルストーン表示 */
+const MILESTONES=[30,60,100,150,200,250,300,400,500,600,750,900,1000];
+let lastMilestone=0;
+function checkMilestone(){
+  const T=LANGS[lang];
+  for(const m of MILESTONES){
+    if(score>=m&&lastMilestone<m){
+      lastMilestone=m;
+      showMilestone(T.milestone(m));
+      return;
+    }
+  }
+}
+function showMilestone(text){
+  const d=el('milestone-msg');
+  d.textContent=text;
+  d.style.transition='none';d.style.opacity='1';
+  d.style.transform='translate(-50%,-50%) scale(1.1)';
+  setTimeout(()=>{
+    d.style.transition='opacity .8s,transform .8s';
+    d.style.opacity='0';
+    d.style.transform='translate(-50%,-60%) scale(.9)';
+  },900);
+}
+
+/* ① NEW RECORD 紙吹雪 */
+function showNewRecord(){
+  const d=el('new-record');
+  const T=LANGS[lang];
+  d.textContent=T.newRecord;
+  d.style.transition='none';d.style.opacity='1';
+  d.style.transform='translate(-50%,-50%) scale(1.15)';
+  setTimeout(()=>{
+    d.style.transition='opacity 1s,transform 1s';
+    d.style.opacity='0';
+    d.style.transform='translate(-50%,-65%) scale(.9)';
+  },1200);
+  launchConfetti();
+}
+function launchConfetti(){
+  const colors=['#f4845f','#e8bc5a','#6ec6a0','#90caf9','#ce93d8','#f48fb1'];
+  for(let i=0;i<60;i++){
+    setTimeout(()=>{
+      const s=document.createElement('div');
+      s.className='confetti';
+      s.style.left=Math.random()*100+'vw';
+      s.style.background=colors[Math.floor(Math.random()*colors.length)];
+      s.style.width=(8+Math.random()*8)+'px';
+      s.style.height=(8+Math.random()*8)+'px';
+      s.style.animationDuration=(1.5+Math.random()*2)+'s';
+      s.style.animationDelay='0s';
+      document.body.appendChild(s);
+      setTimeout(()=>s.remove(),4000);
+    },i*40);
+  }
+}
+
+/* ⑤ ピンチ演出 */
+function updateDanger(){
+  const te=el('time'),tme=el('time-m');
+  const body=document.body;
+  if(timeLeft<=10&&running){
+    if(te)te.classList.add('danger');
+    if(tme)tme.classList.add('danger');
+    body.style.transition='background .3s';
+    body.style.background='linear-gradient(135deg,#fdf4e7 60%,#ffe0e0 100%)';
+  }else{
+    if(te)te.classList.remove('danger');
+    if(tme)tme.classList.remove('danger');
+    body.style.background='';
+  }
 }
 
 /* ═══════════════════════════════════
@@ -729,7 +927,7 @@ function scaleGrid(){
   if(vw<=600){
     const s=Math.min(1,(vw-8)/GRID_W);
     g.style.transform='scale('+s+')';
-    const nH=66*9+6*8;
+    const nH=66*8+6*7;
     w.style.width=Math.round(GRID_W*s)+'px';
     w.style.height=Math.round(nH*s)+'px';
     w.style.overflow='hidden';
