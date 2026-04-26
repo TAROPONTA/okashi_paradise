@@ -15,7 +15,7 @@
 body{
   font-family:'Nunito',sans-serif;
   background:var(--bg);color:var(--text);
-  min-height:100vh;overflow:auto;padding:20px;
+  min-height:100vh;overflow:auto;padding:12px 20px 20px;
 }
 body::before{
   content:'';position:fixed;inset:0;
@@ -38,9 +38,9 @@ body::before{
 .container{
   position:relative;z-index:1;width:max-content;
   margin:0 auto;display:flex;flex-direction:column;
-  align-items:center;gap:18px;padding-bottom:24px;
+  align-items:center;gap:10px;padding-bottom:16px;
 }
-h1{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-shadow:3px 3px 0 #fde0d0;}
+h1{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);text-shadow:3px 3px 0 #fde0d0;}
 .wrap{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;justify-content:center;}
 
 /* グリッド */
@@ -70,10 +70,10 @@ h1{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-s
 }
 
 /* PCパネル */
-.panel{width:164px;display:flex;flex-direction:column;gap:12px;}
+.panel{width:150px;display:flex;flex-direction:column;gap:8px;}
 .panel-mobile{display:none}
 .label{font-size:.78rem;color:var(--muted);font-weight:800;letter-spacing:1px;text-transform:uppercase}
-.value{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--accent);text-shadow:2px 2px 0 #fde0d0}
+.value{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);text-shadow:2px 2px 0 #fde0d0}
 .timerbar{height:16px;border-radius:999px;background:rgba(180,120,60,.15);overflow:hidden}
 #fill,#fill-m{height:100%;width:100%;background:linear-gradient(90deg,#f4845f,#e8bc5a);transition:.15s linear}
 .sep{height:1px;background:linear-gradient(90deg,transparent,rgba(180,120,60,.2),transparent)}
@@ -285,20 +285,30 @@ const LANGS={
     newRecord:'🎉 NEW RECORD!',
     milestone:n=>`${n}個達成！🍪`,
     titles:[
-      [0,   '🍪 おやつ見習い'],
-      [30,  '🧁 スイーツ好き'],
-      [60,  '🍩 ドーナツ職人'],
-      [100, '🍰 ケーキ職人'],
-      [150, '🍫 チョコレート師'],
-      [200, '🍬 キャンディマスター'],
-      [250, '✨ スイーツの達人'],
-      [300, '🌟 お菓子の申し子'],
-      [400, '💎 パティシエ見習い'],
-      [500, '🏆 一流パティシエ'],
-      [600, '👑 お菓子の貴族'],
-      [750, '🌈 お菓子の王子/王女'],
-      [900, '🔥 伝説のパティシエ'],
-      [1000,'🍪👑 お菓子大王'],
+      [0,    '🍪 おやつ見習い'],
+      [20,   '🧁 スイーツ好き'],
+      [40,   '🍩 ドーナツ職人'],
+      [70,   '🍰 ケーキ職人'],
+      [100,  '🍫 チョコレート師'],
+      [140,  '🍬 キャンディマスター'],
+      [180,  '✨ スイーツの達人'],
+      [230,  '🌟 お菓子の申し子'],
+      [280,  '💎 パティシエ見習い'],
+      [340,  '🏆 一流パティシエ'],
+      [400,  '👑 お菓子の貴族'],
+      [470,  '🌈 お菓子の王子/王女'],
+      [550,  '🔥 伝説のパティシエ'],
+      [640,  '🎖️ お菓子の騎士'],
+      [740,  '🗡️ スイーツの勇者'],
+      [850,  '🧙 お菓子の魔法使い'],
+      [970,  '🌙 夜のパティシエ'],
+      [1000, '🍪👑 お菓子大王'],
+      [1100, '⚡ お菓子の覇者'],
+      [1250, '🌌 スイーツの神'],
+      [1400, '🔮 お菓子の賢者'],
+      [1600, '💫 究極のパティシエ'],
+      [1800, '🌠 お菓子の伝説'],
+      [2000, '🍪✨👑 お菓子の神様'],
     ],
     shareTitle:(s,t)=>`#クッキーパズル\nお菓子を${s}個食べたよ！${t}\nあなたは何個食べられるかな？\nhttps://taroponta.itch.io/cookie-puzzle`,
   },
@@ -312,20 +322,30 @@ const LANGS={
     newRecord:'🎉 NEW RECORD!',
     milestone:n=>`${n} Cookies! 🍪`,
     titles:[
-      [0,   '🍪 Cookie Rookie'],
-      [30,  '🧁 Sweet Lover'],
-      [60,  '🍩 Donut Artisan'],
-      [100, '🍰 Cake Crafter'],
-      [150, '🍫 Chocolate Expert'],
-      [200, '🍬 Candy Master'],
-      [250, '✨ Sweets Virtuoso'],
-      [300, '🌟 Cookie Prodigy'],
-      [400, '💎 Junior Patissier'],
-      [500, '🏆 Master Patissier'],
-      [600, '👑 Confectionery Noble'],
-      [750, '🌈 Cookie Prince/Princess'],
-      [900, '🔥 Legendary Patissier'],
-      [1000,'🍪👑 Cookie Monarch'],
+      [0,    '🍪 Cookie Rookie'],
+      [20,   '🧁 Sweet Lover'],
+      [40,   '🍩 Donut Artisan'],
+      [70,   '🍰 Cake Crafter'],
+      [100,  '🍫 Chocolate Expert'],
+      [140,  '🍬 Candy Master'],
+      [180,  '✨ Sweets Virtuoso'],
+      [230,  '🌟 Cookie Prodigy'],
+      [280,  '💎 Junior Patissier'],
+      [340,  '🏆 Master Patissier'],
+      [400,  '👑 Confectionery Noble'],
+      [470,  '🌈 Cookie Prince/Princess'],
+      [550,  '🔥 Legendary Patissier'],
+      [640,  '🎖️ Cookie Knight'],
+      [740,  '🗡️ Sweets Champion'],
+      [850,  '🧙 Cookie Sorcerer'],
+      [970,  '🌙 Midnight Patissier'],
+      [1000, '🍪👑 Cookie Monarch'],
+      [1100, '⚡ Cookie Conqueror'],
+      [1250, '🌌 Sweets Deity'],
+      [1400, '🔮 Cookie Sage'],
+      [1600, '💫 Ultimate Patissier'],
+      [1800, '🌠 Cookie Legend'],
+      [2000, '🍪✨👑 Cookie God'],
     ],
     shareTitle:(s,t)=>`#CookiePuzzle\nI ate ${s} cookies! ${t}\nCan you beat my score?\nhttps://taroponta.itch.io/cookie-puzzle`,
   }
@@ -918,25 +938,40 @@ function updateDanger(){
 resetGame();
 applyLang();
 
-/* スマホ: グリッドをscaleで自動縮小 */
-const GRID_W=66*7+6*6; /* 498px */
+/* PC・スマホ両対応: グリッドをvp幅・高さに合わせてscale */
+const GRID_COLS=7, GRID_ROWS=8, CELL=66, GAP=6;
+const GRID_W = CELL*GRID_COLS + GAP*(GRID_COLS-1); /* 498px */
+const GRID_H = CELL*GRID_ROWS + GAP*(GRID_ROWS-1); /* 576px */
+
 function scaleGrid(){
-  const g=document.getElementById('grid');
-  const w=document.getElementById('grid-wrapper');
-  const vw=window.innerWidth;
-  if(vw<=600){
-    const s=Math.min(1,(vw-8)/GRID_W);
-    g.style.transform='scale('+s+')';
-    const nH=66*8+6*7;
-    w.style.width=Math.round(GRID_W*s)+'px';
-    w.style.height=Math.round(nH*s)+'px';
-    w.style.overflow='hidden';
-  }else{
-    g.style.transform='';w.style.width='';w.style.height='';w.style.overflow='';
-  }
+  const g  = document.getElementById('grid');
+  const w  = document.getElementById('grid-wrapper');
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const isMobile = vw <= 600;
+
+  /* 利用可能な幅・高さを推定
+     PC  : タイトル(~60px)+gap(18px)+padding(40px) = ~118px をvhから引く
+     Mobile: タイトル(~48px)+gap(18px)+panel下部(~130px)+padding(16px) = ~212px */
+  const reservedH = isMobile ? 212 : 118;
+  const reservedW = isMobile ? 8   : 24+164+24+40; /* grid側の余白 */
+
+  const availW = vw - reservedW;
+  const availH = vh - reservedH;
+
+  const sW = availW / GRID_W;
+  const sH = availH / GRID_H;
+  const s  = Math.min(sW, sH, 1); /* 1より大きくはしない */
+
+  g.style.transform       = 'scale('+s+')';
+  g.style.transformOrigin = isMobile ? 'top center' : 'top left';
+  w.style.width    = Math.round(GRID_W*s)+'px';
+  w.style.height   = Math.round(GRID_H*s)+'px';
+  w.style.overflow = 'hidden';
 }
+
 scaleGrid();
-window.addEventListener('resize',scaleGrid);
+window.addEventListener('resize', scaleGrid);
 </script>
 
 <a id="donateBtn"
