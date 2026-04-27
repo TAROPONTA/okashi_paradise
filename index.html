@@ -22,7 +22,7 @@ body::before{
   content:'';position:fixed;inset:0;
   background:
     radial-gradient(circle at 12% 18%,#fde8d8 0%,transparent 42%),
-    radial-gradient(circle at 88% 78%,#dff5ea 0%,transparent 42%);
+    radial-gradient(circle at 88% 78%,#fde8d8 0%,transparent 42%);
   z-index:0;pointer-events:none;
 }
 
@@ -133,16 +133,57 @@ body::before{
 /* ゲームオーバー */
 #gameover{
   position:fixed;inset:0;display:none;
-  background:rgba(255,248,240,.95);backdrop-filter:blur(6px);
-  z-index:60;justify-content:center;align-items:center;flex-direction:column;gap:12px;
+  background:rgba(255,248,240,.97);backdrop-filter:blur(6px);
+  z-index:60;
+  overflow-y:auto;
 }
 #gameover.show{display:flex}
-#gameover h2{font-family:'Fredoka One',cursive;font-size:2.8rem;color:var(--accent);text-shadow:3px 3px 0 #fde0d0}
-#final{font-family:'Fredoka One',cursive;font-size:4rem;color:var(--text)}
-.go-label{font-size:.78rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
-#go-title-badge{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--accent);text-shadow:2px 2px 0 #fde0d0;}
+#go-inner{
+  display:flex;flex-direction:column;align-items:center;
+  gap:10px;padding:20px 16px;
+  width:100%;max-width:540px;margin:auto;
+}
+#gameover h2{
+  font-family:'Fredoka One',cursive;font-size:2.4rem;
+  color:var(--accent);text-shadow:3px 3px 0 #fde0d0;
+  white-space:nowrap;
+}
+#final{font-family:'Fredoka One',cursive;font-size:3.8rem;color:var(--text);line-height:1;}
+.go-label{font-size:.75rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
+#go-title-badge{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--accent);text-shadow:2px 2px 0 #fde0d0;text-align:center;}
 #ranking{text-align:center;line-height:1.9;font-family:'Fredoka One',cursive;font-size:1rem;color:var(--muted);}
 .go-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* 称号目安リスト */
+#title-guide{
+  width:100%;max-width:320px;
+  background:rgba(255,240,220,.7);
+  border-radius:12px;
+  border:1px solid rgba(220,170,110,.3);
+  padding:10px 14px;
+  margin-top:4px;
+}
+#title-guide .tg-head{
+  font-family:'Fredoka One',cursive;font-size:.82rem;
+  color:var(--muted);text-align:center;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;
+}
+#title-guide-list{
+  font-size:.78rem;color:var(--text);
+  display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;
+  line-height:1.7;
+}
+#title-guide-list .tg-row{display:contents;}
+#title-guide-list .tg-score{color:var(--accent);font-weight:800;text-align:right;}
+#title-guide-list .tg-name{color:var(--text);}
+#title-guide-list .tg-secret{color:var(--muted);font-style:italic;}
+
+@media(max-width:600px){
+  #gameover h2{font-size:1.6rem;}
+  #final{font-size:2.8rem;}
+  #go-inner{gap:7px;padding:14px 12px;}
+  #title-guide{max-width:100%;}
+  #title-guide-list{font-size:.72rem;}
+}
 
 /* ピンチ点滅 */
 @keyframes dangerPulse{0%,100%{color:var(--accent);}50%{color:#e02020;}}
@@ -194,62 +235,69 @@ body::before{
 
 /* スマホ */
 @media(max-width:600px){
-  /* 全体を100dvhに収める */
   body{
     overflow:hidden;
-    height:100dvh;
-    height:100vh; /* fallback */
-    flex-direction:column;
-    justify-content:flex-start;
-    padding:0;
+    height:100dvh;height:100vh;
+    flex-direction:column;justify-content:flex-start;padding:0;
   }
   #lang-switch{top:6px;left:8px;z-index:300;}
 
-  /* タイトルロゴをコンパクトに */
-  #title-logo{margin:30px 0 4px;flex-shrink:0;}
-  #title-logo svg{height:36px;width:auto;}
+  #title-logo{margin:28px 0 2px;flex-shrink:0;}
+  #title-logo svg{height:32px;width:auto;}
 
-  /* game-areaは縦並び */
-  .game-area{flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
-
-  /* PCパネル非表示 */
+  .game-area{flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
   .panel{display:none}
 
-  /* スマホパネル */
   .panel-mobile{
-    display:flex;flex-direction:column;gap:5px;
-    width:100%;padding:0 10px;
-    flex-shrink:0;
-    box-sizing:border-box;
+    display:flex;flex-direction:column;gap:4px;
+    width:100%;padding:0 8px;
+    flex-shrink:0;box-sizing:border-box;
   }
-  .mob-stats{display:flex;gap:6px;justify-content:space-between;align-items:flex-end;}
-  .mob-stat{flex:1;text-align:center;}
-  .mob-stat .label{font-size:.60rem;}
-  .mob-stat .value{font-size:1.45rem;line-height:1.1;}
+  .mob-stats{display:flex;gap:4px;justify-content:space-between;align-items:center;}
+  .mob-stat{flex:1;text-align:center;min-width:0;}
+  .mob-stat .label{font-size:.58rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .mob-stat .value{font-size:1.3rem;line-height:1.1;white-space:nowrap;}
   .mob-timer{width:100%;}
-  .timerbar{height:12px;}
-  .mob-btns{display:flex;gap:6px;}
-  .mob-btns .btn{flex:1;padding:8px 2px;font-size:.82rem;border-radius:10px;}
+  .timerbar{height:10px;}
+  .mob-btns{display:flex;gap:5px;}
+  .mob-btns .btn{
+    flex:1;padding:7px 2px;font-size:.75rem;border-radius:9px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    box-shadow:0 3px 0 #c95c3a;
+  }
+  .mob-btns .btn.green{box-shadow:0 3px 0 #4a9f7a;}
 
-  /* グリッドwrapperはscaleGridがサイズ決定 */
   #grid-wrapper{transform-origin:top center;flex-shrink:0;}
 
-  /* donateボタンはスマホでは非fixed・小さくインライン配置 */
   #donateBtn{
-    position:relative!important;
-    right:auto!important;bottom:auto!important;
-    left:auto!important;
-    transform:none!important;
-    display:block;
-    width:calc(100% - 20px);
-    margin:4px 10px 6px;
-    text-align:center;
-    font-size:.82rem!important;
-    padding:8px 10px!important;
-    box-sizing:border-box;
-    z-index:1;
+    position:relative!important;right:auto!important;bottom:auto!important;
+    left:auto!important;transform:none!important;
+    display:block;width:calc(100% - 16px);
+    margin:3px 8px 4px;text-align:center;
+    font-size:.78rem!important;padding:7px 8px!important;
+    box-sizing:border-box;z-index:1;
   }
-  #combo{font-size:1.8rem;}
+  #combo{font-size:1.6rem;}
+
+  /* ゲームオーバー: スマホで文字折り返ししない */
+  #gameover{
+    overflow-y:auto;
+    align-items:flex-start;
+  }
+  #go-inner{
+    padding:12px 10px;gap:7px;
+  }
+  #gameover h2{
+    font-size:1.5rem;
+    white-space:nowrap;
+  }
+  #final{font-size:2.6rem;}
+  #go-title-badge{font-size:1.1rem;}
+  .go-btns .btn{
+    font-size:.82rem;padding:9px 10px;
+    white-space:nowrap;
+  }
+  #ranking{font-size:.85rem;}
 }
 </style>
 </head>
@@ -353,14 +401,21 @@ body::before{
 >☕ おやつ代をあげる</a>
 
 <div id="gameover">
-  <h2 id="txt-go-title">🍪 ゲームオーバー！</h2>
-  <div class="go-label" id="txt-go-score">今回のスコア</div>
-  <div id="go-title-badge"></div>
-  <div id="final">0</div>
-  <div id="ranking"></div>
-  <div class="go-btns">
-    <button class="btn"       onclick="resetGame()" id="txt-go-retry">もう一度 🍪</button>
-    <button class="btn x-btn" onclick="shareX()"    id="txt-go-share">𝕏 シェア</button>
+  <div id="go-inner">
+    <h2 id="txt-go-title">🍪 ゲームオーバー！</h2>
+    <div class="go-label" id="txt-go-score">今回のスコア</div>
+    <div id="go-title-badge"></div>
+    <div id="final">0</div>
+    <div id="ranking"></div>
+    <div class="go-btns">
+      <button class="btn"       onclick="resetGame()" id="txt-go-retry">もう一度 🍪</button>
+      <button class="btn x-btn" id="txt-go-share" onclick="shareX()">𝕏 シェア</button>
+    </div>
+    <!-- 称号目安 -->
+    <div id="title-guide">
+      <div class="tg-head" id="txt-tg-head">🏆 称号の目安</div>
+      <div id="title-guide-list"></div>
+    </div>
   </div>
 </div>
 
@@ -426,6 +481,9 @@ function applyLang(){
   const sbm=document.getElementById('startBtn-m');if(sbm)sbm.textContent=running?T.playing:T.start;
   const rbm=document.getElementById('resetBtn-m');if(rbm)rbm.textContent=T.reset;
   const db=document.getElementById('donateBtn');if(db)db.textContent=T.donate;
+  const th=document.getElementById('txt-tg-head');
+  if(th)th.textContent=(lang==='ja'?'🏆 称号の目安':'🏆 Title Guide');
+  renderTitleGuide();
   showRanking();
 }
 
@@ -506,28 +564,41 @@ const COOKIE_SVG=[
     <circle cx="29" cy="18" r=".6" fill="#fff" opacity=".7"/>
   </svg>`,
 
-  /* 2: ドーナツ */
+  /* 2: ドーナツ (シンプソンズ風ピンクグレーズ) */
   `<svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <radialGradient id="c2g" cx="50%" cy="50%">
-        <stop offset="0%" stop-color="#e8a050"/>
+      <radialGradient id="c2g" cx="45%" cy="38%">
+        <stop offset="0%" stop-color="#f0b870"/>
         <stop offset="100%" stop-color="#c07828"/>
       </radialGradient>
+      <radialGradient id="c2p" cx="45%" cy="35%">
+        <stop offset="0%" stop-color="#ffb8d0"/>
+        <stop offset="100%" stop-color="#f0609a"/>
+      </radialGradient>
     </defs>
-    <circle cx="27" cy="27" r="23" fill="#a06020" opacity=".25"/>
-    <circle cx="27" cy="26" r="22" fill="url(#c2g)"/>
-    <!-- グレーズ -->
-    <path d="M8 22 Q27 10 46 22 Q46 14 27 10 Q8 14 8 22Z" fill="#f070a0" opacity=".9"/>
-    <path d="M8 24 Q27 12 46 24" fill="#f898c0" opacity=".7" stroke="none"/>
+    <!-- 影 -->
+    <circle cx="27" cy="28" r="22" fill="#a06020" opacity=".25"/>
+    <!-- ドーナツ本体 -->
+    <circle cx="27" cy="27" r="22" fill="url(#c2g)"/>
+    <!-- ピンクグレーズ: 上半分をたっぷり覆う -->
+    <path d="M6 25 Q10 8 27 6 Q44 8 48 25 Q44 18 27 16 Q10 18 6 25Z" fill="url(#c2p)"/>
+    <path d="M6 25 Q7 32 11 35 Q10 28 6 25Z" fill="#f090b8" opacity=".5"/>
+    <path d="M48 25 Q47 32 43 35 Q44 28 48 25Z" fill="#f090b8" opacity=".5"/>
+    <!-- グレーズの垂れ (左) -->
+    <path d="M11 34 Q9 38 12 40 Q10 37 13 35Z" fill="#f090b8"/>
+    <!-- グレーズの垂れ (右) -->
+    <path d="M42 34 Q44 38 41 40 Q43 37 40 35Z" fill="#f090b8"/>
     <!-- スプリンクル -->
-    <rect x="16" y="14" width="5" height="2" rx="1" fill="#fff" transform="rotate(-30 16 14)"/>
-    <rect x="30" y="12" width="5" height="2" rx="1" fill="#ffe030" transform="rotate(15 30 12)"/>
-    <rect x="38" y="18" width="4" height="2" rx="1" fill="#60d8f0" transform="rotate(-45 38 18)"/>
-    <rect x="20" y="11" width="4" height="2" rx="1" fill="#a0f060" transform="rotate(20 20 11)"/>
+    <rect x="14" y="13" width="6" height="2.2" rx="1.1" fill="#fff" transform="rotate(-25 14 13)"/>
+    <rect x="28" y="9"  width="6" height="2.2" rx="1.1" fill="#ffee44" transform="rotate(10 28 9)"/>
+    <rect x="36" y="14" width="5" height="2.2" rx="1.1" fill="#44ddff" transform="rotate(-50 36 14)"/>
+    <rect x="20" y="10" width="5" height="2.2" rx="1.1" fill="#88ee44" transform="rotate(30 20 10)"/>
+    <rect x="33" y="11" width="4" height="2"   rx="1"   fill="#ff8844" transform="rotate(-15 33 11)"/>
     <!-- 穴 -->
-    <circle cx="27" cy="26" r="9" fill="#fdf4e7"/>
-    <circle cx="27" cy="26" r="9" fill="none" stroke="#c07828" stroke-width="1.5" opacity=".4"/>
-    <ellipse cx="23" cy="22" rx="4" ry="2.5" fill="#fff" opacity=".2" transform="rotate(-30 23 22)"/>
+    <circle cx="27" cy="27" r="9" fill="#fdf4e7"/>
+    <circle cx="27" cy="27" r="9" fill="none" stroke="#c07828" stroke-width="1.5" opacity=".35"/>
+    <!-- 光沢 -->
+    <ellipse cx="19" cy="17" rx="5" ry="3" fill="#fff" opacity=".35" transform="rotate(-25 19 17)"/>
   </svg>`,
 
   /* 3: ショートケーキ */
@@ -760,6 +831,9 @@ function schedLoop(ac,startT,beat){
 
 function bgmScheduler(){
   if(!bgmAC||bgmAC.state==='closed')return;
+  /* BPMが変わっていたら即座に切り替え */
+  const needed=bgmBPM();
+  if(needed!==bgmActiveBPM){startBGM();return;}
   const bpm=bgmActiveBPM,beat=60/bpm;
   while(bgmNext<bgmAC.currentTime+SCHED_AHEAD){
     bgmNext+=schedLoop(bgmAC,bgmNext,beat);
@@ -770,9 +844,17 @@ function startBGM(){
   stopBGM();if(muted)return;
   bgmActiveBPM=bgmBPM();
   bgmAC=new(window.AudioContext||window.webkitAudioContext)();
-  bgmNext=bgmAC.currentTime+0.05;
-  bgmScheduler();
-  bgmTick=setInterval(bgmScheduler,SCHED_TICK);
+  /* スマホ含む全環境でsuspendedを解除してから開始 */
+  const doStart=()=>{
+    bgmNext=bgmAC.currentTime+0.05;
+    bgmScheduler();
+    bgmTick=setInterval(bgmScheduler,SCHED_TICK);
+  };
+  if(bgmAC.state==='suspended'){
+    bgmAC.resume().then(doStart).catch(doStart);
+  }else{
+    doStart();
+  }
 }
 
 function stopBGM(){
@@ -1064,6 +1146,22 @@ function startGame(){
   },100);
 }
 
+/* 称号目安リスト描画 (最上位はシークレット) */
+function renderTitleGuide(){
+  const list=el('title-guide-list');if(!list)return;
+  const T=LANGS[lang];
+  const titles=T.titles;
+  /* 最後の1つ(最高称号)はシークレット */
+  const shown=titles.slice(0,-1);
+  const secretLabel=lang==='ja'?'??? (シークレット)':'??? (Secret)';
+  let html='';
+  shown.forEach(([min,name])=>{
+    html+=`<span class="tg-score">${min}+</span><span class="tg-name">${name}</span>`;
+  });
+  html+=`<span class="tg-score">????</span><span class="tg-name tg-secret">${secretLabel}</span>`;
+  list.innerHTML=html;
+}
+
 function endGame(){
   running=false;clearInterval(timer);stopBGM();playOver();
   document.body.style.background='';
@@ -1073,6 +1171,7 @@ function endGame(){
   saveScore();
   el('final').textContent=score;
   const badge=el('go-title-badge');if(badge)badge.textContent=getTitle(score);
+  renderTitleGuide();
   showRanking();el('gameover').classList.add('show');
   if(isNewRecord&&score>0)setTimeout(showNewRecord,400);
 }
@@ -1152,7 +1251,12 @@ function showRanking(){
 }
 function shareX(){
   const T=LANGS[lang];const title=getTitle(score);
-  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(T.shareTitle(score,title)),'_blank','noopener');
+  const url='https://twitter.com/intent/tweet?text='+encodeURIComponent(T.shareTitle(score,title));
+  /* スマホでも確実に開く */
+  const a=document.createElement('a');
+  a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>document.body.removeChild(a),200);
 }
 
 /* ══════════════════════════════════
